@@ -11,11 +11,27 @@ const LandingPage: React.FC = () => {
         Student roommate matching built around compatibility, not listings.
       </p>
       
+      {/* Primary CTA */}
+      <div className="flex flex-col gap-3 mb-8">
+        <Link
+          to="/auth"
+          className="rounded-xl bg-blue-500 px-8 py-3 font-semibold text-white transition-all hover:bg-blue-600 active:scale-95"
+        >
+          Get Started
+        </Link>
+        <Link
+          to="/login"
+          className="rounded-xl border-2 border-slate-700 px-8 py-3 font-semibold text-slate-300 transition-all hover:bg-slate-800 active:scale-95"
+        >
+          Sign In
+        </Link>
+      </div>
+      
       {/* DEV ONLY: Direct link to see Discovery without auth */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 pt-4 border-t border-slate-800">
         <Link
           to="/discover"
-          className="rounded-xl bg-blue-500 px-8 py-3 font-semibold text-white transition-all hover:bg-blue-600 active:scale-95"
+          className="rounded-xl bg-slate-800 px-6 py-2 text-sm font-semibold text-slate-300 transition-all hover:bg-slate-700 active:scale-95"
         >
           View Discovery Feed (Demo)
         </Link>

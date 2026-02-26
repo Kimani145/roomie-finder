@@ -3,6 +3,7 @@ import { useDiscovery } from '@/hooks/useDiscovery'
 import { useDiscoveryStore } from '@/store/discoveryStore'
 import { useAuthStore } from '@/store/authStore'
 import { DiscoveryCard } from '@/components/discovery/DiscoveryCard'
+import { FilterBar } from '@/components/discovery/FilterBar'
 import { FeedSkeleton } from '@/components/ui/Skeleton'
 import { ZeroState } from '@/components/discovery/ZeroState'
 import type { UserProfile, MatchResult } from '@/types'
@@ -167,6 +168,11 @@ const DiscoveryPage: React.FC = () => {
 
   // Use mock data if no real candidates (for development)
   const [useMockData, setUseMockData] = useState(false)
+  const [selectedZone, setSelectedZone] = useState<string | null>(null)
+  const [selectedBudgetRange, setSelectedBudgetRange] = useState<{
+    min: number
+    max: number
+  } | null>(null)
 
   useEffect(() => {
     if (currentUser) {
@@ -245,11 +251,21 @@ const DiscoveryPage: React.FC = () => {
 
         {/* Ranked feed */}
         {!displayLoading && displayCandidates.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayCandidates.map((match) => (
-              <DiscoveryCard key={match.profile.uid} match={match} />
-            ))}
-          </div>
+          <>
+            <FilterBar
+              selectedZone={selectedZone}
+              selectedBudgetRange={selectedBudgetRange}
+              onZoneChange={setSelectedZone}
+              onBudgetChange={(min, max) =>
+                setSelectedBudgetRange({ min, max })
+              }
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayCandidates.map((match) => (
+                <DiscoveryCard key={match.profile.uid} match={match} />
+              ))}
+            </div>
+          </>
         )}
 
         {/* Bottom padding for mobile nav */}

@@ -79,7 +79,7 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
       className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md active:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
     >
       {/* ── Photo area (4:3 aspect ratio maintained) ──────────────────────────── */}
-      <div className="w-full aspect-[4/3] relative overflow-hidden bg-slate-200">
+      <div className="w-full aspect-[4/3] relative overflow-hidden bg-slate-200 rounded-t-xl">
         {profile.photoURL ? (
           <img
             src={profile.photoURL}
@@ -99,48 +99,40 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
           {formatBudget(profile.minBudget, profile.maxBudget)}
         </div>
 
-        {/* Compatibility badge (bottom-right) — REFACTORED */}
-        <div className="absolute bottom-3 right-3 flex flex-col items-end gap-0.5">
-          <div className="flex items-center gap-1.5 rounded-full bg-emerald-500 px-3 py-1.5 shadow-md shadow-emerald-900/30">
-            <span className="text-xs font-semibold text-white">
-              {compatibilityPct}% Compatible
-            </span>
-          </div>
-          {/* Micro-authority label */}
-          <span className="text-[10px] leading-tight text-white/90 drop-shadow-md">
-            Lifestyle + budget
-          </span>
+        {/* Compatibility badge (top-right) — REFACTORED */}
+        <div className="absolute top-3 right-3 bg-emerald-100/90 backdrop-blur-sm text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+          {compatibilityPct}% Compatible
         </div>
       </div>
 
       {/* ── Logistics Block (NEW) ──────────────────────────────────────────── */}
-      <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-2">
+      <div className="flex justify-between items-center bg-slate-50 rounded-lg px-3 py-2 border border-slate-100 m-4 mb-0">
         {/* Move-in (placeholder — can be dynamic if added to profile schema) */}
-        <span className="text-xs font-medium text-slate-700">
+        <span className="text-xs text-slate-600 font-medium">
           Move-in: Flexible
         </span>
         {/* Budget (right-aligned, bold) */}
-        <span className="text-xs font-bold tabular-nums text-slate-900">
+        <span className="text-xs text-slate-900 font-bold tabular-nums tracking-tight">
           {formatBudget(profile.minBudget, profile.maxBudget)}
         </span>
       </div>
 
       {/* ── Identity Block (SECONDARY to compatibility) ────────────────────── */}
-      <div className="px-4 pt-3 pb-2 space-y-1">
+      <div className="px-4 pt-3 pb-2 flex flex-col gap-0.5">
         {/* Name + age + activity dot */}
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold text-slate-900">
+          <h3 className="text-lg font-bold text-slate-900 font-syne leading-none flex items-center gap-2">
             {profile.displayName}, {profile.age}
           </h3>
           <span
-            className="inline-block h-2 w-2 rounded-full bg-emerald-500"
+            className="w-2 h-2 rounded-full bg-emerald-500"
             style={{ opacity: activityOpacity }}
             aria-label="Active status"
           />
         </div>
 
         {/* School + year */}
-        <p className="text-xs text-slate-600">
+        <p className="text-xs text-slate-500 font-medium truncate">
           {profile.school} • Year {profile.courseYear}
         </p>
 
@@ -160,18 +152,18 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
       </div>
 
       {/* ── System Authority & Risk Reduction (NEW) ────────────────────────── */}
-      <div className="border-t border-slate-100 px-4 pt-2.5 pb-3 space-y-2">
+      <div className="px-4 pt-3 pb-2 flex flex-col gap-2">
         {/* Micro-label */}
-        <p className="text-[10px] uppercase tracking-wider text-slate-400">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
           Based on 6 lifestyle factors
         </p>
 
         {/* Top 2 compatibility summary tags */}
         {tags.length > 0 && (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-wrap gap-2">
             {tags.map((tag) => (
-              <span key={tag} className="text-xs text-slate-600">
-                • {tag}
+              <span key={tag} className="inline-flex items-center px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-[11px] font-medium">
+                {tag}
               </span>
             ))}
           </div>
@@ -179,9 +171,9 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
 
         {/* Trust signal — only if passed elimination */}
         {passedElimination && (
-          <div className="flex items-center gap-1 pt-0.5">
+          <div className="flex items-center gap-1 mt-1">
             <Check className="h-3 w-3 flex-shrink-0 text-emerald-600" />
-            <span className="text-xs text-emerald-600">
+            <span className="text-xs text-emerald-600 font-semibold">
               No deal-breaker conflicts
             </span>
           </div>
@@ -189,8 +181,8 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
       </div>
 
       {/* ── Subtle action cue (NEW) ────────────────────────────────────────── */}
-      <div className="border-t border-slate-100 px-4 py-2.5 text-right">
-        <span className="text-xs font-medium text-blue-500 group-hover:text-blue-600">
+      <div className="px-4 pt-2 pb-3">
+        <span className="text-xs text-blue-600 font-medium text-center w-full block py-2 hover:text-blue-700 transition-colors">
           View compatibility details →
         </span>
       </div>

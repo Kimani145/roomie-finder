@@ -1,82 +1,107 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useAuthListener } from '@/hooks/useAuthListener'
 import { AppLayout } from '@/components/layout'
+import { AuthProvider } from '@/context/AuthContext'
+import { ProtectedRoute } from '@/routes/ProtectedRoute'
 import {
   LandingPage,
+  AuthPage,
   OnboardingPage,
   DiscoveryPage,
   ProfilePage,
+  ProfileDetailPage,
   MatchesPage,
   ChatPage,
 } from '@/pages'
 
-// ─── DEV MODE: Auth guards temporarily disabled ────────────────────────────────
-// This allows you to test the Discovery feed without Firebase authentication
-// REMOVE THIS IN PRODUCTION and restore the PrivateRoute/PublicOnlyRoute guards
-// ───────────────────────────────────────────────────────────────────────────────
-
 const App: React.FC = () => {
-  useAuthListener()
-
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Landing */}
-        <Route path="/" element={<LandingPage />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Landing */}
+          <Route path="/" element={<LandingPage />} />
 
-        {/* Onboarding (no layout) */}
-        <Route path="/onboarding" element={<OnboardingPage />} />
+          {/* Authentication */}
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/login" element={<AuthPage />} />
+          <Route path="/signup" element={<AuthPage />} />
 
-        {/* Discovery - NO AUTH GUARD (for testing) */}
-        <Route
-          path="/discover"
-          element={
-            <AppLayout>
-              <DiscoveryPage />
-            </AppLayout>
-          }
-        />
+          {/* Onboarding (no layout) */}
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute>
+                <OnboardingPage />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Other routes */}
-        <Route
-          path="/profile"
-          element={
-            <AppLayout>
-              <ProfilePage />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/profile/:uid"
-          element={
-            <AppLayout>
-              <ProfilePage />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/matches"
-          element={
-            <AppLayout>
-              <MatchesPage />
-            </AppLayout>
-          }
-        />
-        <Route
-          path="/messages"
-          element={
-            <AppLayout>
-              <MatchesPage />
-            </AppLayout>
-          }
-        />
-        <Route path="/chat/:matchId" element={<ChatPage />} />
+          {/* Discovery */}
+          <Route
+            path="/discover"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <DiscoveryPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Other routes */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ProfilePage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/:uid"
+            element={
+              <ProtectedRoute>
+                <ProfileDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/matches"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <MatchesPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <MatchesPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat/:matchId"
+            element={
+              <ProtectedRoute>
+                <ChatPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 
