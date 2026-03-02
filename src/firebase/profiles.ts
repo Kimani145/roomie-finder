@@ -19,6 +19,7 @@ const PROFILES_COLLECTION = 'profiles'
 // ─── Fetch candidates (Hard Filters applied server-side) ──────────────────────
 export async function fetchCandidatesByZone(
   zone: Zone,
+  excludeUid?: string,
   limitCount = 200
 ): Promise<UserProfile[]> {
   const q = query(
@@ -30,12 +31,16 @@ export async function fetchCandidatesByZone(
   )
 
   const snapshot = await getDocs(q)
-  return snapshot.docs.map((doc) => ({
+  const candidates = snapshot.docs.map((doc) => ({
     ...(doc.data() as UserProfile),
     uid: doc.id,
     lastActive: doc.data().lastActive?.toDate(),
     createdAt: doc.data().createdAt?.toDate(),
   }))
+
+  return excludeUid
+    ? candidates.filter((c) => c.uid !== excludeUid)
+    : candidates
 }
 
 // ─── Get single profile ───────────────────────────────────────────────────────

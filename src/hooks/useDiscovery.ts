@@ -31,7 +31,7 @@ export function useDiscovery() {
 
       try {
         const targetZone = zone ?? currentUser.zone
-        const rawCandidates = await fetchCandidatesByZone(targetZone)
+        const rawCandidates = await fetchCandidatesByZone(targetZone, currentUser.uid)
 
         let results = runDiscoveryEngine(currentUser, rawCandidates)
 

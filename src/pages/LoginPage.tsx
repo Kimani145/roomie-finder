@@ -1,0 +1,153 @@
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Mail, Lock, AlertCircle, LogIn } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
+import type { AuthServiceError } from '@/services/authService'
+
+const LoginPage: React.FC = () => {
+  const navigate = useNavigate()
+  const { login } = useAuth()
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setIsLoading(true)
+
+    try {
+      const user = await login(email, password)
+
+      if (!user.emailVerified) {
+        // Unverified → send them to the holding page
+        navigate('/verify-email', { replace: true })
+      } else {
+        // Verified → into the app
+        navigate('/discover', { replace: true })
+      }
+    } catch (err) {
+      const authErr = err as AuthServiceError
+      switch (authErr.code) {
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          setError('Invalid email or password. Please try again.')
+          break
+        case 'auth/too-many-requests':
+          setError('Too many failed attempts. Please try again later.')
+          break
+        default:
+          setError(authErr.message || 'Something went wrong. Please try again.')
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-6 sm:px-8">
+      <div className="max-w-md w-full mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+        {/* Brand Header */}
+        <div className="text-center mb-8">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
+            <LogIn className="h-7 w-7 text-blue-500" />
+          </div>
+          <h1 className="font-syne text-2xl font-bold text-slate-900 mb-2">
+            Welcome back
+          </h1>
+          <p className="text-sm text-slate-500">
+            Sign in to find your match.
+          </p>
+        </div>
+
+        {/* Error Banner */}
+        {error && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 p-4">
+            <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-700 font-medium">{error}</p>
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email */}
+          <div>
+            <label
+              htmlFor="login-email"
+              className="block text-sm font-bold text-slate-700 mb-1.5"
+            >
+              Email Address
+            </label>
+            <div className="relative">
+              <input
+                id="login-email"
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setError(null)
+                }}
+                placeholder="joseph@students.tukenya.ac.ke"
+                required
+                autoComplete="email"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+              />
+              <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400" />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label
+              htmlFor="login-password"
+              className="block text-sm font-bold text-slate-700 mb-1.5"
+            >
+              Password
+            </label>
+            <div className="relative">
+              <input
+                id="login-password"
+                type="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  setError(null)
+                }}
+                placeholder="Enter your password"
+                required
+                autoComplete="current-password"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+              />
+              <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400" />
+            </div>
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all mt-6 active:scale-[0.98]"
+          >
+            {isLoading ? 'Signing in…' : 'Sign In'}
+          </button>
+        </form>
+
+        {/* Toggle */}
+        <div className="text-sm text-slate-600 text-center mt-6">
+          Don&apos;t have an account?{' '}
+          <Link
+            to="/signup"
+            className="text-blue-600 font-bold hover:underline"
+          >
+            Sign Up
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default LoginPage

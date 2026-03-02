@@ -1,12 +1,9 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ChevronDown } from 'lucide-react'
-import { useAuthStore } from '@/store/authStore'
 
 // ─── Header ───────────────────────────────────────────────────────────────────
 export const Header: React.FC = () => {
   const location = useLocation()
-  const { currentUser } = useAuthStore()
 
   // Hide on onboarding and full-screen chat
   const shouldHide =
@@ -34,17 +31,7 @@ export const Header: React.FC = () => {
           </span>
         </Link>
 
-        {/* ── Right: Zone dropdown ───────────────────────────────────────── */}
-        {currentUser && (
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 outline-none transition-all duration-150 hover:bg-slate-50 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-blue-400"
-            aria-label={`Current location: ${currentUser.zone}. Click to change.`}
-          >
-            <span>{currentUser.zone}</span>
-            <ChevronDown className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
-          </button>
-        )}
+        {/* ── Right: Zone dropdown removed ───────────────────────────────── */}
       </div>
     </header>
   )

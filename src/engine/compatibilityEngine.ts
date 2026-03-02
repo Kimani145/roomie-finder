@@ -89,6 +89,7 @@ export function calculateCompatibilityScore(
   viewer: UserProfile,
   candidate: UserProfile
 ): ScoreBreakdown {
+  console.info('[compatibilityEngine] Running calculation for candidate:', candidate.uid);
   let total = 0
 
   const budgetOverlap = budgetOverlaps(
@@ -241,7 +242,7 @@ export function runDiscoveryEngine(
 export function runRelaxedDiscovery(
   viewer: UserProfile,
   candidates: UserProfile[],
-  filters: DiscoveryFilters
+  _filters: DiscoveryFilters
 ): { results: MatchResult[]; relaxedFilters: Partial<DiscoveryFilters> } {
   // Try relaxing lifestyle filters one by one
   const relaxOrder: Array<keyof DiscoveryFilters> = [

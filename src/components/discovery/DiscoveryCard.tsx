@@ -4,7 +4,6 @@ import { Check } from 'lucide-react'
 import type { MatchResult } from '@/types'
 import { getCompatibilityPercentage } from '@/engine/compatibilityEngine'
 import { formatBudget } from '@/utils/formatters'
-import { useAuthStore } from '@/store/authStore'
 
 interface DiscoveryCardProps {
   match: MatchResult
@@ -62,7 +61,6 @@ function getInitials(name: string): string {
 
 // ─── DiscoveryCard (Refactored) ────────────────────────────────────────────────
 export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
-  const { currentUser } = useAuthStore()
   const { profile, compatibilityScore, scoreBreakdown } = match
 
   const compatibilityPct = getCompatibilityPercentage(compatibilityScore)

@@ -5,7 +5,9 @@ import { AuthProvider } from '@/context/AuthContext'
 import { ProtectedRoute } from '@/routes/ProtectedRoute'
 import {
   LandingPage,
-  AuthPage,
+  SignUpPage,
+  LoginPage,
+  VerifyEmailPage,
   OnboardingPage,
   DiscoveryPage,
   ProfilePage,
@@ -15,23 +17,22 @@ import {
 } from '@/pages'
 
 const App: React.FC = () => {
+  console.info('[App.tsx] Routing initialized');
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Landing */}
+          {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-          {/* Authentication */}
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/login" element={<AuthPage />} />
-          <Route path="/signup" element={<AuthPage />} />
-
-          {/* Onboarding (no layout) */}
+          {/* Onboarding (verified but no profile yet — no app layout) */}
           <Route
             path="/onboarding"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowWithoutProfile>
                 <OnboardingPage />
               </ProtectedRoute>
             }
