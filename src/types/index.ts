@@ -1,5 +1,19 @@
 // ─── Zone Types ──────────────────────────────────────────────────────────────
-export type Zone = 'Ruiru' | 'Juja' | 'Kahawa' | 'Thika' | 'Roysambu' | 'Kasarani'
+export type Zone =
+  | 'Ruiru'
+  | 'Juja'
+  | 'Kahawa'
+  | 'Kahawa Sukari'
+  | 'Thika'
+  | 'Roysambu'
+  | 'Kasarani'
+  | 'South B'
+  | 'Pangani'
+  | 'Muthaiga'
+  | 'Ngara'
+
+// Convenience alias for TUK zones
+export type TukZone = Zone
 
 // ─── Enum Types ───────────────────────────────────────────────────────────────
 export type SleepTime = 'Early' | 'Late' | 'Flexible'
@@ -46,7 +60,7 @@ export interface UserProfile {
   maxBudget: number
 
   // Location
-  zone: Zone
+  zone: TukZone
   preferredRoomType: RoomType
 
   // Lifestyle
@@ -84,7 +98,7 @@ export interface ScoreBreakdown {
 // ─── Discovery Filters ────────────────────────────────────────────────────────
 export interface DiscoveryFilters {
   // Hard filters (server-side)
-  zone: Zone | null
+  zone: TukZone | null
   gender: Gender | null
   minBudget: number | null
   maxBudget: number | null

@@ -44,14 +44,13 @@ export const BottomNav: React.FC = () => {
                 // Physics — doctrine requirement
                 'active:scale-[0.98]',
                 // Focus ring
-                'focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2',
-                // Active state — Brand Blue
+                'focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2',
+                // Active state — Brand
                 isActive
-                  ? 'text-blue-500'
+                  ? 'text-brand-500'
                   : 'text-slate-400 hover:text-slate-600',
               ].join(' ')
             }
-            aria-current={({ isActive }) => (isActive ? 'page' : undefined)}
           >
             {({ isActive }) => (
               <>
@@ -60,7 +59,6 @@ export const BottomNav: React.FC = () => {
                     'h-6 w-6 transition-transform duration-150',
                     isActive && 'scale-110',
                   ].join(' ')}
-                  strokeWidth={isActive ? 2.5 : 2}
                   aria-hidden="true"
                 />
                 <span

@@ -1,18 +1,28 @@
 import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
+import { saveUserProfile, getUserProfile } from '@/firebase/profiles'
+import { useAuthStore } from '@/store/authStore'
+import { TUK_ZONES, TukZone } from '@/constants/zones';
+import type { Gender } from '@/types';
 
-const ZONES = ['Ruiru', 'Juja', 'Kahawa', 'Ngara', 'Pangani']
+const GENDERS: Gender[] = ['Male', 'Female', 'Non-binary', 'Prefer not to say']
 
 export const OnboardingWizard: React.FC = () => {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const { setCurrentUser } = useAuthStore()
   const [currentStep, setCurrentStep] = useState(1)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   const [firstName, setFirstName] = useState('')
   const [age, setAge] = useState('')
+  const [gender, setGender] = useState<Gender | ''>('')
   const [course, setCourse] = useState('')
   const [yearOfStudy, setYearOfStudy] = useState('')
 
-  const [zone, setZone] = useState('')
+  const [zone, setZone] = useState<TukZone | ''>('')
   const [minBudget, setMinBudget] = useState('')
   const [maxBudget, setMaxBudget] = useState('')
 
@@ -26,34 +36,61 @@ export const OnboardingWizard: React.FC = () => {
 
   const progressPct = useMemo(() => (currentStep / 4) * 100, [currentStep])
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < 4) {
       setCurrentStep((prev) => prev + 1)
       return
     }
 
-    const data = {
-      firstName,
-      age: age ? Number(age) : null,
-      course,
-      yearOfStudy: yearOfStudy ? Number(yearOfStudy) : null,
-      zone,
-      minBudget: minBudget ? Number(minBudget) : null,
-      maxBudget: maxBudget ? Number(maxBudget) : null,
-      lifestyle: {
-        sleepSchedule,
-        cleanliness,
-        noiseTolerance,
-      },
-      dealBreakers: {
-        nonSmoker,
-        noAlcohol,
-        noPets,
-      },
-    }
+    if (!user) return
+    setIsSaving(true)
+    setSaveError(null)
 
-    console.log('Onboarding profile data:', data)
-    navigate('/discover')
+    try {
+      const profile = {
+        displayName: firstName,
+        photoURL: null,
+        gender: (gender || 'Prefer not to say') as Gender,
+        age: age ? Number(age) : 18,
+        school: 'Technical University of Kenya',
+        courseYear: yearOfStudy ? Number(yearOfStudy) : 1,
+        minBudget: minBudget ? Number(minBudget) : 5000,
+        maxBudget: maxBudget ? Number(maxBudget) : 15000,
+        zone: (zone || 'Juja') as TukZone,
+        preferredRoomType: 'Single Room' as const,
+        lifestyle: {
+          sleepTime: (sleepSchedule || 'Flexible') as 'Early' | 'Late' | 'Flexible',
+          noiseTolerance: (noiseTolerance || 'Medium') as 'Low' | 'Medium' | 'High',
+          guestFrequency: 'Sometimes' as const,
+          cleanlinessLevel: (cleanliness || 'Moderate') as 'Relaxed' | 'Moderate' | 'Strict',
+          studyStyle: 'Background noise ok' as const,
+          smoking: !nonSmoker,
+          alcohol: !noAlcohol,
+        },
+        dealBreakers: {
+          noSmokingRequired: nonSmoker,
+          noAlcoholRequired: noAlcohol,
+          mustHaveWiFi: true,
+          femaleOnly: false,
+          maleOnly: false,
+        },
+        status: 'active' as const,
+        bio: '',
+      }
+
+      await saveUserProfile(user.uid, profile)
+
+      // Re-fetch the full profile (with server timestamps) and load into store
+      const saved = await getUserProfile(user.uid)
+      if (saved) setCurrentUser(saved)
+
+      navigate('/discover', { replace: true })
+    } catch (err) {
+      console.error('Failed to save profile:', err)
+      setSaveError('Failed to save your profile. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleBack = () => {
@@ -113,6 +150,22 @@ export const OnboardingWizard: React.FC = () => {
 
               <div className="flex flex-col">
                 <label className="text-sm font-bold text-slate-700 mb-1.5">
+                  Gender
+                </label>
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value as Gender)}
+                  className={inputClassName}
+                >
+                  <option value="">Select gender</option>
+                  {GENDERS.map((g) => (
+                    <option key={g} value={g}>{g}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-sm font-bold text-slate-700 mb-1.5">
                   Course
                 </label>
                 <input
@@ -157,11 +210,11 @@ export const OnboardingWizard: React.FC = () => {
                 </label>
                 <select
                   value={zone}
-                  onChange={(e) => setZone(e.target.value)}
+                  onChange={(e) => setZone(e.target.value as TukZone | '')}
                   className={inputClassName}
                 >
                   <option value="">Select a zone</option>
-                  {ZONES.map((zoneOption) => (
+                  {TUK_ZONES.map((zoneOption) => (
                     <option key={zoneOption} value={zoneOption}>
                       {zoneOption}
                     </option>
@@ -349,12 +402,20 @@ export const OnboardingWizard: React.FC = () => {
           </div>
         )}
 
+        {/* Save Error */}
+        {saveError && (
+          <div className="mt-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 font-medium">
+            {saveError}
+          </div>
+        )}
+
         {/* Navigation Controls */}
         <div className="mt-auto pt-6 flex justify-between gap-4">
           {currentStep > 1 ? (
             <button
               onClick={handleBack}
-              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              disabled={isSaving}
+              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
             >
               Back
             </button>
@@ -363,9 +424,14 @@ export const OnboardingWizard: React.FC = () => {
           )}
           <button
             onClick={handleNext}
-            className="flex-1 py-3.5 rounded-xl bg-brand-500 text-white font-bold shadow-lg shadow-brand-500/25 hover:bg-brand-600 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+            disabled={isSaving}
+            className="flex-1 py-3.5 rounded-xl bg-brand-500 text-white font-bold shadow-lg shadow-brand-500/25 hover:bg-brand-600 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:opacity-50"
           >
-            {currentStep === 4 ? 'Complete Profile' : 'Next'}
+            {isSaving
+              ? 'Saving…'
+              : currentStep === 4
+              ? 'Complete Profile'
+              : 'Next'}
           </button>
         </div>
       </div>

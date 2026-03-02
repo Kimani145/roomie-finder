@@ -25,38 +25,38 @@ export const ZeroState: React.FC<ZeroStateProps> = ({
   return (
     <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
       {/* Illustration */}
-      <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-slate-800 ring-1 ring-slate-700 text-5xl select-none">
+      <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-brand-50 ring-1 ring-brand-200 text-5xl select-none">
         🔍
       </div>
 
       {isRelaxed ? (
         <>
-          <h2 className="text-lg font-bold text-slate-100">
+          <h2 className="font-syne text-xl font-bold text-slate-900">
             No perfect matches found
           </h2>
-          <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-400">
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500">
             Showing closest compatible roommates.{' '}
             {humanKeys && (
               <span className="text-slate-500">
-                We relaxed your <span className="text-slate-300">{humanKeys}</span> preferences to find more options.
+                We relaxed your <span className="font-medium text-slate-700">{humanKeys}</span> preferences to find more options.
               </span>
             )}
           </p>
         </>
       ) : (
         <>
-          <h2 className="text-lg font-bold text-slate-100">
-            No matches in your zone
+          <h2 className="font-syne text-xl font-bold text-slate-900">
+            No matches found in this Zone
           </h2>
-          <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-400">
-            Your filters are very specific right now. Try expanding your budget range or adjusting lifestyle preferences.
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500">
+            There are currently no users in your selected zone that match your strict budget constraints. Try expanding your budget range or selecting a different zone.
           </p>
         </>
       )}
 
       <button
         onClick={onRetry}
-        className="mt-8 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-500 active:scale-95"
+        className="mt-8 rounded-xl bg-brand-500 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-brand-600 active:scale-95"
       >
         Refresh Discovery
       </button>

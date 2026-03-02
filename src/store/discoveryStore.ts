@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { DiscoveryFilters, MatchResult, Zone, Gender, SleepTime, CleanlinessLevel, NoiseTolerance } from '@/types'
+import type { DiscoveryFilters, MatchResult } from '@/types'
 
 interface DiscoveryState {
   // Results

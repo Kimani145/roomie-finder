@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import { FilterPill } from './FilterPill'
 import { BottomSheet } from '@/components/ui/BottomSheet'
 
-type FilterType = 'zone' | 'budget' | 'filters' | null
+import { TUK_ZONES, TukZone } from '@/constants/zones';
 
-const ZONES = ['Ruiru', 'Juja', 'Kahawa', 'Ngara', 'Pangani']
+type FilterType = 'zone' | 'budget' | 'filters' | null;
 const BUDGET_RANGES = [
   { label: 'Below 3k', min: 0, max: 3000 },
   { label: '3k - 5k', min: 3000, max: 5000 },
@@ -14,9 +14,9 @@ const BUDGET_RANGES = [
 ]
 
 interface FilterBarProps {
-  onZoneChange?: (zone: string | null) => void
+  onZoneChange?: (zone: TukZone | null) => void
   onBudgetChange?: (min: number, max: number) => void
-  selectedZone?: string | null
+  selectedZone?: TukZone | null
   selectedBudgetRange?: { min: number; max: number } | null
 }
 
@@ -27,7 +27,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   selectedBudgetRange,
 }) => {
   const [openSheet, setOpenSheet] = useState<FilterType>(null)
-  const [tempZone, setTempZone] = useState<string | null>(selectedZone || null)
+  const [tempZone, setTempZone] = useState<TukZone | null>(selectedZone || null)
   const [tempBudgetRange, setTempBudgetRange] = useState<{
     min: number
     max: number
@@ -80,7 +80,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         onApply={handleZoneApply}
       >
         <div className="space-y-2">
-          {ZONES.map((zone) => (
+          {TUK_ZONES.map((zone) => (
             <label
               key={zone}
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors"
@@ -90,8 +90,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 name="zone"
                 value={zone}
                 checked={tempZone === zone}
-                onChange={(e) => setTempZone(e.target.value)}
-                className="w-4 h-4 text-blue-500 cursor-pointer"
+                onChange={(e) => setTempZone(e.target.value as TukZone)}
+                className="w-4 h-4 text-brand-500 cursor-pointer"
               />
               <span className="text-sm font-medium text-slate-700">{zone}</span>
             </label>
@@ -123,7 +123,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 onChange={() =>
                   setTempBudgetRange({ min: range.min, max: range.max })
                 }
-                className="w-4 h-4 text-blue-500 cursor-pointer"
+                className="w-4 h-4 text-brand-500 cursor-pointer"
               />
               <span className="text-sm font-medium text-slate-700">
                 {range.label}
