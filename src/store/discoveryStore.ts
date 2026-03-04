@@ -20,14 +20,17 @@ interface DiscoveryState {
 }
 
 const defaultFilters: DiscoveryFilters = {
-  zone: null,
+  zones: null,
   gender: null,
   minBudget: null,
   maxBudget: null,
+  courseYear: null,
+  moveInMonth: null,
   sleepTime: null,
   cleanlinessLevel: null,
   noiseTolerance: null,
   guestFrequency: null,
+  hideDealBreakerConflicts: true,
   noSmokingRequired: false,
   noAlcoholRequired: false,
 }

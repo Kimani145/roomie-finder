@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
 import { FilterPill } from './FilterPill'
 import { BottomSheet } from '@/components/ui/BottomSheet'
-
-import { TUK_ZONES, TukZone } from '@/constants/zones';
+import type { DiscoveryFilters, TukZone } from '@/types'
 
 type FilterType = 'zone' | 'budget' | 'filters' | null;
 const BUDGET_RANGES = [
@@ -14,59 +13,80 @@ const BUDGET_RANGES = [
 ]
 
 interface FilterBarProps {
-  onZoneChange?: (zone: TukZone | null) => void
-  onBudgetChange?: (min: number, max: number) => void
-  selectedZone?: TukZone | null
-  selectedBudgetRange?: { min: number; max: number } | null
+  filters: DiscoveryFilters
+  availableZones: TukZone[]
+  onApplyFilters: (nextFilters: Partial<DiscoveryFilters>) => void
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
-  onZoneChange,
-  onBudgetChange,
-  selectedZone,
-  selectedBudgetRange,
+  filters,
+  availableZones,
+  onApplyFilters,
 }) => {
   const [openSheet, setOpenSheet] = useState<FilterType>(null)
-  const [tempZone, setTempZone] = useState<TukZone | null>(selectedZone || null)
+  const [tempZone, setTempZone] = useState<TukZone | null>(filters.zones?.[0] || null)
   const [tempBudgetRange, setTempBudgetRange] = useState<{
     min: number
     max: number
-  } | null>(selectedBudgetRange || null)
+  } | null>(
+    filters.minBudget !== null && filters.maxBudget !== null
+      ? { min: filters.minBudget, max: filters.maxBudget }
+      : null
+  )
+  const [tempCourseYear, setTempCourseYear] = useState<number | null>(filters.courseYear)
+  const [tempMoveInMonth, setTempMoveInMonth] = useState<string>(filters.moveInMonth || '')
+  const [tempHideConflicts, setTempHideConflicts] = useState<boolean>(
+    filters.hideDealBreakerConflicts
+  )
 
   const handleZoneApply = () => {
-    onZoneChange?.(tempZone)
+    onApplyFilters({ zones: tempZone ? [tempZone] : null })
     setOpenSheet(null)
   }
 
   const handleBudgetApply = () => {
-    if (tempBudgetRange) {
-      onBudgetChange?.(tempBudgetRange.min, tempBudgetRange.max)
-    }
+    onApplyFilters({
+      minBudget: tempBudgetRange?.min ?? null,
+      maxBudget: tempBudgetRange?.max ?? null,
+    })
+    setOpenSheet(null)
+  }
+
+  const handleAdvancedApply = () => {
+    onApplyFilters({
+      courseYear: tempCourseYear,
+      moveInMonth: tempMoveInMonth || null,
+      hideDealBreakerConflicts: tempHideConflicts,
+    })
     setOpenSheet(null)
   }
 
   return (
     <>
       {/* Filter Bar Container */}
-      <div className="bg-white border-b border-slate-200 px-4 py-3 overflow-x-auto scrollbar-hide">
+      <div className="overflow-x-auto scrollbar-hide">
         <div className="flex gap-2">
           <FilterPill
-            label={selectedZone ? `Zone: ${selectedZone} ▾` : 'Zone ▾'}
-            isActive={!!selectedZone}
+            label={filters.zones?.[0] ? `Zone: ${filters.zones[0]} ▾` : 'Zone ▾'}
+            isActive={!!filters.zones?.[0]}
             onClick={() => setOpenSheet('zone')}
           />
           <FilterPill
             label={
-              selectedBudgetRange
-                ? `Budget: ${selectedBudgetRange.min}-${selectedBudgetRange.max} ▾`
+              filters.minBudget !== null && filters.maxBudget !== null
+                ? `Budget: ${filters.minBudget}-${filters.maxBudget} ▾`
                 : 'Budget ▾'
             }
-            isActive={!!selectedBudgetRange}
+            isActive={filters.minBudget !== null && filters.maxBudget !== null}
             onClick={() => setOpenSheet('budget')}
           />
           <FilterPill
-            label="Filters ▾"
-            isActive={false}
+            label="Advanced ▾"
+            isActive={
+              filters.courseYear !== null ||
+              !!filters.moveInMonth ||
+              !filters.hideDealBreakerConflicts
+            }
             onClick={() => setOpenSheet('filters')}
           />
         </div>
@@ -80,7 +100,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         onApply={handleZoneApply}
       >
         <div className="space-y-2">
-          {TUK_ZONES.map((zone) => (
+          {availableZones.map((zone) => (
             <label
               key={zone}
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors"
@@ -96,6 +116,14 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               <span className="text-sm font-medium text-slate-700">{zone}</span>
             </label>
           ))}
+
+          <button
+            type="button"
+            onClick={() => setTempZone(null)}
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+          >
+            Clear Zone
+          </button>
         </div>
       </BottomSheet>
 
@@ -137,10 +165,54 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <BottomSheet
         isOpen={openSheet === 'filters'}
         onClose={() => setOpenSheet(null)}
-        title="More Filters"
+        title="Advanced Filters"
+        onApply={handleAdvancedApply}
       >
-        <div className="text-sm text-slate-600 text-center py-6">
-          Additional filter options coming soon
+        <div className="space-y-4">
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Move-in Month
+            </label>
+            <input
+              type="month"
+              value={tempMoveInMonth}
+              onChange={(e) => setTempMoveInMonth(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none focus:border-brand-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Year of Study
+            </label>
+            <select
+              value={tempCourseYear ?? ''}
+              onChange={(e) =>
+                setTempCourseYear(e.target.value ? Number(e.target.value) : null)
+              }
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none focus:border-brand-500"
+            >
+              <option value="">Any year</option>
+              <option value="1">Year 1</option>
+              <option value="2">Year 2</option>
+              <option value="3">Year 3</option>
+              <option value="4">Year 4</option>
+              <option value="5">Year 5</option>
+              <option value="6">Year 6</option>
+            </select>
+          </div>
+
+          <label className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2">
+            <span className="text-sm font-medium text-slate-700">
+              Hide deal-breaker conflicts
+            </span>
+            <input
+              type="checkbox"
+              checked={tempHideConflicts}
+              onChange={(e) => setTempHideConflicts(e.target.checked)}
+              className="h-4 w-4"
+            />
+          </label>
         </div>
       </BottomSheet>
     </>

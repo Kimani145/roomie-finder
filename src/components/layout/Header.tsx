@@ -13,7 +13,7 @@ export const Header: React.FC = () => {
   if (shouldHide) return null
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-slate-50/80 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-slate-200 bg-slate-50/80 backdrop-blur-md lg:hidden">
       <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4">
         {/* ── Left: Brand logo + subtitle ────────────────────────────────── */}
         <Link
