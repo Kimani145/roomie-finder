@@ -1,6 +1,7 @@
 import React from 'react'
 import { Header } from './Header'
 import { BottomNav } from './BottomNav'
+import { Sidebar } from './Sidebar'
 
 // ─── AppLayout ────────────────────────────────────────────────────────────────
 interface AppLayoutProps {
@@ -16,13 +17,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         minHeight: '100dvh',
       }}
     >
-      {/* Header (sticky top, hides on onboarding/chat) */}
+      {/* Mobile shell */}
       <Header />
 
-      {/* Main content area */}
-      <main className="flex-1">{children}</main>
+      {/* Responsive body: sidebar on desktop, normal flow on mobile */}
+      <div className="flex flex-1">
+        <Sidebar />
+        <main className="flex-1 bg-slate-50">{children}</main>
+      </div>
 
-      {/* Bottom navigation (fixed bottom, hides on onboarding/chat) */}
+      {/* Mobile navigation */}
       <BottomNav />
     </div>
   )

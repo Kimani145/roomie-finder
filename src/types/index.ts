@@ -74,6 +74,7 @@ export interface UserProfile {
   lastActive: Date
   createdAt: Date
   bio: string
+  moveInMonth?: string | null
 }
 
 // ─── Match Result ─────────────────────────────────────────────────────────────
@@ -87,12 +88,16 @@ export interface MatchResult {
 export interface ScoreBreakdown {
   budgetOverlap: boolean
   zoneMatch: number
+  zoneOverlapZones: TukZone[]
   sleepMatch: number
   cleanlinessMatch: number
   noiseMatch: number
+  guestMatch: number
+  studyMatch: number
   smokingConflict: boolean
   alcoholConflict: boolean
   totalScore: number
+  matchedFactors: string[]
 }
 
 // ─── Discovery Filters ────────────────────────────────────────────────────────
@@ -102,12 +107,15 @@ export interface DiscoveryFilters {
   gender: Gender | null
   minBudget: number | null
   maxBudget: number | null
+  courseYear: number | null
+  moveInMonth: string | null
 
   // Soft filters (client-side)
   sleepTime: SleepTime | null
   cleanlinessLevel: CleanlinessLevel | null
   noiseTolerance: NoiseTolerance | null
   guestFrequency: GuestFrequency | null
+  hideDealBreakerConflicts: boolean
   noSmokingRequired: boolean
   noAlcoholRequired: boolean
 }

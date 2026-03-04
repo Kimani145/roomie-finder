@@ -133,30 +133,16 @@ const ProfileDetailPage: React.FC = () => {
   }
 
   const activityStatus = getActivityStatus(profile.lastActive)
+  const primaryZone = profile.zones?.[0] || '—'
 
   return (
     // Desktop Containerization: slate-50 background, centered floating card on desktop
     <div className="bg-slate-50 min-h-screen">
       {/* Centered profile card container - full screen on mobile, floating card on desktop */}
       <div className="max-w-3xl mx-auto bg-white min-h-screen md:min-h-[calc(100vh-4rem)] md:my-8 md:rounded-2xl md:shadow-xl overflow-hidden relative pb-24">
-        
-        {/* Hero Image - restrained height */}
-        <div className="relative h-64 md:h-80 w-full bg-slate-200">
-          {profile.photoURL ? (
-            <img
-              src={profile.photoURL}
-              alt={profile.displayName}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-300">
-              <span className="text-6xl font-bold text-slate-400">
-                {getInitials(profile.displayName)}
-              </span>
-            </div>
-          )}
+        <div className="relative">
+          <div className="w-full h-32 bg-slate-200" />
 
-          {/* Back Button - positioned absolute to container */}
           <button
             onClick={() => navigate('/discover')}
             className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur rounded-full p-2 hover:bg-white transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
@@ -166,34 +152,38 @@ const ProfileDetailPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Vitals Block */}
-        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <h1 className="font-syne text-2xl font-bold text-slate-900">
+        <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-sm flex items-center justify-center -mt-12 ml-6 text-3xl font-syne font-bold text-slate-300 overflow-hidden">
+          {profile.photoURL ? (
+            <img
+              src={profile.photoURL}
+              alt={profile.displayName}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            getInitials(profile.displayName)
+          )}
+        </div>
+
+        <div className="px-6 pt-3 pb-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="font-syne text-2xl font-bold text-slate-900 leading-tight">
                 {profile.displayName}, {profile.age}
               </h1>
-              <p className="text-sm text-emerald-600 font-medium flex items-center gap-1.5 mt-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                {activityStatus}
-              </p>
-              <p className="text-sm text-slate-500 mt-1">
+              <p className="text-sm text-slate-500 leading-tight">
                 Year {profile.courseYear} • {profile.school}
               </p>
+              <p className="text-xs text-slate-500 mt-1">{activityStatus}</p>
             </div>
 
-            {/* Compatibility Badge */}
-            <div className="flex-shrink-0 bg-emerald-100 rounded-full px-3 py-1.5 text-center">
-              <div className="font-bold text-emerald-700">{compatibilityScore}%</div>
-              <div className="text-xs text-emerald-600 font-medium">
-                Compatible
-              </div>
+            <div className="bg-emerald-500 text-white px-4 py-2 rounded-2xl text-lg font-black shadow-md border-2 border-emerald-400 whitespace-nowrap">
+              {compatibilityScore}% Compatible
             </div>
           </div>
         </div>
 
         {/* Budget & Zone Block */}
-        <div className="px-6 py-4 border-b border-slate-100">
+        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 mx-6">
           <div className="flex items-center justify-between text-sm">
             <div>
               <p className="text-slate-500 font-medium">Budget</p>
@@ -203,46 +193,71 @@ const ProfileDetailPage: React.FC = () => {
             </div>
             <div className="text-right">
               <p className="text-slate-500 font-medium">Zone</p>
-              <p className="font-bold text-slate-900 text-lg">{profile.zone || '—'}</p>
+              <p className="font-bold text-slate-900 text-lg">{primaryZone}</p>
             </div>
           </div>
         </div>
 
         {/* Compatibility Breakdown */}
-        <div className="px-6 pt-6 pb-4">
+        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 mx-6">
           <h2 className="font-syne text-lg font-bold text-slate-900 mb-4">
             Compatibility Breakdown
           </h2>
 
           {scoreBreakdown ? (
             <div className="space-y-4">
-              <ProgressBar
-                label="Budget Overlap"
-                percentage={scoreBreakdown.budgetOverlap ? 100 : 0}
-                color={scoreBreakdown.budgetOverlap ? "emerald" : "amber"}
-              />
-              {scoreBreakdown.zoneMatch > 0 && (
+              <div>
+                <ProgressBar
+                  label="Budget Overlap"
+                  percentage={scoreBreakdown.budgetOverlap ? 100 : 0}
+                  color={scoreBreakdown.budgetOverlap ? "emerald" : "amber"}
+                />
+                <span className="text-xs text-slate-500 mt-1 block">
+                  Their budget: KES {profile.minBudget} - {profile.maxBudget}
+                </span>
+              </div>
+
+              <div>
                 <ProgressBar
                   label="Zone Match"
-                  percentage={(scoreBreakdown.zoneMatch / 20) * 100}
+                  percentage={Math.min(100, (scoreBreakdown.zoneMatch / 20) * 100)}
+                  color={scoreBreakdown.zoneMatch > 0 ? "emerald" : "amber"}
+                />
+                <span className="text-xs text-slate-500 mt-1 block">Prefers {primaryZone}</span>
+              </div>
+
+              <div>
+                <ProgressBar
+                  label="Cleanliness Match"
+                  percentage={(scoreBreakdown.cleanlinessMatch / 20) * 100}
                   color="emerald"
                 />
-              )}
-              <ProgressBar
-                label="Cleanliness Match"
-                percentage={(scoreBreakdown.cleanlinessMatch / 20) * 100}
-                color="emerald"
-              />
-              <ProgressBar
-                label="Sleep Schedule"
-                percentage={(scoreBreakdown.sleepMatch / 15) * 100}
-                color="emerald"
-              />
-              <ProgressBar
-                label="Noise Tolerance"
-                percentage={(scoreBreakdown.noiseMatch / 10) * 100}
-                color="emerald"
-              />
+                <span className="text-xs text-slate-500 mt-1 block">
+                  Cleanliness: {profile.lifestyle.cleanlinessLevel}
+                </span>
+              </div>
+
+              <div>
+                <ProgressBar
+                  label="Sleep Schedule"
+                  percentage={(scoreBreakdown.sleepMatch / 15) * 100}
+                  color="emerald"
+                />
+                <span className="text-xs text-slate-500 mt-1 block">
+                  Sleep preference: {profile.lifestyle.sleepTime}
+                </span>
+              </div>
+
+              <div>
+                <ProgressBar
+                  label="Noise Tolerance"
+                  percentage={(scoreBreakdown.noiseMatch / 10) * 100}
+                  color="emerald"
+                />
+                <span className="text-xs text-slate-500 mt-1 block">
+                  Noise tolerance: {profile.lifestyle.noiseTolerance}
+                </span>
+              </div>
             </div>
           ) : (
             <p className="text-sm text-slate-500">Sign in to see full compatibility</p>
@@ -251,7 +266,7 @@ const ProfileDetailPage: React.FC = () => {
 
         {/* Bio Section */}
         {profile.bio && (
-          <div className="px-6 py-4 border-b border-slate-100">
+          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 mx-6">
             <h3 className="font-syne text-sm font-bold text-slate-900 mb-2">
               About
             </h3>
@@ -262,7 +277,7 @@ const ProfileDetailPage: React.FC = () => {
         )}
 
         {/* Living Habits & Preferences */}
-        <div className="px-6 py-6">
+        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 mx-6">
           <h2 className="font-syne text-lg font-bold text-slate-900 mb-4">
             Living Habits & Preferences
           </h2>
@@ -313,13 +328,13 @@ const ProfileDetailPage: React.FC = () => {
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-3xl bg-white border-t border-slate-200 p-4 flex gap-4 pb-safe md:rounded-b-2xl md:pb-4">
           <button
             onClick={() => console.log('Pass')}
-            className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+            className="flex-[1] py-4 rounded-xl bg-slate-100 text-slate-600 font-bold hover:bg-slate-200 hover:text-slate-900 transition-colors border border-slate-200"
           >
             Pass
           </button>
           <button
             onClick={() => console.log('Match')}
-            className="flex-[2] py-3.5 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/25 hover:bg-blue-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+            className="flex-[2] py-4 rounded-xl bg-brand-500 text-white font-bold shadow-lg shadow-brand-500/30 hover:bg-brand-600 transition-all"
           >
             Match
           </button>

@@ -91,6 +91,7 @@ export function calculateCompatibilityScore(
 ): ScoreBreakdown {
   console.info('[compatibilityEngine] Running calculation for candidate:', candidate.uid);
   let total = 0
+  const matchedFactors: string[] = []
 
   const budgetOverlap = budgetOverlaps(
     { min: viewer.minBudget, max: viewer.maxBudget },
@@ -102,14 +103,22 @@ export function calculateCompatibilityScore(
     return {
       budgetOverlap: false,
       zoneMatch: 0,
+      zoneOverlapZones: [],
       sleepMatch: 0,
       cleanlinessMatch: 0,
       noiseMatch: 0,
+      guestMatch: 0,
+      studyMatch: 0,
       smokingConflict: false,
       alcoholConflict: false,
       totalScore: 0,
+      matchedFactors: [],
     }
   }
+
+  matchedFactors.push(
+    `Budget overlap: ${Math.max(viewer.minBudget, candidate.minBudget)}-${Math.min(viewer.maxBudget, candidate.maxBudget)}`
+  )
 
   // Smoking conflict check
   const smokingConflict =
@@ -120,12 +129,16 @@ export function calculateCompatibilityScore(
     return {
       budgetOverlap: true,
       zoneMatch: 0,
+      zoneOverlapZones: [],
       sleepMatch: 0,
       cleanlinessMatch: 0,
       noiseMatch: 0,
+      guestMatch: 0,
+      studyMatch: 0,
       smokingConflict: true,
       alcoholConflict: false,
       totalScore: SCORES.SMOKING_CONFLICT,
+      matchedFactors,
     }
   }
 
@@ -138,19 +151,26 @@ export function calculateCompatibilityScore(
     return {
       budgetOverlap: true,
       zoneMatch: 0,
+      zoneOverlapZones: [],
       sleepMatch: 0,
       cleanlinessMatch: 0,
       noiseMatch: 0,
+      guestMatch: 0,
+      studyMatch: 0,
       smokingConflict: false,
       alcoholConflict: true,
       totalScore: SCORES.ALCOHOL_CONFLICT,
+      matchedFactors,
     }
   }
 
   // Zone match — overlap between two zone arrays
-  const zoneOverlap = viewer.zones.some((z) => candidate.zones.includes(z))
-  const zoneMatch = zoneOverlap ? SCORES.ZONE_MATCH : 0
+  const zoneOverlapZones = viewer.zones.filter((z) => candidate.zones.includes(z))
+  const zoneMatch = zoneOverlapZones.length > 0 ? SCORES.ZONE_MATCH : 0
   total += zoneMatch
+  if (zoneOverlapZones.length > 0) {
+    matchedFactors.push(`Zone overlap: ${zoneOverlapZones.join(', ')}`)
+  }
 
   // Sleep schedule match
   const sleepMatch =
@@ -160,6 +180,11 @@ export function calculateCompatibilityScore(
       ? SCORES.SLEEP_MATCH
       : 0
   total += sleepMatch
+  if (sleepMatch > 0) {
+    matchedFactors.push(
+      `Sleep schedule overlap: ${viewer.lifestyle.sleepTime}/${candidate.lifestyle.sleepTime}`
+    )
+  }
 
   // Cleanliness match
   const cleanlinessMatch =
@@ -167,6 +192,11 @@ export function calculateCompatibilityScore(
       ? SCORES.CLEANLINESS_MATCH
       : 0
   total += cleanlinessMatch
+  if (cleanlinessMatch > 0) {
+    matchedFactors.push(
+      `Cleanliness alignment: ${candidate.lifestyle.cleanlinessLevel}`
+    )
+  }
 
   // Noise tolerance match
   const noiseMatch =
@@ -175,16 +205,59 @@ export function calculateCompatibilityScore(
       : 0
   total += noiseMatch
 
+  if (noiseMatch > 0) {
+    matchedFactors.push(
+      `Noise tolerance match: ${candidate.lifestyle.noiseTolerance}`
+    )
+  }
+
+  const guestMatch =
+    viewer.lifestyle.guestFrequency === candidate.lifestyle.guestFrequency
+      ? SCORES.GUEST_MATCH
+      : 0
+  total += guestMatch
+  if (guestMatch > 0) {
+    matchedFactors.push(
+      `Guest frequency match: ${candidate.lifestyle.guestFrequency}`
+    )
+  }
+
+  const studyMatch =
+    viewer.lifestyle.studyStyle === candidate.lifestyle.studyStyle
+      ? SCORES.STUDY_MATCH
+      : 0
+  total += studyMatch
+  if (studyMatch > 0) {
+    matchedFactors.push(`Study style match: ${candidate.lifestyle.studyStyle}`)
+  }
+
   return {
     budgetOverlap: true,
     zoneMatch,
+    zoneOverlapZones,
     sleepMatch,
     cleanlinessMatch,
     noiseMatch,
+    guestMatch,
+    studyMatch,
     smokingConflict: false,
     alcoholConflict: false,
     totalScore: total,
+    matchedFactors,
   }
+}
+
+function hasDealBreakerConflict(viewer: UserProfile, candidate: UserProfile): boolean {
+  return (
+    (viewer.dealBreakers.noSmokingRequired && candidate.lifestyle.smoking) ||
+    (viewer.dealBreakers.noAlcoholRequired && candidate.lifestyle.alcohol) ||
+    (viewer.dealBreakers.femaleOnly && candidate.gender !== 'Female') ||
+    (viewer.dealBreakers.maleOnly && candidate.gender !== 'Male') ||
+    (candidate.dealBreakers.noSmokingRequired && viewer.lifestyle.smoking) ||
+    (candidate.dealBreakers.noAlcoholRequired && viewer.lifestyle.alcohol) ||
+    (candidate.dealBreakers.femaleOnly && viewer.gender !== 'Female') ||
+    (candidate.dealBreakers.maleOnly && viewer.gender !== 'Male')
+  )
 }
 
 // ─── Main Discovery Engine ────────────────────────────────────────────────────
@@ -196,7 +269,8 @@ export function calculateCompatibilityScore(
  */
 export function runDiscoveryEngine(
   viewer: UserProfile,
-  candidates: UserProfile[]
+  candidates: UserProfile[],
+  filters?: DiscoveryFilters
 ): MatchResult[] {
   const results: MatchResult[] = []
 
@@ -207,19 +281,56 @@ export function runDiscoveryEngine(
     // Skip inactive profiles
     if (candidate.status !== 'active') continue
 
-    // Hard constraint elimination
-    if (isEliminated(viewer, candidate)) continue
+    if (filters?.gender && candidate.gender !== filters.gender) continue
+    if (filters?.courseYear && candidate.courseYear !== filters.courseYear) continue
+    if (filters?.moveInMonth && candidate.moveInMonth !== filters.moveInMonth) continue
+
+    const shouldHideConflict = filters?.hideDealBreakerConflicts !== false
+    if (shouldHideConflict && hasDealBreakerConflict(viewer, candidate)) continue
+
+    if (
+      !budgetOverlaps(
+        { min: viewer.minBudget, max: viewer.maxBudget },
+        { min: candidate.minBudget, max: candidate.maxBudget }
+      )
+    ) {
+      continue
+    }
 
     const scoreBreakdown = calculateCompatibilityScore(viewer, candidate)
 
     // Eliminate negative scores (deal breaker conflicts)
-    if (scoreBreakdown.totalScore < 0) continue
+    if (scoreBreakdown.totalScore < 0 && shouldHideConflict) continue
+
+    if (filters?.sleepTime && candidate.lifestyle.sleepTime !== filters.sleepTime) {
+      continue
+    }
+    if (
+      filters?.cleanlinessLevel &&
+      candidate.lifestyle.cleanlinessLevel !== filters.cleanlinessLevel
+    ) {
+      continue
+    }
+    if (
+      filters?.noiseTolerance &&
+      candidate.lifestyle.noiseTolerance !== filters.noiseTolerance
+    ) {
+      continue
+    }
+    if (
+      filters?.guestFrequency &&
+      candidate.lifestyle.guestFrequency !== filters.guestFrequency
+    ) {
+      continue
+    }
+
+    const normalizedScore = Math.max(0, scoreBreakdown.totalScore)
 
     results.push({
       profile: candidate,
-      compatibilityScore: scoreBreakdown.totalScore,
+      compatibilityScore: normalizedScore,
       scoreBreakdown,
-      isExactMatch: scoreBreakdown.totalScore >= 60,
+      isExactMatch: normalizedScore >= 60,
     })
   }
 
@@ -243,7 +354,7 @@ export function runDiscoveryEngine(
 export function runRelaxedDiscovery(
   viewer: UserProfile,
   candidates: UserProfile[],
-  _filters: DiscoveryFilters
+  filters: DiscoveryFilters
 ): { results: MatchResult[]; relaxedFilters: Partial<DiscoveryFilters> } {
   // Try relaxing lifestyle filters one by one
   const relaxOrder: Array<keyof DiscoveryFilters> = [
@@ -259,7 +370,10 @@ export function runRelaxedDiscovery(
   for (const filterKey of relaxOrder) {
     relaxedFilters = { ...relaxedFilters, [filterKey]: null }
     const relaxedViewer = applyRelaxedProfile(viewer, relaxedFilters)
-    results = runDiscoveryEngine(relaxedViewer, candidates)
+    results = runDiscoveryEngine(relaxedViewer, candidates, {
+      ...filters,
+      ...relaxedFilters,
+    })
 
     if (results.length > 0) break
   }

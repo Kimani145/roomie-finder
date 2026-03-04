@@ -1,12 +1,11 @@
 import { useState, useCallback } from 'react'
-import { fetchCandidatesByZone } from '@/firebase/profiles'
+import { fetchDiscoveryCandidates } from '@/firebase/profiles'
 import {
   runDiscoveryEngine,
   runRelaxedDiscovery,
 } from '@/engine/compatibilityEngine'
 import { useAuthStore } from '@/store/authStore'
 import { useDiscoveryStore } from '@/store/discoveryStore'
-import type { Zone } from '@/types'
 
 /**
  * Drives the discovery feed.
@@ -23,17 +22,20 @@ export function useDiscovery() {
   const [error, setError] = useState<string | null>(null)
 
   const runDiscovery = useCallback(
-    async (zone?: Zone) => {
+    async () => {
       if (!currentUser) return
 
       setLoading(true)
       setError(null)
 
       try {
-        const targetZone = zone ?? currentUser.zones?.[0]
-        const rawCandidates = await fetchCandidatesByZone(targetZone, currentUser.uid)
+        const rawCandidates = await fetchDiscoveryCandidates({
+          viewerUid: currentUser.uid,
+          viewerZones: currentUser.zones,
+          filters,
+        })
 
-        let results = runDiscoveryEngine(currentUser, rawCandidates)
+        const results = runDiscoveryEngine(currentUser, rawCandidates, filters)
 
         if (results.length === 0) {
           // Relax filters and retry

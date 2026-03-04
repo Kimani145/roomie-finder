@@ -128,6 +128,7 @@ function seedUid(name: string): string {
 // ─── Main Seeder ──────────────────────────────────────────────────────────────
 export async function seedMockUsers(): Promise<void> {
   const PROFILES_COLLECTION = 'profiles'
+  const ZONES_COLLECTION = 'zones'
   const batch = writeBatch(db)
   let count = 0
 
@@ -140,6 +141,7 @@ export async function seedMockUsers(): Promise<void> {
     const zones: TukZone[] = shuffled.slice(0, zoneCount)
     const course = pick(COURSES)
     const yearOfStudy = randInt(1, 4)
+    const moveInMonth = `2026-${String(randInt(1, 12)).padStart(2, '0')}`
     const smoking = Math.random() < 0.2
     const alcohol = Math.random() < 0.3
 
@@ -172,6 +174,7 @@ export async function seedMockUsers(): Promise<void> {
         maleOnly: gender === 'Male' && Math.random() < 0.25,
       },
       bio: `${course} student at TUK, Year ${yearOfStudy}. Looking for a compatible roomie in ${zones[0]}.`,
+      moveInMonth,
       status: 'active' as ProfileStatus,
       lastActive: serverTimestamp(),
       createdAt: serverTimestamp(),
@@ -180,6 +183,11 @@ export async function seedMockUsers(): Promise<void> {
     const ref = doc(db, PROFILES_COLLECTION, uid)
     batch.set(ref, profile)
     count++
+  }
+
+  for (const zone of TUK_ZONES) {
+    const zoneRef = doc(db, ZONES_COLLECTION, zone.toLowerCase().replace(/\s+/g, '-'))
+    batch.set(zoneRef, { name: zone })
   }
 
   await batch.commit()
