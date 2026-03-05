@@ -24,7 +24,7 @@ export async function fetchCandidatesByZone(
 ): Promise<UserProfile[]> {
   const q = query(
     collection(db, PROFILES_COLLECTION),
-    where('zone', '==', zone),
+    where('zones', 'array-contains', zone),
     where('status', '==', 'active'),
     orderBy('lastActive', 'desc'),
     limit(limitCount)

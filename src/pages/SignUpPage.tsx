@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Mail, Lock, ShieldCheck, AlertCircle } from 'lucide-react'
+import { Mail, Lock, ShieldCheck, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { isValidTukEmail, type AuthServiceError } from '@/services/authService'
 
@@ -14,6 +14,8 @@ const SignUpPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [domainError, setDomainError] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   // ── Live domain validation ────────────────────────────────────────────────
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,7 +27,7 @@ const SignUpPage: React.FC = () => {
     if (value.includes('@')) {
       if (!isValidTukEmail(value)) {
         setDomainError(
-          'Access restricted to valid TUK institutional emails only.'
+          'Access restricted to Technical University of Kenya students only.'
         )
       } else {
         setDomainError(null)
@@ -43,7 +45,7 @@ const SignUpPage: React.FC = () => {
     // Guard: TUK domain
     if (!isValidTukEmail(email)) {
       setDomainError(
-        'Access restricted to valid TUK institutional emails only.'
+        'Access restricted to Technical University of Kenya students only.'
       )
       return
     }
@@ -167,7 +169,7 @@ const SignUpPage: React.FC = () => {
             <div className="relative">
               <input
                 id="signup-password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value)
@@ -177,9 +179,18 @@ const SignUpPage: React.FC = () => {
                 required
                 minLength={6}
                 autoComplete="new-password"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-10 py-3 text-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
               />
               <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400" />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-3 p-0.5 text-slate-400 hover:text-slate-600"
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
             </div>
             <p className="text-[10px] text-slate-500 mt-1">
               At least 6 characters
@@ -197,7 +208,7 @@ const SignUpPage: React.FC = () => {
             <div className="relative">
               <input
                 id="signup-confirm"
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => {
                   setConfirmPassword(e.target.value)
@@ -207,9 +218,18 @@ const SignUpPage: React.FC = () => {
                 required
                 minLength={6}
                 autoComplete="new-password"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-10 py-3 text-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
               />
               <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400" />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((v) => !v)}
+                className="absolute right-3 top-3 p-0.5 text-slate-400 hover:text-slate-600"
+                tabIndex={-1}
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+              >
+                {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
             </div>
           </div>
 

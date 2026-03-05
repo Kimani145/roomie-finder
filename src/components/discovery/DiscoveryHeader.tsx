@@ -64,7 +64,7 @@ export const DiscoveryHeader: React.FC<DiscoveryHeaderProps> = ({
                   clipRule="evenodd"
                 />
               </svg>
-              {currentUser?.zone ?? '—'}
+              {currentUser?.zones?.[0] ?? '—'}
             </span>
           </div>
         </div>

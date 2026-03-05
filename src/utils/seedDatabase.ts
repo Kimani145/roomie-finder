@@ -135,7 +135,9 @@ export async function seedMockUsers(): Promise<void> {
     const uid = seedUid(name)
     const minBudget = randInt(4000, 8000)
     const maxBudget = minBudget + randInt(2000, 5000)
-    const zone: TukZone = pick(TUK_ZONES)
+    const zoneCount = randInt(1, 3)
+    const shuffled = [...TUK_ZONES].sort(() => Math.random() - 0.5)
+    const zones: TukZone[] = shuffled.slice(0, zoneCount)
     const course = pick(COURSES)
     const yearOfStudy = randInt(1, 4)
     const smoking = Math.random() < 0.2
@@ -151,7 +153,7 @@ export async function seedMockUsers(): Promise<void> {
       courseYear: yearOfStudy,
       minBudget,
       maxBudget,
-      zone,
+      zones,
       preferredRoomType: pick(ROOM_TYPES),
       lifestyle: {
         sleepTime: pick(SLEEP_TIMES),
@@ -169,7 +171,7 @@ export async function seedMockUsers(): Promise<void> {
         femaleOnly: gender === 'Female' && Math.random() < 0.35,
         maleOnly: gender === 'Male' && Math.random() < 0.25,
       },
-      bio: `${course} student at TUK, Year ${yearOfStudy}. Looking for a compatible roomie in ${zone}.`,
+      bio: `${course} student at TUK, Year ${yearOfStudy}. Looking for a compatible roomie in ${zones[0]}.`,
       status: 'active' as ProfileStatus,
       lastActive: serverTimestamp(),
       createdAt: serverTimestamp(),

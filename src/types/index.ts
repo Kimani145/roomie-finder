@@ -59,8 +59,8 @@ export interface UserProfile {
   minBudget: number
   maxBudget: number
 
-  // Location
-  zone: TukZone
+  // Location (multi-zone — max 3)
+  zones: TukZone[]
   preferredRoomType: RoomType
 
   // Lifestyle
@@ -98,7 +98,7 @@ export interface ScoreBreakdown {
 // ─── Discovery Filters ────────────────────────────────────────────────────────
 export interface DiscoveryFilters {
   // Hard filters (server-side)
-  zone: TukZone | null
+  zones: TukZone[] | null
   gender: Gender | null
   minBudget: number | null
   maxBudget: number | null

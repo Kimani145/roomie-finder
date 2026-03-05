@@ -76,7 +76,7 @@ const ProfileDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen text-brand-500 font-syne font-bold">
+      <div className="flex justify-center items-center min-h-screen text-blue-600 font-syne font-bold">
         Loading profile...
       </div>
     )
@@ -84,12 +84,12 @@ const ProfileDetailPage: React.FC = () => {
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-slate-600">{error || 'Profile not found'}</p>
           <button
             onClick={() => navigate('/discover')}
-            className="mt-4 text-brand-600 font-bold hover:text-brand-700"
+            className="mt-4 text-blue-600 font-bold hover:text-blue-700"
           >
             Back to Discovery
           </button>
@@ -135,190 +135,195 @@ const ProfileDetailPage: React.FC = () => {
   const activityStatus = getActivityStatus(profile.lastActive)
 
   return (
-    <div className="min-h-screen bg-white pb-24">
-      {/* Back Button & Hero Image */}
-      <div className="relative w-full h-80 bg-slate-200">
-        {profile.photoURL ? (
-          <img
-            src={profile.photoURL}
-            alt={profile.displayName}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-300">
-            <span className="text-6xl font-bold text-slate-400">
-              {getInitials(profile.displayName)}
-            </span>
-          </div>
-        )}
+    // Desktop Containerization: slate-50 background, centered floating card on desktop
+    <div className="bg-slate-50 min-h-screen">
+      {/* Centered profile card container - full screen on mobile, floating card on desktop */}
+      <div className="max-w-3xl mx-auto bg-white min-h-screen md:min-h-[calc(100vh-4rem)] md:my-8 md:rounded-2xl md:shadow-xl overflow-hidden relative pb-24">
+        
+        {/* Hero Image - restrained height */}
+        <div className="relative h-64 md:h-80 w-full bg-slate-200">
+          {profile.photoURL ? (
+            <img
+              src={profile.photoURL}
+              alt={profile.displayName}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-300">
+              <span className="text-6xl font-bold text-slate-400">
+                {getInitials(profile.displayName)}
+              </span>
+            </div>
+          )}
 
-        {/* Back Button (floating overlay) */}
-        <button
-          onClick={() => navigate('/discover')}
-          className="absolute top-4 left-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-md hover:bg-white transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-          aria-label="Go back"
-        >
-          <ChevronLeft className="w-5 h-5 text-slate-900" />
-        </button>
-      </div>
+          {/* Back Button - positioned absolute to container */}
+          <button
+            onClick={() => navigate('/discover')}
+            className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur rounded-full p-2 hover:bg-white transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            aria-label="Go back"
+          >
+            <ChevronLeft className="w-5 h-5 text-slate-900" />
+          </button>
+        </div>
 
-      {/* Vitals Block */}
-      <div className="px-6 pt-6 pb-4 border-b border-slate-100">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <h1 className="font-syne text-2xl font-bold text-slate-900">
-              {profile.displayName}, {profile.age}
-            </h1>
-            <p className="text-sm text-emerald-600 font-medium flex items-center gap-1.5 mt-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              {activityStatus}
-            </p>
-            <p className="text-sm text-slate-500 mt-1">
-              Year {profile.courseYear} • {profile.school}
-            </p>
-          </div>
+        {/* Vitals Block */}
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="font-syne text-2xl font-bold text-slate-900">
+                {profile.displayName}, {profile.age}
+              </h1>
+              <p className="text-sm text-emerald-600 font-medium flex items-center gap-1.5 mt-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                {activityStatus}
+              </p>
+              <p className="text-sm text-slate-500 mt-1">
+                Year {profile.courseYear} • {profile.school}
+              </p>
+            </div>
 
-          {/* Compatibility Badge */}
-          <div className="flex-shrink-0 bg-emerald-100 rounded-full px-3 py-1.5 text-center">
-            <div className="font-bold text-emerald-700">{compatibilityScore}%</div>
-            <div className="text-xs text-emerald-600 font-medium">
-              Compatible
+            {/* Compatibility Badge */}
+            <div className="flex-shrink-0 bg-emerald-100 rounded-full px-3 py-1.5 text-center">
+              <div className="font-bold text-emerald-700">{compatibilityScore}%</div>
+              <div className="text-xs text-emerald-600 font-medium">
+                Compatible
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Budget & Zone Block */}
-      <div className="px-6 py-4 border-b border-slate-100">
-        <div className="flex items-center justify-between text-sm">
-          <div>
-            <p className="text-slate-500 font-medium">Budget</p>
-            <p className="font-bold text-slate-900 text-lg">
-              {formatBudget(profile.minBudget, profile.maxBudget)}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-slate-500 font-medium">Zone</p>
-            <p className="font-bold text-slate-900 text-lg">{profile.zone}</p>
+        {/* Budget & Zone Block */}
+        <div className="px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center justify-between text-sm">
+            <div>
+              <p className="text-slate-500 font-medium">Budget</p>
+              <p className="font-bold text-slate-900 text-lg">
+                {formatBudget(profile.minBudget, profile.maxBudget)}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-slate-500 font-medium">Zone</p>
+              <p className="font-bold text-slate-900 text-lg">{profile.zone || '—'}</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Compatibility Breakdown */}
-      <div className="px-6 pt-6 pb-4">
-        <h2 className="font-syne text-lg font-bold text-slate-900 mb-4">
-          Compatibility Breakdown
-        </h2>
+        {/* Compatibility Breakdown */}
+        <div className="px-6 pt-6 pb-4">
+          <h2 className="font-syne text-lg font-bold text-slate-900 mb-4">
+            Compatibility Breakdown
+          </h2>
 
-        {scoreBreakdown ? (
-          <div className="space-y-4">
-            <ProgressBar
-              label="Budget Overlap"
-              percentage={scoreBreakdown.budgetOverlap ? 100 : 0}
-              color={scoreBreakdown.budgetOverlap ? "emerald" : "amber"}
-            />
-            {scoreBreakdown.zoneMatch > 0 && (
+          {scoreBreakdown ? (
+            <div className="space-y-4">
               <ProgressBar
-                label="Zone Match"
-                percentage={(scoreBreakdown.zoneMatch / 20) * 100}
+                label="Budget Overlap"
+                percentage={scoreBreakdown.budgetOverlap ? 100 : 0}
+                color={scoreBreakdown.budgetOverlap ? "emerald" : "amber"}
+              />
+              {scoreBreakdown.zoneMatch > 0 && (
+                <ProgressBar
+                  label="Zone Match"
+                  percentage={(scoreBreakdown.zoneMatch / 20) * 100}
+                  color="emerald"
+                />
+              )}
+              <ProgressBar
+                label="Cleanliness Match"
+                percentage={(scoreBreakdown.cleanlinessMatch / 20) * 100}
                 color="emerald"
               />
-            )}
-            <ProgressBar
-              label="Cleanliness Match"
-              percentage={(scoreBreakdown.cleanlinessMatch / 20) * 100}
-              color="emerald"
-            />
-            <ProgressBar
-              label="Sleep Schedule"
-              percentage={(scoreBreakdown.sleepMatch / 15) * 100}
-              color="emerald"
-            />
-            <ProgressBar
-              label="Noise Tolerance"
-              percentage={(scoreBreakdown.noiseMatch / 10) * 100}
-              color="emerald"
-            />
+              <ProgressBar
+                label="Sleep Schedule"
+                percentage={(scoreBreakdown.sleepMatch / 15) * 100}
+                color="emerald"
+              />
+              <ProgressBar
+                label="Noise Tolerance"
+                percentage={(scoreBreakdown.noiseMatch / 10) * 100}
+                color="emerald"
+              />
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500">Sign in to see full compatibility</p>
+          )}
+        </div>
+
+        {/* Bio Section */}
+        {profile.bio && (
+          <div className="px-6 py-4 border-b border-slate-100">
+            <h3 className="font-syne text-sm font-bold text-slate-900 mb-2">
+              About
+            </h3>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              {profile.bio}
+            </p>
           </div>
-        ) : (
-          <p className="text-sm text-slate-500">Sign in to see full compatibility</p>
         )}
-      </div>
 
-      {/* Bio Section */}
-      {profile.bio && (
-        <div className="px-6 py-4 border-b border-slate-100">
-          <h3 className="font-syne text-sm font-bold text-slate-900 mb-2">
-            About
-          </h3>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            {profile.bio}
-          </p>
-        </div>
-      )}
+        {/* Living Habits & Preferences */}
+        <div className="px-6 py-6">
+          <h2 className="font-syne text-lg font-bold text-slate-900 mb-4">
+            Living Habits & Preferences
+          </h2>
 
-      {/* Living Habits & Preferences */}
-      <div className="px-6 py-6">
-        <h2 className="font-syne text-lg font-bold text-slate-900 mb-4">
-          Living Habits & Preferences
-        </h2>
+          <div className="space-y-3">
+            {!profile.lifestyle.smoking && (
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                <span className="text-sm text-slate-700 font-medium">
+                  Non-Smoker
+                </span>
+              </div>
+            )}
 
-        <div className="space-y-3">
-          {!profile.lifestyle.smoking && (
+            {!profile.lifestyle.alcohol && (
+              <div className="flex items-center gap-3">
+                <Wine className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                <span className="text-sm text-slate-700 font-medium">
+                  No Alcohol
+                </span>
+              </div>
+            )}
+
             <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+              <Moon className="w-5 h-5 text-slate-400 flex-shrink-0" />
               <span className="text-sm text-slate-700 font-medium">
-                Non-Smoker
+                {profile.lifestyle.sleepTime} Bird
               </span>
             </div>
-          )}
 
-          {!profile.lifestyle.alcohol && (
             <div className="flex items-center gap-3">
-              <Wine className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+              <Zap className="w-5 h-5 text-slate-400 flex-shrink-0" />
               <span className="text-sm text-slate-700 font-medium">
-                No Alcohol
+                {profile.lifestyle.cleanlinessLevel} Cleanliness Standard
               </span>
             </div>
-          )}
 
-          <div className="flex items-center gap-3">
-            <Moon className="w-5 h-5 text-slate-400 flex-shrink-0" />
-            <span className="text-sm text-slate-700 font-medium">
-              {profile.lifestyle.sleepTime} Bird
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Zap className="w-5 h-5 text-slate-400 flex-shrink-0" />
-            <span className="text-sm text-slate-700 font-medium">
-              {profile.lifestyle.cleanlinessLevel} Cleanliness Standard
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Wind className="w-5 h-5 text-slate-400 flex-shrink-0" />
-            <span className="text-sm text-slate-700 font-medium">
-              {profile.lifestyle.noiseTolerance} Noise Tolerance
-            </span>
+            <div className="flex items-center gap-3">
+              <Wind className="w-5 h-5 text-slate-400 flex-shrink-0" />
+              <span className="text-sm text-slate-700 font-medium">
+                {profile.lifestyle.noiseTolerance} Noise Tolerance
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Sticky Action Dock */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 p-4 flex gap-4 pb-safe">
-        <button
-          onClick={() => console.log('Pass')}
-          className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
-        >
-          Pass
-        </button>
-        <button
-          onClick={() => console.log('Match')}
-          className="flex-[2] py-3.5 rounded-xl bg-brand-500 text-white font-bold shadow-lg shadow-brand-500/25 hover:bg-brand-600 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
-        >
-          Match
-        </button>
+        {/* Sticky Action Dock - locked to centered container bottom */}
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-3xl bg-white border-t border-slate-200 p-4 flex gap-4 pb-safe md:rounded-b-2xl md:pb-4">
+          <button
+            onClick={() => console.log('Pass')}
+            className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+          >
+            Pass
+          </button>
+          <button
+            onClick={() => console.log('Match')}
+            className="flex-[2] py-3.5 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/25 hover:bg-blue-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+          >
+            Match
+          </button>
+        </div>
       </div>
     </div>
   )
