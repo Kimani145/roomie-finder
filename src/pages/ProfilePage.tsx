@@ -104,7 +104,7 @@ const ProfilePage: React.FC = () => {
           </h2>
           <div className="flex items-center gap-2 text-sm text-slate-700">
             <MapPin className="h-4 w-4 text-brand-500" />
-            <span>{profile.zone}</span>
+            <span>{profile.zones?.join(', ') || '—'}</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-700">
             <Wallet className="h-4 w-4 text-brand-500" />

@@ -29,10 +29,10 @@ export const BottomNav: React.FC = () => {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/90 backdrop-blur-md"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]"
       aria-label="Primary navigation"
     >
-      <div className="max-w-md mx-auto w-full flex h-16 items-center justify-between px-2">
+      <div className="max-w-md mx-auto w-full flex justify-between h-16 items-center px-2">
         {navItems.map(({ path, label, icon: Icon }) => (
           <NavLink
             key={path}
@@ -44,10 +44,10 @@ export const BottomNav: React.FC = () => {
                 // Physics — doctrine requirement
                 'active:scale-[0.98]',
                 // Focus ring
-                'focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2',
-                // Active state — Brand
+                'focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2',
+                // Active state — Blue
                 isActive
-                  ? 'text-brand-500'
+                  ? 'text-blue-600'
                   : 'text-slate-400 hover:text-slate-600',
               ].join(' ')
             }

@@ -9,7 +9,7 @@ import { ZeroState } from '@/components/discovery/ZeroState'
 import type { Zone } from '@/types'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DiscoveryPage
+// DiscoveryPage - Desktop Containerization and Layering
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DiscoveryPage: React.FC = () => {
@@ -39,40 +39,42 @@ const DiscoveryPage: React.FC = () => {
     if (zone) {
       runDiscovery(zone)
     } else {
-      runDiscovery() // revert to default zone (currentUser.zone)
+      runDiscovery() // revert to default zone (currentUser.zones[0])
     }
   }
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Filter Bar - Always visible */}
-      <div className="sticky top-14 z-20 bg-slate-50">
+      {/* Hero Header Band - Control Zone */}
+      <div className="sticky top-14 z-20 bg-white border-b border-slate-200 pt-4 pb-2 px-4 sm:px-6 lg:px-8 shadow-sm">
+        {/* FilterBar */}
         <FilterBar
           selectedZone={selectedZone}
           selectedBudgetRange={selectedBudgetRange}
           onZoneChange={handleZoneChange}
           onBudgetChange={(min, max) => setSelectedBudgetRange({ min, max })}
         />
-      </div>
 
-      <div className="mx-auto max-w-7xl px-4 md:px-8 py-6">
-        {/* Relaxed filter notice */}
-        {hasRelaxedFilters && candidates.length > 0 && (
-          <div className="mb-5 rounded-xl border border-amber-500/30 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            <span className="font-semibold">No perfect matches found.</span>{' '}
-            Showing closest compatible roommates.
-          </div>
-        )}
-
-        {/* Ranking reinforcement label */}
+        {/* Ranking reinforcement label - inside Hero Band */}
         {!isLoading && candidates.length > 0 && (
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mt-3 flex items-center justify-between">
             <p className="text-xs font-medium text-slate-500">
               Showing highest compatibility first
             </p>
             <span className="text-xs text-slate-400">
               {candidates.length} {candidates.length === 1 ? 'person' : 'people'} found
             </span>
+          </div>
+        )}
+      </div>
+
+      {/* Content Container & Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Relaxed filter notice */}
+        {hasRelaxedFilters && candidates.length > 0 && (
+          <div className="mb-5 rounded-xl border border-amber-500/30 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+            <span className="font-semibold">No perfect matches found.</span>{' '}
+            Showing closest compatible roommates.
           </div>
         )}
 
@@ -104,9 +106,9 @@ const DiscoveryPage: React.FC = () => {
           />
         )}
 
-        {/* Ranked feed */}
+        {/* Ranked feed - Strict responsive grid */}
         {!isLoading && candidates.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {candidates.map((match) => (
               <DiscoveryCard key={match.profile.uid} match={match} />
             ))}

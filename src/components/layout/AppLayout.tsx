@@ -10,7 +10,7 @@ interface AppLayoutProps {
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div
-      className="flex flex-col bg-slate-50"
+      className="flex flex-col bg-slate-50 min-h-screen"
       style={{
         // Dynamic Viewport Height — prevents mobile browser bar glitches
         minHeight: '100dvh',

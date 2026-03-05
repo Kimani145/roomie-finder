@@ -22,7 +22,7 @@ export const OnboardingWizard: React.FC = () => {
   const [course, setCourse] = useState('')
   const [yearOfStudy, setYearOfStudy] = useState('')
 
-  const [zone, setZone] = useState<TukZone | ''>('')
+  const [zones, setZones] = useState<TukZone[]>([])
   const [minBudget, setMinBudget] = useState('')
   const [maxBudget, setMaxBudget] = useState('')
 
@@ -56,7 +56,7 @@ export const OnboardingWizard: React.FC = () => {
         courseYear: yearOfStudy ? Number(yearOfStudy) : 1,
         minBudget: minBudget ? Number(minBudget) : 5000,
         maxBudget: maxBudget ? Number(maxBudget) : 15000,
-        zone: (zone || 'Juja') as TukZone,
+        zones: zones.length > 0 ? zones : ['Juja'] as TukZone[],
         preferredRoomType: 'Single Room' as const,
         lifestyle: {
           sleepTime: (sleepSchedule || 'Flexible') as 'Early' | 'Late' | 'Flexible',
@@ -78,12 +78,14 @@ export const OnboardingWizard: React.FC = () => {
         bio: '',
       }
 
+      // Critical: Save profile to Firestore, then navigate
       await saveUserProfile(user.uid, profile)
 
       // Re-fetch the full profile (with server timestamps) and load into store
       const saved = await getUserProfile(user.uid)
       if (saved) setCurrentUser(saved)
 
+      // Navigate to discovery (replace to prevent back button loop)
       navigate('/discover', { replace: true })
     } catch (err) {
       console.error('Failed to save profile:', err)
@@ -98,19 +100,19 @@ export const OnboardingWizard: React.FC = () => {
   }
 
   const inputClassName =
-    'bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none'
+    'bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none'
 
   return (
     <div className="min-h-screen bg-white pb-10">
       {/* Progress Bar */}
       <div className="w-full h-1.5 bg-slate-100">
         <div
-          className="h-1.5 bg-brand-500 transition-all duration-300"
+          className="h-1.5 bg-blue-600 transition-all duration-300"
           style={{ width: `${progressPct}%` }}
         />
       </div>
 
-      <div className="max-w-md mx-auto min-h-screen flex flex-col px-6 py-8 bg-white">
+      <div className="max-w-4xl mx-auto min-h-screen flex flex-col px-6 py-8 md:py-12 bg-white">
         {/* Step 1: Vitals */}
         {currentStep === 1 && (
           <div>
@@ -121,7 +123,7 @@ export const OnboardingWizard: React.FC = () => {
               Basic details to personalize your matches.
             </p>
 
-            <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col">
                 <label className="text-sm font-bold text-slate-700 mb-1.5">
                   First Name
@@ -177,7 +179,7 @@ export const OnboardingWizard: React.FC = () => {
                 />
               </div>
 
-              <div className="flex flex-col">
+              <div className="flex flex-col md:col-span-1">
                 <label className="text-sm font-bold text-slate-700 mb-1.5">
                   Year of Study
                 </label>
@@ -203,26 +205,46 @@ export const OnboardingWizard: React.FC = () => {
               Set your hard constraints so we match precisely.
             </p>
 
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col md:col-span-2">
                 <label className="text-sm font-bold text-slate-700 mb-1.5">
-                  Preferred Zone
+                  Preferred Zones
                 </label>
-                <select
-                  value={zone}
-                  onChange={(e) => setZone(e.target.value as TukZone | '')}
-                  className={inputClassName}
-                >
-                  <option value="">Select a zone</option>
-                  {TUK_ZONES.map((zoneOption) => (
-                    <option key={zoneOption} value={zoneOption}>
-                      {zoneOption}
-                    </option>
-                  ))}
-                </select>
+                <p className="text-xs text-slate-500 mb-3">
+                  Select up to 3 preferred zones ({zones.length}/3)
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {TUK_ZONES.map((z) => {
+                    const selected = zones.includes(z)
+                    return (
+                      <button
+                        key={z}
+                        type="button"
+                        onClick={() => {
+                          if (selected) {
+                            setZones(zones.filter((s) => s !== z))
+                          } else if (zones.length < 3) {
+                            setZones([...zones, z])
+                          }
+                        }}
+                        className={[
+                          'rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors text-left',
+                          selected
+                            ? 'border-blue-600 bg-blue-50 text-blue-700'
+                            : zones.length >= 3
+                            ? 'border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed'
+                            : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-blue-300',
+                        ].join(' ')}
+                        disabled={!selected && zones.length >= 3}
+                      >
+                        {z}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
 
-              <div className="flex flex-col">
+              <div className="flex flex-col md:col-span-2">
                 <label className="text-sm font-bold text-slate-700 mb-1.5">
                   Budget Range (KES)
                 </label>
@@ -257,7 +279,7 @@ export const OnboardingWizard: React.FC = () => {
               Tell us how you live so we can find a good fit.
             </p>
 
-            <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="flex flex-col gap-3">
                 <label className="text-sm font-bold text-slate-700 mb-1.5">
                   Sleep Schedule
@@ -269,7 +291,7 @@ export const OnboardingWizard: React.FC = () => {
                       className={[
                         'flex-1 rounded-xl border px-4 py-3 text-sm font-medium cursor-pointer transition-colors',
                         sleepSchedule === option
-                          ? 'border-brand-500 bg-brand-50 text-brand-700'
+                          ? 'border-blue-600 bg-blue-50 text-blue-700'
                           : 'border-slate-200 bg-slate-50 text-slate-700',
                       ].join(' ')}
                     >
@@ -302,7 +324,7 @@ export const OnboardingWizard: React.FC = () => {
                       className={[
                         'flex-1 rounded-xl border px-4 py-3 text-sm font-medium cursor-pointer transition-colors',
                         cleanliness === option
-                          ? 'border-brand-500 bg-brand-50 text-brand-700'
+                          ? 'border-blue-600 bg-blue-50 text-blue-700'
                           : 'border-slate-200 bg-slate-50 text-slate-700',
                       ].join(' ')}
                     >
@@ -335,7 +357,7 @@ export const OnboardingWizard: React.FC = () => {
                       className={[
                         'flex-1 rounded-xl border px-4 py-3 text-sm font-medium cursor-pointer transition-colors',
                         noiseTolerance === option
-                          ? 'border-brand-500 bg-brand-50 text-brand-700'
+                          ? 'border-blue-600 bg-blue-50 text-blue-700'
                           : 'border-slate-200 bg-slate-50 text-slate-700',
                       ].join(' ')}
                     >
@@ -370,13 +392,13 @@ export const OnboardingWizard: React.FC = () => {
               These preferences will be enforced as hard constraints.
             </p>
 
-            <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700">
                 <input
                   type="checkbox"
                   checked={nonSmoker}
                   onChange={(e) => setNonSmoker(e.target.checked)}
-                  className="h-4 w-4 text-brand-500"
+                  className="h-4 w-4 text-blue-600"
                 />
                 Non-Smoker
               </label>
@@ -385,7 +407,7 @@ export const OnboardingWizard: React.FC = () => {
                   type="checkbox"
                   checked={noAlcohol}
                   onChange={(e) => setNoAlcohol(e.target.checked)}
-                  className="h-4 w-4 text-brand-500"
+                  className="h-4 w-4 text-blue-600"
                 />
                 No Alcohol
               </label>
@@ -394,7 +416,7 @@ export const OnboardingWizard: React.FC = () => {
                   type="checkbox"
                   checked={noPets}
                   onChange={(e) => setNoPets(e.target.checked)}
-                  className="h-4 w-4 text-brand-500"
+                  className="h-4 w-4 text-blue-600"
                 />
                 No Pets
               </label>
@@ -415,7 +437,7 @@ export const OnboardingWizard: React.FC = () => {
             <button
               onClick={handleBack}
               disabled={isSaving}
-              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50"
+              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-600 disabled:opacity-50"
             >
               Back
             </button>
@@ -425,7 +447,7 @@ export const OnboardingWizard: React.FC = () => {
           <button
             onClick={handleNext}
             disabled={isSaving}
-            className="flex-1 py-3.5 rounded-xl bg-brand-500 text-white font-bold shadow-lg shadow-brand-500/25 hover:bg-brand-600 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:opacity-50"
+            className="flex-1 py-3.5 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/25 hover:bg-blue-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:opacity-50"
           >
             {isSaving
               ? 'Saving…'

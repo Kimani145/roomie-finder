@@ -17,7 +17,7 @@ function getCompatibilityTags(match: MatchResult): string[] {
   if (scoreBreakdown.sleepMatch > 0) tags.push('Similar sleep schedule')
   if (scoreBreakdown.cleanlinessMatch > 0)
     tags.push('Aligned cleanliness standards')
-  if (scoreBreakdown.zoneMatch > 0) tags.push('Same zone')
+  if (scoreBreakdown.zoneMatch > 0) tags.push('Zone overlap')
   if (scoreBreakdown.noiseMatch > 0)
     tags.push(`${profile.lifestyle.noiseTolerance} noise tolerance`)
   if (!profile.lifestyle.smoking) tags.push('Non-smoker')

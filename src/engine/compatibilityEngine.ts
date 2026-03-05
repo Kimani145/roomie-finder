@@ -147,8 +147,9 @@ export function calculateCompatibilityScore(
     }
   }
 
-  // Zone match
-  const zoneMatch = viewer.zone === candidate.zone ? SCORES.ZONE_MATCH : 0
+  // Zone match — overlap between two zone arrays
+  const zoneOverlap = viewer.zones.some((z) => candidate.zones.includes(z))
+  const zoneMatch = zoneOverlap ? SCORES.ZONE_MATCH : 0
   total += zoneMatch
 
   // Sleep schedule match
