@@ -49,14 +49,14 @@ const AuthPage: React.FC = () => {
   const isSignUp = mode === 'signup'
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-6 sm:px-8">
-      <div className="max-w-md w-full mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-6 sm:px-8">
+      <div className="max-w-md w-full mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8">
         {/* Brand Header */}
         <div className="text-center mb-8">
-          <h1 className="font-syne text-brand-600 text-2xl font-bold mb-2">
+          <h1 className="font-syne text-brand-600 dark:text-brand-400 text-2xl font-bold mb-2">
             Roomie Finder
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {isSignUp
               ? 'Create your compatibility profile. Use your student email for verified status.'
               : 'Welcome back. Find your match.'}
@@ -69,7 +69,7 @@ const AuthPage: React.FC = () => {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-bold text-slate-700 mb-1.5"
+              className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5"
             >
               Email Address
             </label>
@@ -81,12 +81,12 @@ const AuthPage: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="joseph@students.tukenya.ac.ke"
                 required
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-900 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-11 pr-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all"
               />
-              <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400" />
+              <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400 dark:text-slate-500" />
             </div>
             {isSignUp && (
-              <p className="text-[10px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1 flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" />
                 We recommend using your @students.tukenya.ac.ke email.
               </p>
@@ -97,7 +97,7 @@ const AuthPage: React.FC = () => {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-bold text-slate-700 mb-1.5"
+              className="block text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5"
             >
               Password
             </label>
@@ -110,12 +110,12 @@ const AuthPage: React.FC = () => {
                 placeholder="Enter your password"
                 required
                 minLength={6}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-900 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-11 pr-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all"
               />
-              <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400" />
+              <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400 dark:text-slate-500" />
             </div>
             {isSignUp && (
-              <p className="text-[10px] text-slate-500 mt-1">
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
                 At least 6 characters
               </p>
             )}
@@ -125,7 +125,7 @@ const AuthPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-brand-500 hover:bg-brand-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand-500/25 transition-all mt-6"
+            className="w-full bg-brand-500 hover:bg-brand-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand-500/25 transition-all mt-6"
           >
             {isLoading
               ? 'Please wait...'
@@ -137,17 +137,17 @@ const AuthPage: React.FC = () => {
 
         {/* Divider */}
         <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 h-px bg-slate-200" />
-          <span className="text-xs text-slate-400 uppercase tracking-widest">
+          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+          <span className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             or
           </span>
-          <div className="flex-1 h-px bg-slate-200" />
+          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
         </div>
 
         {/* Google Auth Button */}
         <button
           onClick={handleGoogleAuth}
-          className="w-full bg-white border border-slate-200 text-slate-700 font-bold py-3.5 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+          className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 font-bold py-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path
@@ -171,14 +171,14 @@ const AuthPage: React.FC = () => {
         </button>
 
         {/* Toggle Link */}
-        <div className="text-sm text-slate-600 text-center mt-6">
+        <div className="text-sm text-slate-600 dark:text-slate-300 text-center mt-6">
           {isSignUp ? (
             <>
               Already have an account?{' '}
               <button
                 type="button"
                 onClick={() => setMode('signin')}
-                className="text-brand-600 font-bold hover:underline"
+                className="text-brand-600 dark:text-brand-400 font-bold hover:underline"
               >
                 Sign In
               </button>
@@ -189,7 +189,7 @@ const AuthPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setMode('signup')}
-                className="text-brand-600 font-bold hover:underline"
+                className="text-brand-600 dark:text-brand-400 font-bold hover:underline"
               >
                 Sign Up
               </button>
@@ -199,7 +199,7 @@ const AuthPage: React.FC = () => {
 
         {/* Terms/Privacy (Optional micro-copy) */}
         {isSignUp && (
-          <p className="text-[10px] text-slate-400 text-center mt-4">
+          <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center mt-4">
             By signing up, you agree to our Terms of Service and Privacy Policy
           </p>
         )}

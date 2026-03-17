@@ -41,7 +41,7 @@ export const DiscoveryHeader: React.FC<DiscoveryHeaderProps> = ({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 text-xs font-bold text-white">
+              <div className="flex h-full w-full items-center justify-center bg-blue-500 text-xs font-bold text-white">
                 {currentUser ? getInitials(currentUser.displayName) : '?'}
               </div>
             )}

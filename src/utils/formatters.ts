@@ -1,3 +1,4 @@
+import { formatDistanceToNowStrict } from 'date-fns'
 import { getCompatibilityPercentage } from '@/engine/compatibilityEngine'
 
 /**
@@ -38,4 +39,41 @@ export function formatLastActive(date: Date): string {
   if (diffDays === 1) return 'Active yesterday'
   if (diffDays < 7) return `Active ${diffDays} days ago`
   return 'Active this month'
+}
+
+/**
+ * Formats a course year number into a string.
+ * e.g. formatCourseYear(1) -> "1st Year Student"
+ */
+export function formatCourseYear(year: number): string {
+  if (year === 1) return '1st Year Student'
+  if (year === 2) return '2nd Year Student'
+  if (year === 3) return '3rd Year Student'
+  if (year >= 4) return `${year}th Year Student`
+  return 'Student'
+}
+
+/**
+ * Formats a date into a short, scannable time-ago string.
+ * e.g. "5h ago", "2d ago", "1mo ago"
+ */
+export function formatTimeAgo(date: Date): string {
+  const parsed = new Date(date)
+  if (Number.isNaN(parsed.getTime())) return ''
+  return formatDistanceToNowStrict(parsed, { addSuffix: true })
+}
+
+export function getMatchBadgeClasses(score: number): string {
+  const percentage = getCompatibilityPercentage(score)
+
+  if (percentage >= 80) {
+    return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400'
+  }
+  if (percentage >= 60) {
+    return 'bg-lime-100 text-lime-700 dark:bg-lime-500/20 dark:text-lime-400'
+  }
+  if (percentage >= 40) {
+    return 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'
+  }
+  return 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
 }

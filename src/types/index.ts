@@ -15,13 +15,27 @@ export type Zone =
 // Convenience alias for TUK zones
 export type TukZone = Zone
 
+// ─── Marketplace Role Types ─────────────────────────────────────────────────
+export type UserRole = 'HOST' | 'SEEKER' | 'FLEX'
+
+export const HOUSING_TYPES = [
+  'Single Room',
+  'Bedsitter',
+  'Studio',
+  'Double Room',
+  '1 Bedroom',
+  '2 Bedroom',
+  '3 Bedroom',
+] as const
+export type HousingType = typeof HOUSING_TYPES[number]
+
 // ─── Enum Types ───────────────────────────────────────────────────────────────
 export type SleepTime = 'Early' | 'Late' | 'Flexible'
 export type NoiseTolerance = 'Low' | 'Medium' | 'High'
 export type GuestFrequency = 'Rare' | 'Sometimes' | 'Often'
 export type CleanlinessLevel = 'Relaxed' | 'Moderate' | 'Strict'
 export type StudyStyle = 'Silent' | 'Background noise ok'
-export type RoomType = 'Single Room' | 'Bedsitter' | '1 Bedroom' | 'Shared Hostel'
+export type RoomType = HousingType
 export type Gender = 'Male' | 'Female' | 'Non-binary' | 'Prefer not to say'
 export type ProfileStatus = 'active' | 'inactive' | 'paused'
 
@@ -50,6 +64,7 @@ export interface UserProfile {
   uid: string
   displayName: string
   photoURL: string | null
+  role: UserRole
   gender: Gender
   age: number
   school: string
@@ -77,9 +92,29 @@ export interface UserProfile {
   moveInMonth?: string | null
 }
 
+// ─── Listings ─────────────────────────────────────────────────────────────────
+export interface Listing {
+  id: string
+  hostId: string // References users/{uid}
+  zone: TukZone
+  housingType: HousingType
+  rentTotal: number
+  roommateShare: number
+  amenities: string[]
+  photos: string[]
+  houseRules: {
+    smokingAllowed: boolean
+    petsAllowed: boolean
+    guestPolicy: string
+  }
+  createdAt: string
+  status: 'active' | 'paused' | 'filled'
+}
+
 // ─── Match Result ─────────────────────────────────────────────────────────────
 export interface MatchResult {
   profile: UserProfile
+  listing?: Listing
   compatibilityScore: number
   scoreBreakdown: ScoreBreakdown
   isExactMatch: boolean
@@ -129,8 +164,12 @@ export interface Like {
 
 export interface Match {
   id: string
+  userA: string
+  userB: string
   participants: [string, string]
   createdAt: Date
+  status: 'pending' | 'matched' | 'archived'
+  compatibilityVersion: number
   chatUnlocked: boolean
 }
 

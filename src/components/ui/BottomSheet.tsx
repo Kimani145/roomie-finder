@@ -29,15 +29,15 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 
       {/* Bottom Sheet Container */}
       <div className="fixed bottom-0 left-0 right-0 z-50 w-full">
-        <div className="bg-white rounded-t-2xl p-6 max-w-md mx-auto shadow-lg">
+        <div className="bg-white dark:bg-slate-900 rounded-t-2xl p-6 max-w-md mx-auto shadow-lg border border-transparent dark:border-slate-800">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-syne text-lg font-bold text-slate-900">
+            <h2 className="font-syne text-lg font-bold text-slate-900 dark:text-slate-50">
               {title}
             </h2>
             <button
               onClick={onClose}
-              className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              className="rounded-lg p-1 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
@@ -53,7 +53,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
           {onApply && (
             <button
               onClick={onApply}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg py-3 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg py-3 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
             >
               Apply Filter
             </button>

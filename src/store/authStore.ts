@@ -6,9 +6,12 @@ interface AuthState {
   isLoading: boolean
   isAuthenticated: boolean
   needsOnboarding: boolean
+  pendingAction: (() => void) | null
   setCurrentUser: (user: UserProfile | null) => void
   setNeedsOnboarding: (value: boolean) => void
   setLoading: (loading: boolean) => void
+  setPendingAction: (action: (() => void) | null) => void
+  clearPendingAction: () => void
   clearAuth: () => void
 }
 
@@ -17,6 +20,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
   isAuthenticated: false,
   needsOnboarding: false,
+  pendingAction: null,
 
   setCurrentUser: (user) =>
     set({
@@ -31,11 +35,16 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setLoading: (loading) => set({ isLoading: loading }),
 
+  setPendingAction: (action) => set({ pendingAction: action }),
+
+  clearPendingAction: () => set({ pendingAction: null }),
+
   clearAuth: () =>
     set({
       currentUser: null,
       isAuthenticated: false,
       needsOnboarding: false,
+      pendingAction: null,
       isLoading: false,
     }),
 }))

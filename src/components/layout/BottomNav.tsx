@@ -1,6 +1,7 @@
 import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { Compass, Users, MessageCircle, User } from 'lucide-react'
+import { Compass, Users, MessageCircle, User, Building } from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
 
 // ─── Route Configuration ──────────────────────────────────────────────────────
 interface NavItem {
@@ -9,16 +10,24 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>
 }
 
-const navItems: NavItem[] = [
+const BASE_NAV: NavItem[] = [
   { path: '/discover', label: 'Discover', icon: Compass },
   { path: '/matches', label: 'Matches', icon: Users },
   { path: '/messages', label: 'Messages', icon: MessageCircle },
-  { path: '/profile', label: 'Profile', icon: User },
 ]
 
 // ─── BottomNav ────────────────────────────────────────────────────────────────
 export const BottomNav: React.FC = () => {
   const location = useLocation()
+  const { currentUser } = useAuthStore()
+
+  const navItems: NavItem[] = [
+    ...BASE_NAV,
+    ...(currentUser?.role === 'HOST' || currentUser?.role === 'FLEX'
+      ? [{ path: '/my-listings', label: 'Listings', icon: Building }]
+      : []),
+    { path: '/profile', label: 'Profile', icon: User },
+  ]
 
   // Hide on onboarding and chat detail pages
   const shouldHide =
@@ -29,7 +38,7 @@ export const BottomNav: React.FC = () => {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] lg:hidden"
+      className="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 z-50 pb-safe md:hidden"
       aria-label="Primary navigation"
     >
       <div className="max-w-md mx-auto w-full flex justify-between h-16 items-center px-2">
@@ -44,11 +53,11 @@ export const BottomNav: React.FC = () => {
                 // Physics — doctrine requirement
                 'active:scale-[0.98]',
                 // Focus ring
-                'focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2',
+                'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
                 // Active state — Blue
                 isActive
-                  ? 'text-blue-600'
-                  : 'text-slate-400 hover:text-slate-600',
+                  ? 'text-blue-500 dark:text-blue-400'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300',
               ].join(' ')
             }
           >

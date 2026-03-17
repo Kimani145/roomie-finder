@@ -6,7 +6,8 @@
 
 - **React 18** + **TypeScript**
 - **Vite** (dev server + bundler)
-- **Firebase** (Firestore, Auth, Storage)
+- **Firebase** (Firestore, Auth)
+- **Cloudinary** (unsigned image uploads)
 - **Zustand** (state management)
 - **React Router v6**
 
@@ -53,10 +54,24 @@ npm install
 
 # 2. Set up Firebase
 cp .env.example .env
-# Fill in your Firebase project values in .env
+# Fill in your Firebase + Cloudinary values in .env
 
 # 3. Start dev server
 npm run dev
+```
+
+Required environment variables:
+
+```bash
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+VITE_FIREBASE_MEASUREMENT_ID=
+VITE_CLOUDINARY_CLOUD_NAME=
+VITE_CLOUDINARY_UPLOAD_PRESET=
 ```
 
 ---
@@ -100,8 +115,8 @@ When results = 0, soft filters are relaxed progressively:
 | Sprint | Feature |
 |--------|---------|
 | ✅ 1 | Project scaffold + types + engine |
-| 🔲 2 | Profile creation wizard (onboarding) |
-| 🔲 3 | Discovery feed + filter pills + bottom sheets |
-| 🔲 4 | Profile view + edit |
-| 🔲 5 | Matches list |
-| 🔲 6 | Chat (mutual match gate) |
+| ✅ 2 | Profile creation wizard (onboarding) |
+| ✅ 3 | Discovery feed + filter pills + bottom sheets |
+| ✅ 4 | Profile view + edit |
+| ✅ 5 | Matches list |
+| ✅ 6 | Chat (mutual match gate) |
