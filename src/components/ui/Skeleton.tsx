@@ -22,12 +22,11 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     aria-hidden="true"
     className={cn(
       // Shimmer animation via CSS gradient sweep
-      'relative overflow-hidden bg-slate-200',
+      'relative overflow-hidden bg-slate-200 dark:bg-slate-700',
       'before:absolute before:inset-0',
       'before:-translate-x-full',
       'before:animate-[shimmer_1.6s_infinite]',
-      'before:bg-gradient-to-r',
-      'before:from-transparent before:via-white/60 before:to-transparent',
+      'before:bg-white/60',
       circle ? 'rounded-full' : rounded ? 'rounded-full' : 'rounded-lg',
       className
     )}
@@ -77,74 +76,112 @@ export const SkeletonBudgetBar: React.FC<{ className?: string }> = ({ className 
   </div>
 )
 
-// ─── Discovery Card Skeleton ───────────────────────────────────────────────────
+// ─── Discovery Card Skeletons ─────────────────────────────────────────────────
 /**
- * Full-fidelity skeleton matching DiscoveryCard layout exactly.
+ * Full-fidelity skeleton matching ListingCard layout.
  */
-export const DiscoveryCardSkeleton: React.FC<{ className?: string }> = ({
+export const ListingCardSkeleton: React.FC<{ className?: string }> = ({
   className,
 }) => (
   <div
     aria-hidden="true"
-    aria-label="Loading profile card"
+    aria-label="Loading listing card"
     className={cn(
-      'flex flex-col overflow-hidden rounded-2xl',
-      'bg-white ring-1 ring-slate-200',
+      'flex flex-col min-h-[360px] overflow-hidden rounded-2xl',
+      'bg-white dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700',
       className
     )}
   >
     {/* Photo placeholder */}
-    <Skeleton className="h-52 w-full rounded-none" />
+    <Skeleton className="h-56 w-full rounded-none" />
 
     {/* Card body */}
-    <div className="flex flex-col gap-4 p-4">
-      {/* Name row */}
-      <div className="flex items-start justify-between">
-        <div className="space-y-2">
-          <SkeletonHeading width="w-36" />
-          <SkeletonText width="w-28" />
+    <div className="flex flex-col justify-between gap-4 p-4 flex-1">
+      <div className="space-y-2">
+        <SkeletonHeading width="w-40" />
+        <SkeletonText width="w-44" />
+        <SkeletonText width="w-24" />
+      </div>
+
+      <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 dark:border-slate-700/70">
+        <div className="flex items-center gap-2">
+          <Skeleton circle className="h-8 w-8" />
+          <SkeletonText width="w-24" />
         </div>
-        {/* Last active pill */}
-        <Skeleton rounded className="h-6 w-24" />
-      </div>
-
-      {/* Compatibility tags */}
-      <div className="flex gap-2">
-        <SkeletonBadge className="w-20" />
-        <SkeletonBadge className="w-28" />
-        <SkeletonBadge className="w-16" />
-      </div>
-
-      {/* Budget bar */}
-      <SkeletonBudgetBar />
-
-      {/* Zone / room type chips */}
-      <div className="flex gap-2">
-        <Skeleton className="h-5 w-16 rounded" />
-        <Skeleton className="h-5 w-24 rounded" />
-      </div>
-
-      {/* Action buttons */}
-      <div className="flex gap-3 pt-1">
-        <Skeleton className="h-10 flex-1 rounded-xl" />
-        <Skeleton className="h-10 flex-1 rounded-xl" />
+        <Skeleton rounded className="h-4 w-16" />
       </div>
     </div>
   </div>
 )
 
+/**
+ * Full-fidelity skeleton matching SeekerCard layout.
+ */
+export const SeekerCardSkeleton: React.FC<{ className?: string }> = ({
+  className,
+}) => (
+  <div
+    aria-hidden="true"
+    aria-label="Loading seeker card"
+    className={cn(
+      'flex flex-col overflow-hidden rounded-2xl',
+      'bg-white dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700',
+      className
+    )}
+  >
+    <div className="p-5 flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Skeleton circle className="h-16 w-16" />
+          <div className="space-y-2">
+            <SkeletonHeading width="w-32" />
+            <SkeletonText width="w-40" />
+          </div>
+        </div>
+        <Skeleton rounded className="h-4 w-16" />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <SkeletonText width="w-20" />
+          <SkeletonHeading width="w-24" />
+        </div>
+        <div className="space-y-2">
+          <SkeletonText width="w-20" />
+          <SkeletonHeading width="w-24" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} rounded className="h-6 w-full" />
+        ))}
+      </div>
+    </div>
+  </div>
+)
+
+export const DiscoveryCardSkeleton: React.FC<{ className?: string }> = ({
+  className,
+}) => <ListingCardSkeleton className={className} />
+
 // ─── Feed Skeleton ────────────────────────────────────────────────────────────
 /**
  * Renders n card skeletons for the full discovery feed loading state.
  */
-export const FeedSkeleton: React.FC<{ count?: number; className?: string }> = ({
-  count = 3,
-  className,
-}) => (
+export const FeedSkeleton: React.FC<{
+  count?: number
+  className?: string
+  variant?: 'listing' | 'seeker'
+}> = ({ count = 3, className, variant = 'listing' }) => (
   <div className={cn('grid gap-5', className)} aria-label="Loading feed">
-    {Array.from({ length: count }, (_, i) => (
-      <DiscoveryCardSkeleton key={i} />
-    ))}
+    {Array.from({ length: count }, (_, i) =>
+      variant === 'seeker' ? (
+        <SeekerCardSkeleton key={i} />
+      ) : (
+        <ListingCardSkeleton key={i} />
+      )
+    )}
   </div>
 )
 

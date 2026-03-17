@@ -6,7 +6,6 @@ import {
   onAuthStateChange,
   registerUser,
   resendVerificationEmail,
-  reloadAndRefreshUser,
   type AuthServiceError,
 } from '@/services/authService'
 import { getUserProfile } from '@/firebase/profiles'
@@ -21,7 +20,7 @@ export type AuthContextValue = {
   login: (email: string, password: string) => Promise<User>
   logout: () => Promise<void>
   resendVerification: () => Promise<void>
-  reloadUser: () => Promise<boolean>
+  reloadUser: (source?: string) => Promise<boolean>
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -32,11 +31,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [hasProfile, setHasProfile] = useState(false)
-  const { setCurrentUser, setNeedsOnboarding, clearAuth } = useAuthStore()
+  const { currentUser, setCurrentUser, setNeedsOnboarding, clearAuth } = useAuthStore()
 
   useEffect(() => {
     setLoading(true)
     const unsubscribe = onAuthStateChange(async (firebaseUser) => {
+      setLoading(true)
       setUser(firebaseUser)
 
       if (firebaseUser && firebaseUser.emailVerified) {
@@ -52,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         } catch (err) {
           console.error('Failed to load user profile:', err)
           setHasProfile(false)
+          setNeedsOnboarding(true)
         }
       } else {
         setHasProfile(false)
@@ -71,9 +72,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(createdUser)
       return createdUser
     } catch (error) {
-      throw error as AuthServiceError
-    } finally {
       setLoading(false)
+      throw error as AuthServiceError
     }
   }, [])
 
@@ -84,9 +84,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(loggedInUser)
       return loggedInUser
     } catch (error) {
-      throw error as AuthServiceError
-    } finally {
       setLoading(false)
+      throw error as AuthServiceError
     }
   }, [])
 
@@ -110,14 +109,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [user])
 
   /**
-   * Reload the Firebase user and force a token refresh.
-   * Returns true if email is now verified, false otherwise.
+   * Force-fetch latest token claims + reload the Firebase user.
+   * Returns token-claim email verification status.
    */
-  const reloadUser = useCallback(async (): Promise<boolean> => {
+  const reloadUser = useCallback(async (source = 'AUTH'): Promise<boolean> => {
     if (!user) return false
-    const refreshedUser = await reloadAndRefreshUser(user)
-    setUser(refreshedUser)
-    return refreshedUser.emailVerified
+
+    const tokenResult = await user.getIdTokenResult(true)
+    await user.reload()
+
+    console.warn(`=== SECURITY GATE CHECK (${source}) ===`)
+    console.log('1. Raw Email:', user.email)
+    console.log('2. Is Verified (User Object):', user.emailVerified)
+    console.log('3. Is Verified (Token Claim):', tokenResult.claims.email_verified)
+    console.warn('=================================')
+
+    setUser(user)
+    return Boolean(tokenResult.claims.email_verified)
   }, [user])
 
   const value = useMemo(
@@ -125,14 +133,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       user,
       loading,
       emailVerified: user?.emailVerified ?? false,
-      hasProfile,
+      hasProfile: hasProfile || !!currentUser,
       register,
       login,
       logout,
       resendVerification,
       reloadUser,
     }),
-    [user, loading, hasProfile, register, login, logout, resendVerification, reloadUser]
+    [
+      user,
+      loading,
+      hasProfile,
+      currentUser,
+      register,
+      login,
+      logout,
+      resendVerification,
+      reloadUser,
+    ]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

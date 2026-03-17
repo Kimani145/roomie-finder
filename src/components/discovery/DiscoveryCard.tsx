@@ -34,7 +34,6 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
 
   const compatibilityPct = getCompatibilityPercentage(compatibilityScore)
   const activityOpacity = getActivityOpacity(profile.lastActive)
-  const routeUid = profile.uid.replace(/^seed-/, '')
   const lifestyleTags = scoreBreakdown.matchedFactors
     .filter(
       (factor) =>
@@ -48,11 +47,11 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
 
   return (
     <Link
-      to={`/profile/${routeUid}`}
-      className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md active:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
+      to={`/profile/${profile.uid}`}
+      className="group block overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm transition-all duration-200 hover:shadow-md active:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
     >
       {/* ── Photo area (4:3 aspect ratio maintained) ──────────────────────────── */}
-      <div className="w-full aspect-[16/9] relative flex items-center justify-center bg-slate-100 border-b border-slate-100">
+      <div className="w-full aspect-[16/9] relative flex items-center justify-center bg-slate-100 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
         {profile.photoURL ? (
           <img
             src={profile.photoURL}
@@ -60,13 +59,13 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
             className="absolute inset-0 object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <span className="text-6xl font-syne font-bold text-slate-300">
+          <span className="text-6xl font-syne font-bold text-slate-300 dark:text-slate-500">
             {getInitials(profile.displayName)}
           </span>
         )}
 
         {/* Budget pill overlay (bottom-left) */}
-        <div className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-700 backdrop-blur-sm border border-slate-200">
+        <div className="absolute bottom-3 left-3 rounded-full bg-white/90 dark:bg-slate-900/80 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-100 backdrop-blur-sm border border-slate-200 dark:border-slate-700">
           {formatBudget(profile.minBudget, profile.maxBudget)}
         </div>
 
@@ -80,33 +79,33 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
       <div className="p-5 flex flex-col gap-3.5">
         {/* Name + age + activity dot */}
         <div className="flex items-center gap-2">
-          <h3 className="text-xl font-bold text-slate-900 font-syne leading-none flex items-center gap-2">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 font-syne leading-none flex items-center gap-2">
             {profile.displayName}, {profile.age}
           </h3>
           <span
-            className="w-2 h-2 rounded-full bg-slate-400"
+            className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-500"
             style={{ opacity: activityOpacity }}
             aria-label="Active status"
           />
         </div>
 
-        <p className="text-xs font-semibold text-slate-700">
+        <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
           Compatibility score: {compatibilityPct}%
         </p>
 
         {/* Budget alignment */}
-        <div className="flex justify-between items-center bg-slate-50 rounded-lg px-3 py-2 border border-slate-100">
-          <span className="text-xs text-slate-600 font-medium">
+        <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-700/60 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-600">
+          <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">
             Move-in: Flexible
           </span>
-          <span className="text-xs text-slate-900 font-bold tabular-nums tracking-tight">
+          <span className="text-xs text-slate-900 dark:text-slate-50 font-bold tabular-nums tracking-tight">
             {formatBudget(profile.minBudget, profile.maxBudget)}
           </span>
         </div>
 
         {/* Zone overlap indicator */}
         {scoreBreakdown.zoneOverlapZones.length > 0 && (
-          <p className="text-xs font-medium text-slate-600">
+          <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
             Zone overlap: {scoreBreakdown.zoneOverlapZones.join(', ')}
           </p>
         )}
@@ -117,7 +116,7 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
             {lifestyleTags.map((pill) => (
               <span
                 key={pill}
-                className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 leading-tight"
+                className="rounded-full bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:text-slate-200 leading-tight"
               >
                 {pill}
               </span>
@@ -126,14 +125,14 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
         )}
 
         {/* School + year */}
-        <p className="text-xs text-slate-500 font-medium truncate">
+        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
           {profile.school} • Year {profile.courseYear}
         </p>
       </div>
 
       {/* ── Subtle action cue (NEW) ────────────────────────────────────────── */}
       <div className="px-5 pb-4">
-        <span className="text-xs text-blue-600 font-medium text-center w-full block py-2 hover:text-blue-700 transition-colors">
+        <span className="text-xs text-blue-600 dark:text-blue-400 font-medium text-center w-full block py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
           View compatibility details →
         </span>
       </div>

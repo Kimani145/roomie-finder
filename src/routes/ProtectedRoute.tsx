@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -19,9 +19,38 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   allowWithoutProfile = false,
 }) => {
-  const { user, loading, emailVerified, hasProfile } = useAuth()
+  const { user, loading, emailVerified, hasProfile, reloadUser } = useAuth()
+  const [checkingClaims, setCheckingClaims] = useState(false)
+  const [tokenEmailVerified, setTokenEmailVerified] = useState<boolean | null>(null)
 
-  if (loading) {
+  useEffect(() => {
+    const forceCheck = async () => {
+      const currentUser = user
+
+      if (!currentUser) {
+        setTokenEmailVerified(null)
+        return
+      }
+
+      setCheckingClaims(true)
+
+      try {
+        const verified = await reloadUser('ROUTE')
+        setTokenEmailVerified(verified)
+      } catch (error) {
+        console.error('ProtectedRoute token refresh failed:', error)
+        setTokenEmailVerified(currentUser.emailVerified)
+      } finally {
+        setCheckingClaims(false)
+      }
+    }
+
+    forceCheck()
+  }, [user, reloadUser])
+
+  const resolvedEmailVerified = tokenEmailVerified ?? emailVerified
+
+  if (loading || checkingClaims) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <span className="text-sm text-slate-500">Loading...</span>
@@ -35,8 +64,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Tier 2: Signed in but email not verified
-  if (!emailVerified) {
+  if (!resolvedEmailVerified) {
     return <Navigate to="/verify-email" replace />
+  }
+
+  // Prevent users with an existing profile from re-entering onboarding.
+  if (allowWithoutProfile && hasProfile) {
+    return <Navigate to="/discover" replace />
   }
 
   // Tier 3: Verified but no Firestore profile yet

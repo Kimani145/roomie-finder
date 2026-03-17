@@ -1,29 +1,59 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
 import { AppLayout } from '@/components/layout'
+import { MatchOverlay } from '@/components/ui/MatchOverlay'
+import SplashScreen from '@/components/ui/SplashScreen'
 import { AuthProvider } from '@/context/AuthContext'
+import { ThemeProvider } from '@/context/ThemeContext'
+import { useAuth } from '@/hooks/useAuth'
 import { ProtectedRoute } from '@/routes/ProtectedRoute'
+import { useAuthStore } from '@/store/authStore'
 import {
-  LandingPage,
   SignUpPage,
   LoginPage,
   VerifyEmailPage,
   OnboardingPage,
   DiscoveryPage,
   ProfilePage,
+  EditProfilePage,
   ProfileDetailPage,
   MatchesPage,
+  MessagesPage,
   ChatPage,
+  ListingWizardPage,
+  MyListingsPage,
 } from '@/pages'
 
-const App: React.FC = () => {
-  console.info('[App.tsx] Routing initialized');
+const AppRoutes: React.FC = () => {
+  const { loading } = useAuth()
+  const { currentUser, pendingAction, clearPendingAction } = useAuthStore()
+
+  useEffect(() => {
+    if (!currentUser || !pendingAction) return
+
+    pendingAction()
+    clearPendingAction()
+  }, [currentUser, pendingAction, clearPendingAction])
+
+  if (loading) {
+    return <SplashScreen />
+  }
+
+  console.info('[App.tsx] Routing initialized')
   return (
-    <AuthProvider>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 dark:text-slate-50">
       <BrowserRouter>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            className:
+              'font-syne text-sm rounded-xl shadow-lg dark:bg-slate-800 dark:text-white border border-slate-100 dark:border-slate-700',
+          }}
+        />
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<Navigate to="/discover" replace />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
@@ -42,11 +72,9 @@ const App: React.FC = () => {
           <Route
             path="/discover"
             element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <DiscoveryPage />
-                </AppLayout>
-              </ProtectedRoute>
+              <AppLayout>
+                <DiscoveryPage />
+              </AppLayout>
             }
           />
 
@@ -57,6 +85,16 @@ const App: React.FC = () => {
               <ProtectedRoute>
                 <AppLayout>
                   <ProfilePage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit-profile"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <EditProfilePage />
                 </AppLayout>
               </ProtectedRoute>
             }
@@ -84,7 +122,7 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <AppLayout>
-                  <MatchesPage />
+                  <MessagesPage />
                 </AppLayout>
               </ProtectedRoute>
             }
@@ -93,15 +131,48 @@ const App: React.FC = () => {
             path="/chat/:matchId"
             element={
               <ProtectedRoute>
-                <ChatPage />
+                <AppLayout>
+                  <ChatPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/create-listing"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ListingWizardPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-listings"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <MyListingsPage />
+                </AppLayout>
               </ProtectedRoute>
             }
           />
 
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/discover" replace />} />
         </Routes>
+        <MatchOverlay />
       </BrowserRouter>
+    </div>
+  )
+}
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <ThemeProvider>
+        <AppRoutes />
+      </ThemeProvider>
     </AuthProvider>
   )
 }

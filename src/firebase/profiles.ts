@@ -15,10 +15,11 @@ import { db } from './config'
 import type { DiscoveryFilters, UserProfile, Zone } from '@/types'
 
 const PROFILES_COLLECTION = 'profiles'
+const USERS_COLLECTION = 'users'
 
 export interface DiscoveryQueryParams {
   viewerUid: string
-  viewerZones: Zone[]
+  viewerZones?: Zone[]
   filters: DiscoveryFilters
   limitCount?: number
 }
@@ -27,6 +28,7 @@ function toUserProfile(data: any, id: string): UserProfile {
   return {
     ...(data as UserProfile),
     uid: id,
+    role: data.role ?? 'FLEX',
     lastActive: data.lastActive?.toDate?.() ?? new Date(),
     createdAt: data.createdAt?.toDate?.() ?? new Date(),
   }
@@ -34,7 +36,7 @@ function toUserProfile(data: any, id: string): UserProfile {
 
 export async function fetchDiscoveryCandidates({
   viewerUid,
-  viewerZones,
+  viewerZones = [],
   filters,
   limitCount = 200,
 }: DiscoveryQueryParams): Promise<UserProfile[]> {
@@ -108,14 +110,17 @@ export async function fetchCandidatesByZone(
 
 // ─── Get single profile ───────────────────────────────────────────────────────
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
-  const candidateIds = uid.startsWith('seed-') ? [uid] : [uid, `seed-${uid}`]
-
-  for (const candidateId of candidateIds) {
-    const ref = doc(db, PROFILES_COLLECTION, candidateId)
+  try {
+    const ref = doc(db, PROFILES_COLLECTION, uid)
     const snap = await getDoc(ref)
-    if (snap.exists()) {
-      return toUserProfile(snap.data(), snap.id)
+    if (snap.exists()) return toUserProfile(snap.data(), snap.id)
+  } catch (error: any) {
+    const code = error?.code as string | undefined
+    if (code === 'permission-denied' || code === 'failed-precondition') {
+      console.warn('[getUserProfile] Profile read blocked by rules:', uid)
+      return null
     }
+    throw error
   }
 
   return null
@@ -126,13 +131,23 @@ export async function saveUserProfile(
   uid: string,
   profile: Omit<UserProfile, 'uid' | 'createdAt' | 'lastActive'>
 ): Promise<void> {
-  const ref = doc(db, PROFILES_COLLECTION, uid)
+  const profileRef = doc(db, PROFILES_COLLECTION, uid)
+  const userRef = doc(db, USERS_COLLECTION, uid)
+
+  const payload = {
+    ...profile,
+    lastActive: serverTimestamp(),
+    createdAt: serverTimestamp(),
+  }
+
+  await setDoc(profileRef, payload, { merge: true })
+
   await setDoc(
-    ref,
+    userRef,
     {
-      ...profile,
-      lastActive: serverTimestamp(),
-      createdAt: serverTimestamp(),
+      role: profile.role,
+      profileCompleted: true,
+      updatedAt: serverTimestamp(),
     },
     { merge: true }
   )

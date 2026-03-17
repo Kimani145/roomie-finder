@@ -25,30 +25,34 @@ export const ZeroState: React.FC<ZeroStateProps> = ({
   return (
     <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
       {/* Illustration */}
-      <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-brand-50 ring-1 ring-brand-200 text-5xl select-none">
+      <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-900/20 ring-1 ring-brand-200 dark:ring-brand-700/40 text-5xl select-none">
         🔍
       </div>
 
       {isRelaxed ? (
         <>
-          <h2 className="font-syne text-xl font-bold text-slate-900">
+          <h2 className="font-syne text-xl font-bold text-slate-900 dark:text-slate-50">
             No perfect matches found
           </h2>
-          <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500">
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
             Showing closest compatible roommates.{' '}
             {humanKeys && (
-              <span className="text-slate-500">
-                We relaxed your <span className="font-medium text-slate-700">{humanKeys}</span> preferences to find more options.
+              <span className="text-slate-500 dark:text-slate-400">
+                We relaxed your{' '}
+                <span className="font-medium text-slate-700 dark:text-slate-200">
+                  {humanKeys}
+                </span>{' '}
+                preferences to find more options.
               </span>
             )}
           </p>
         </>
       ) : (
         <>
-          <h2 className="font-syne text-xl font-bold text-slate-900">
+          <h2 className="font-syne text-xl font-bold text-slate-900 dark:text-slate-50">
             No matches found in this Zone
           </h2>
-          <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500">
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
             There are currently no users in your selected zone that match your strict budget constraints. Try expanding your budget range or selecting a different zone.
           </p>
         </>
