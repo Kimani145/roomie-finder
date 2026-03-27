@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/authStore';
 import { getUserProfile } from '@/firebase/profiles';
 import type { UserProfile } from '@/types';
+import { doc, updateDoc } from 'firebase/firestore';
+import { toast } from 'react-hot-toast';
 import {
   MapPin,
   BookOpen,
@@ -15,17 +17,24 @@ import {
   Music,
   Ban,
   PersonStanding,
+  Camera,
+  Loader2,
 } from 'lucide-react';
+import { db } from '@/firebase/config';
+import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
 
 const ProfilePage: React.FC = () => {
   const { user, logout } = useAuth();
-  const { currentUser } = useAuthStore();
+  const { currentUser, setCurrentUser } = useAuthStore();
   const Maps = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(currentUser);
   const [loading, setLoading] = useState(!currentUser);
+  const [isUploading, setIsUploading] = useState(false);
   const [profileStatus, setProfileStatus] = useState<'active' | 'paused'>(
     currentUser?.status === 'paused' ? 'paused' : 'active'
   );
+  const DEFAULT_AVATAR =
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><rect width="160" height="160" fill="%23e2e8f0"/><text x="50%" y="53%" dominant-baseline="middle" text-anchor="middle" font-size="52" fill="%23475569">?</text></svg>';
 
   // Fetch from Firestore if authStore doesn't have the profile yet
   useEffect(() => {
@@ -63,6 +72,28 @@ const ProfilePage: React.FC = () => {
     setProfileStatus((prev) => (prev === 'active' ? 'paused' : 'active'));
   };
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file || !currentUser) return;
+
+    setIsUploading(true);
+    try {
+      const url = await uploadToCloudinary(file);
+      await updateDoc(doc(db, 'profiles', currentUser.uid), { photoURL: url });
+      await updateDoc(doc(db, 'users', currentUser.uid), { updatedAt: new Date() });
+      const nextUser = { ...currentUser, photoURL: url };
+      setCurrentUser(nextUser);
+      setProfile(nextUser);
+      toast.success('Profile photo updated.');
+    } catch (error: any) {
+      console.error('Failed to upload avatar:', error);
+      toast.error('Could not upload profile photo. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
@@ -92,9 +123,23 @@ const ProfilePage: React.FC = () => {
           {/* Left Column (Identity) */}
           <div className="lg:col-span-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm overflow-hidden p-4 lg:p-6 lg:sticky top-8 space-y-3">
             <div className="flex flex-col items-center text-center">
-              <div className="h-24 w-24 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-4xl font-bold text-slate-700 dark:text-slate-50 mb-4">
-                {profile.displayName?.charAt(0)?.toUpperCase() || '?'}
-              </div>
+              <label className="relative inline-block group cursor-pointer mb-4">
+                <img
+                  src={currentUser?.photoURL || profile.photoURL || DEFAULT_AVATAR}
+                  alt="Profile"
+                  className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white dark:border-slate-900 shadow-sm ${isUploading ? 'opacity-50' : ''}`}
+                />
+                <div className="absolute inset-0 bg-slate-900/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  {isUploading ? <Loader2 className="w-6 h-6 text-white animate-spin" /> : <Camera className="w-6 h-6 text-white" />}
+                </div>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  disabled={isUploading}
+                />
+              </label>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
                 {profile.displayName}
               </h1>

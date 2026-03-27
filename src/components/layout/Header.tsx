@@ -32,7 +32,7 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
   if (shouldHide) return null
 
   return (
-    <header className="sticky top-0 z-[100] h-16 shrink-0 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-[100] h-16 shrink-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-6">
       <div className="flex items-center gap-4">
         <Link
           to="/discover"
