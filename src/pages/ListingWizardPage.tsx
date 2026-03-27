@@ -112,7 +112,19 @@ const ListingWizardPage: React.FC = () => {
     setSubmitError(null)
 
     try {
-      const uploadedUrls = await Promise.all(photos.map((file) => uploadToCloudinary(file)))
+      let uploadedUrls: string[] = []
+      try {
+        uploadedUrls = await Promise.all(photos.map((file) => uploadToCloudinary(file)))
+      } catch (uploadError: any) {
+        const message =
+          uploadError instanceof Error
+            ? uploadError.message
+            : 'Failed to upload one or more photos.'
+        toast.error(message)
+        setSubmitError(message)
+        setIsSubmitting(false)
+        return
+      }
 
       const listingRef = doc(collection(db, 'listings'))
       const listingData = {

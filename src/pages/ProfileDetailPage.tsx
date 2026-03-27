@@ -286,6 +286,11 @@ const ProfileDetailPage: React.FC = () => {
                   <h1 className="text-3xl font-bold text-white">
                     {viewedUser.displayName}, {viewedUser.age}
                   </h1>
+                  {viewedUser.bioQuote && (
+                    <p className="mt-1 text-sm italic font-serif text-white/90">
+                      "{viewedUser.bioQuote}"
+                    </p>
+                  )}
                   <p className="text-sm text-white/90 mt-1">
                     Year {viewedUser.courseYear} • {viewedUser.school}
                   </p>
