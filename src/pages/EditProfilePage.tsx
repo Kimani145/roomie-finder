@@ -55,6 +55,7 @@ const EditProfilePage: React.FC = () => {
   const [age, setAge] = useState('')
   const [course, setCourse] = useState('')
   const [courseYear, setCourseYear] = useState('')
+  const [bioQuote, setBioQuote] = useState('')
   const [minBudget, setMinBudget] = useState('')
   const [maxBudget, setMaxBudget] = useState('')
   const [selectedZones, setSelectedZones] = useState<TukZone[]>([])
@@ -107,6 +108,7 @@ const EditProfilePage: React.FC = () => {
     setAge(profile.age ? String(profile.age) : '')
     setCourse(profile.school ?? '')
     setCourseYear(profile.courseYear ? String(profile.courseYear) : '')
+    setBioQuote(profile.bioQuote ?? '')
     setMinBudget(profile.minBudget ? String(profile.minBudget) : '')
     setMaxBudget(profile.maxBudget ? String(profile.maxBudget) : '')
     setSelectedZones(profile.zones ?? [])
@@ -156,6 +158,7 @@ const EditProfilePage: React.FC = () => {
         ? parsedMaxBudget
         : profile?.maxBudget ?? 0
     const resolvedCourse = course.trim() || profile?.school || ''
+    const resolvedBioQuote = bioQuote.trim().slice(0, 100)
     const intent = role
 
     if (resolvedMinBudget < 3000) {
@@ -181,6 +184,7 @@ const EditProfilePage: React.FC = () => {
       displayName: resolvedName,
       age: resolvedAge,
       school: resolvedCourse,
+      bioQuote: resolvedBioQuote,
       courseYear: resolvedYear,
       minBudget: resolvedMinBudget,
       maxBudget: resolvedMaxBudget,
@@ -190,7 +194,18 @@ const EditProfilePage: React.FC = () => {
     try {
       if (avatarFile) {
         setIsUploading(true)
-        const uploadedPhotoUrl = await uploadToCloudinary(avatarFile)
+        let uploadedPhotoUrl = ''
+        try {
+          uploadedPhotoUrl = await uploadToCloudinary(avatarFile)
+        } catch (uploadError: any) {
+          const message =
+            uploadError instanceof Error
+              ? uploadError.message
+              : 'Could not upload profile photo.'
+          toast.error(message)
+          setSaveError(message)
+          return
+        }
         updatedData.photoURL = uploadedPhotoUrl
       }
 
@@ -429,6 +444,24 @@ const EditProfilePage: React.FC = () => {
                   className={inputClassName}
                   disabled={isSaving}
                 />
+              </div>
+
+              <div className="flex flex-col md:col-span-2">
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                  In one sentence, what are you looking for?
+                </label>
+                <input
+                  type="text"
+                  value={bioQuote}
+                  onChange={(e) => setBioQuote(e.target.value.slice(0, 100))}
+                  maxLength={100}
+                  placeholder="Looking for a calm, tidy roommate near campus."
+                  className={inputClassName}
+                  disabled={isSaving}
+                />
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  {bioQuote.length}/100
+                </p>
               </div>
             </div>
           </section>

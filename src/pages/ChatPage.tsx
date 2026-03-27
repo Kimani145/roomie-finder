@@ -75,6 +75,13 @@ const ChatPage: React.FC = () => {
       minute: '2-digit',
     }).format(new Date(timestamp))
 
+  const formatSeparator = (timestamp: number) =>
+    new Intl.DateTimeFormat('en-US', {
+      weekday: 'short',
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(new Date(timestamp))
+
   const handleBack = () => {
     navigate(
       (location.state as { from?: string } | null)?.from || '/messages'
@@ -336,7 +343,7 @@ const ChatPage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] md:h-screen overflow-hidden">
+    <div className="flex flex-col h-[100dvh] md:h-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
       <div className="shrink-0 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-4 flex items-center justify-between z-10">
         <div className="flex items-center gap-4 min-w-0">
           <button
@@ -427,15 +434,30 @@ const ChatPage: React.FC = () => {
         ) : (
           (() => {
             let lastDate: string | null = null
-            return messages.map((message) => {
+            return messages.map((message, index) => {
+              const previousMessage = index > 0 ? messages[index - 1] : null
               const messageDate = formatMessageDate(message.createdAt)
               const showDate = messageDate !== lastDate
               lastDate = messageDate
               const timeLabel = formatMessageTime(message.createdAt)
               const isMine = message.senderUid === currentUser?.uid
+              const isConsecutive =
+                Boolean(previousMessage) &&
+                previousMessage?.senderUid === message.senderUid &&
+                message.createdAt - previousMessage.createdAt < 300000
+              const showTimeSeparator =
+                Boolean(previousMessage) &&
+                message.createdAt - (previousMessage?.createdAt ?? 0) > 3600000
 
               return (
                 <React.Fragment key={message.id}>
+                  {showTimeSeparator && (
+                    <div className="flex justify-center my-3">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 px-2 py-1 rounded-full bg-slate-200/50 dark:bg-slate-800/60">
+                        {formatSeparator(message.createdAt)}
+                      </span>
+                    </div>
+                  )}
                   {showDate && (
                     <div className="flex justify-center my-6">
                       <span className="text-xs font-medium text-slate-500 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-800 px-3 py-1 rounded-full">
@@ -444,7 +466,7 @@ const ChatPage: React.FC = () => {
                     </div>
                   )}
                   {isMine ? (
-                    <div className="flex justify-end mb-4">
+                    <div className={`flex justify-end ${isConsecutive ? 'mt-1' : 'mt-4'} mb-1`}>
                       <div className="bg-brand-600 text-white px-4 py-2.5 rounded-2xl rounded-tr-sm shadow-sm max-w-[80%] break-words">
                         {message.text}
                         <div className="text-[10px] text-brand-100 text-right mt-1">
@@ -453,11 +475,23 @@ const ChatPage: React.FC = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex justify-start mb-4">
-                      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 px-4 py-2.5 rounded-2xl rounded-tl-sm shadow-sm max-w-[80%] break-words">
-                        {message.text}
-                        <div className="text-[10px] text-slate-400 dark:text-slate-500 text-left mt-1">
-                          {timeLabel}
+                    <div className={`flex justify-start ${isConsecutive ? 'mt-1' : 'mt-4'} mb-1`}>
+                      {!isConsecutive && (
+                        <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-700/40 flex items-center justify-center text-brand-700 dark:text-brand-200 font-syne font-bold text-xs shrink-0 mr-2 mt-1">
+                          {otherUser?.displayName?.charAt(0)?.toUpperCase() || '?'}
+                        </div>
+                      )}
+                      <div>
+                        {!isConsecutive && (
+                          <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                            {otherUser?.displayName ?? 'Member'}
+                          </p>
+                        )}
+                        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 px-4 py-2.5 rounded-2xl rounded-tl-sm shadow-sm max-w-[80%] break-words">
+                          {message.text}
+                          <div className="text-[10px] text-slate-400 dark:text-slate-500 text-left mt-1">
+                            {timeLabel}
+                          </div>
                         </div>
                       </div>
                     </div>

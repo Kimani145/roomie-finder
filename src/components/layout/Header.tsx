@@ -39,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
           className="md:hidden flex flex-col outline-none transition-all duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 rounded-lg px-2 py-1"
         >
           <div className="flex items-center gap-1">
-            <span className="font-display text-lg font-bold tracking-tight text-slate-50">
+            <span className="text-xl font-syne font-bold text-brand-600 dark:text-brand-400">
               Roomie Finder
             </span>
             <span className="text-[10px] text-slate-400">©</span>

@@ -143,6 +143,11 @@ const ProfilePage: React.FC = () => {
               <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
                 {profile.displayName}
               </h1>
+              {profile.bioQuote && (
+                <p className="mt-1 text-sm italic font-serif text-slate-600 dark:text-slate-300">
+                  "{profile.bioQuote}"
+                </p>
+              )}
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 {user?.email}
               </p>

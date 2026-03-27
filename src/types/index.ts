@@ -89,6 +89,7 @@ export interface UserProfile {
   lastActive: Date
   createdAt: Date
   bio: string
+  bioQuote?: string
   moveInMonth?: string | null
 }
 

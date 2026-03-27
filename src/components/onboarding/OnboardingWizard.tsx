@@ -59,6 +59,7 @@ export const OnboardingWizard: React.FC = () => {
   const [gender, setGender] = useState<Gender | ''>('')
   const [course, setCourse] = useState('')
   const [yearOfStudy, setYearOfStudy] = useState('')
+  const [bioQuote, setBioQuote] = useState('')
 
   const [zones, setZones] = useState<TukZone[]>([])
   const [minBudget, setMinBudget] = useState('')
@@ -205,6 +206,7 @@ export const OnboardingWizard: React.FC = () => {
         age: Number(age),
         school: 'Technical University of Kenya',
         courseYear: Number(yearOfStudy),
+        bioQuote: bioQuote.trim().slice(0, 100),
         minBudget: Number(minBudget),
         maxBudget: Number(maxBudget),
         zones,
@@ -435,6 +437,23 @@ export const OnboardingWizard: React.FC = () => {
                 {vitalsErrors.yearOfStudy && (
                   <p className={errorTextClassName}>{vitalsErrors.yearOfStudy}</p>
                 )}
+              </div>
+
+              <div className="flex flex-col md:col-span-2">
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                  In one sentence, what are you looking for?
+                </label>
+                <input
+                  type="text"
+                  value={bioQuote}
+                  onChange={(e) => setBioQuote(e.target.value.slice(0, 100))}
+                  maxLength={100}
+                  placeholder="Looking for a respectful roommate with a similar routine."
+                  className={inputClassName}
+                />
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  {bioQuote.length}/100
+                </p>
               </div>
             </div>
           </div>
