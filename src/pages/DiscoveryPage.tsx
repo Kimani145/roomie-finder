@@ -85,89 +85,83 @@ const DiscoveryPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      {/* Sticky control band */}
-      <div className="sticky top-0 z-30 pt-4 pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 mb-6">
-        {canToggleView && (
-          <div className="flex justify-center mb-2">
-            <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl">
-              <button
-                type="button"
-                onClick={() => setViewMode('rooms')}
-                className={`px-6 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                  viewMode === 'rooms'
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-50 shadow-sm'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                }`}
-              >
-                View Rooms
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('roommates')}
-                className={`px-6 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                  viewMode === 'roommates'
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-50 shadow-sm'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                }`}
-              >
-                View Roommates
-              </button>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-4">
+        <div className="sticky top-0 z-40 bg-slate-50 dark:bg-slate-950 pt-6 pb-4 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-4 mb-6">
+          {canToggleView && (
+            <div className="flex justify-center">
+              <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('rooms')}
+                  className={`px-6 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                    viewMode === 'rooms'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-50 shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                  }`}
+                >
+                  View Rooms
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('roommates')}
+                  className={`px-6 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                    viewMode === 'roommates'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-50 shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                  }`}
+                >
+                  View Roommates
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-700 dark:text-slate-200">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Zone
-            </span>
-            <select
-              value={filterZone}
-              onChange={(e) => setFilterZone(e.target.value)}
-              className="ml-auto w-full max-w-[170px] rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-sm outline-none focus:border-brand-500"
-            >
-              <option value="All">All</option>
-              {TUK_ZONES.map((zone) => (
-                <option key={zone} value={zone}>
-                  {zone}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-700 dark:text-slate-200">
-            <div className="mb-1 flex items-center justify-between">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-700 dark:text-slate-200">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Max Budget
+                Zone
               </span>
-              <span className="text-xs font-semibold text-brand-600 dark:text-brand-400">
-                KES {filterMaxBudget.toLocaleString()}
-              </span>
-            </div>
-            <input
-              type="range"
-              min={3000}
-              max={50000}
-              step={500}
-              value={filterMaxBudget}
-              onChange={(e) => setFilterMaxBudget(Number(e.target.value))}
-              className="w-full accent-brand-500"
-            />
-          </label>
-        </div>
+              <select
+                value={filterZone}
+                onChange={(e) => setFilterZone(e.target.value)}
+                className="ml-auto w-full max-w-[170px] rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-sm outline-none focus:border-brand-500"
+              >
+                <option value="All">All</option>
+                {TUK_ZONES.map((zone) => (
+                  <option key={zone} value={zone}>
+                    {zone}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-      </div>
+            <label className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-700 dark:text-slate-200">
+              <div className="mb-1 flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  Max Budget
+                </span>
+                <span className="text-xs font-semibold text-brand-600 dark:text-brand-400">
+                  KES {filterMaxBudget.toLocaleString()}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={3000}
+                max={50000}
+                step={500}
+                value={filterMaxBudget}
+                onChange={(e) => setFilterMaxBudget(Number(e.target.value))}
+                className="w-full accent-brand-500"
+              />
+            </label>
+          </div>
 
-      {/* Content Container & Grid */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        {/* Ranking reinforcement label — scrolls with content */}
-        {!isLoading && displayedResults.length > 0 && (
-          <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center justify-between">
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
               Showing highest compatibility first
             </p>
             <span className="text-xs text-slate-400 dark:text-slate-500">
-              {displayedResults.length}{' '}
+              {!isLoading ? displayedResults.length : 0}{' '}
               {activeViewMode === 'rooms'
                 ? displayedResults.length === 1
                   ? 'listing'
@@ -178,7 +172,8 @@ const DiscoveryPage: React.FC = () => {
               found
             </span>
           </div>
-        )}
+        </div>
+
         {/* Relaxed filter notice */}
         {hasRelaxedFilters && displayedResults.length > 0 && (
           <div className="mb-5 rounded-xl border border-amber-500/30 dark:border-amber-400/40 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-700 dark:text-amber-200">
@@ -222,7 +217,7 @@ const DiscoveryPage: React.FC = () => {
 
         {/* Ranked feed - Strict responsive grid */}
         {!isLoading && displayedResults.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {activeViewMode === 'rooms'
               ? displayedResults.map((match) => (
                   <ListingCard

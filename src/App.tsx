@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AppLayout } from '@/components/layout'
 import { MatchOverlay } from '@/components/ui/MatchOverlay'
+import GlobalListeners from '@/components/GlobalListeners'
 import SplashScreen from '@/components/ui/SplashScreen'
 import { AuthProvider } from '@/context/AuthContext'
 import { ThemeProvider } from '@/context/ThemeContext'
@@ -21,8 +22,10 @@ import {
   MatchesPage,
   MessagesPage,
   ChatPage,
+  NotificationsPage,
   ListingWizardPage,
   MyListingsPage,
+  ListingDetailPage,
 } from '@/pages'
 
 const AppRoutes: React.FC = () => {
@@ -51,6 +54,7 @@ const AppRoutes: React.FC = () => {
               'font-syne text-sm rounded-xl shadow-lg dark:bg-slate-800 dark:text-white border border-slate-100 dark:border-slate-700',
           }}
         />
+        <GlobalListeners />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Navigate to="/discover" replace />} />
@@ -133,6 +137,26 @@ const AppRoutes: React.FC = () => {
               <ProtectedRoute>
                 <AppLayout>
                   <ChatPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <NotificationsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/listing/:listingId"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ListingDetailPage />
                 </AppLayout>
               </ProtectedRoute>
             }

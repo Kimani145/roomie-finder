@@ -1,10 +1,11 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Users, MessageSquare } from 'lucide-react';
 import { useMatches, HydratedMatch } from '@/hooks/useMatches';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { getCompatibilityPercentage } from '@/engine/compatibilityEngine';
 import { formatCourseYear, formatTimeAgo, getMatchBadgeClasses } from '@/utils/formatters';
+import { useNotificationStore } from '@/store/notificationStore';
 
 const MatchListItemSkeleton: React.FC = () => (
   <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm overflow-hidden mb-4">
@@ -21,6 +22,7 @@ const MatchListItemSkeleton: React.FC = () => (
 
 const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { otherUser } = match;
   const compatibilityPct = getCompatibilityPercentage(match.compatibilityScore);
   const primaryZone = otherUser.zones?.[0] ?? '—';
@@ -32,23 +34,31 @@ const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
         : 'Flexible';
 
   const handleMessageClick = () => {
-    navigate(`/chat/${match.matchId}`);
+    navigate(`/chat/${match.matchId}`, {
+      state: { from: location.pathname },
+    });
   };
 
   return (
     <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm hover:shadow-md transition-shadow mb-4 overflow-hidden">
       <div className="flex items-center space-x-4">
-        {otherUser.photoURL ? (
-          <img
-            src={otherUser.photoURL}
-            alt={otherUser.displayName}
-            className="w-12 h-12 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-12 h-12 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-700/40 flex items-center justify-center text-brand-700 dark:text-brand-200 font-syne font-bold text-lg shrink-0">
-            {otherUser.displayName.charAt(0)}
-          </div>
-        )}
+        <Link
+          to={`/profile/${otherUser.uid}`}
+          onClick={(e) => e.stopPropagation()}
+          className="shrink-0"
+        >
+          {otherUser.photoURL ? (
+            <img
+              src={otherUser.photoURL}
+              alt={otherUser.displayName}
+              className="w-12 h-12 rounded-full object-cover hover:opacity-80 transition-opacity"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-700/40 flex items-center justify-center text-brand-700 dark:text-brand-200 font-syne font-bold text-lg shrink-0 hover:opacity-80 transition-opacity">
+              {otherUser.displayName.charAt(0)}
+            </div>
+          )}
+        </Link>
         <div className="space-y-1">
           <div className="flex items-center flex-wrap gap-2">
             <h3 className="font-bold font-syne text-lg text-slate-900 dark:text-slate-50 flex items-center">
@@ -85,6 +95,11 @@ const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
 const MatchesPage: React.FC = () => {
   const navigate = useNavigate();
   const { matches, isLoading, error } = useMatches();
+  const clearUnreadMatches = useNotificationStore((state) => state.clearUnreadMatches);
+
+  useEffect(() => {
+    clearUnreadMatches();
+  }, [clearUnreadMatches]);
 
   const renderContent = () => {
     if (isLoading) {

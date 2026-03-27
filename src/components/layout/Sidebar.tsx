@@ -1,7 +1,16 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { Compass, Users, MessageCircle, User, Building } from 'lucide-react'
+import {
+  Compass,
+  Users,
+  MessageCircle,
+  User,
+  Building,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { useNotificationStore } from '@/store/notificationStore'
 
 interface NavItem {
   path: string
@@ -17,10 +26,17 @@ const BASE_NAV: NavItem[] = [
 
 interface SidebarProps {
   className?: string
+  isCollapsed: boolean
+  setIsCollapsed: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  className,
+  isCollapsed,
+  setIsCollapsed,
+}) => {
   const { currentUser } = useAuthStore()
+  const { unreadMessages, unreadMatches } = useNotificationStore()
 
   const navItems: NavItem[] = [
     ...BASE_NAV,
@@ -33,47 +49,84 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   return (
     <aside
       className={[
-        'border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-screen sticky top-0 flex-col',
-        className ?? 'hidden lg:flex lg:w-60',
+        'relative hidden md:flex sticky top-0 h-screen flex-col overflow-hidden border-r border-slate-800 bg-slate-900 transition-all duration-300 shrink-0',
+        isCollapsed ? 'w-20' : 'w-64',
+        className ?? '',
       ].join(' ')}
     >
-      <div className="px-6 pt-8 pb-6 border-b border-slate-200 dark:border-slate-800">
-        <NavLink
-          to="/discover"
-          className="block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-        >
-          <div className="font-display text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+      <div className="flex items-center h-16 px-4 border-b border-slate-800 shrink-0">
+        {!isCollapsed && (
+          <span className="text-xl font-syne font-bold text-brand-400 truncate">
             Roomie Finder
-          </div>
-          <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-            Ranked by Compatibility
-          </p>
-        </NavLink>
+          </span>
+        )}
       </div>
 
-      <nav className="flex-1 px-3 py-4" aria-label="Primary desktop navigation">
+      <nav
+        className={[
+          'flex-1 py-4 pb-20',
+          isCollapsed ? 'px-2' : 'px-3',
+        ].join(' ')}
+        aria-label="Primary desktop navigation"
+      >
         <ul className="space-y-1">
           {navItems.map(({ path, label, icon: Icon }) => (
             <li key={path}>
               <NavLink
                 to={path}
+                aria-label={label}
+                title={isCollapsed ? label : undefined}
                 className={({ isActive }) =>
                   [
-                    'flex items-center gap-3 px-3 py-2.5 text-sm outline-none',
+                    'relative flex items-center py-2.5 text-sm outline-none transition-colors',
+                    isCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
                     'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
                     isActive
-                      ? 'bg-blue-50 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold rounded-lg'
-                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors',
+                      ? 'bg-blue-500/15 text-blue-300 font-bold rounded-xl'
+                      : 'text-slate-300 hover:bg-slate-800/80 rounded-xl',
                   ].join(' ')
                 }
               >
-                <Icon className="h-5 w-5" aria-hidden="true" />
-                <span>{label}</span>
+                <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                {!isCollapsed && (
+                  <span className="whitespace-nowrap overflow-hidden">{label}</span>
+                )}
+                {!isCollapsed && path === '/messages' && unreadMessages > 0 && (
+                  <span className="ml-auto min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                    {unreadMessages > 99 ? '99+' : unreadMessages}
+                  </span>
+                )}
+                {!isCollapsed && path === '/matches' && unreadMatches > 0 && (
+                  <span className="ml-auto min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                    {unreadMatches > 99 ? '99+' : unreadMatches}
+                  </span>
+                )}
+                {isCollapsed && path === '/messages' && unreadMessages > 0 && (
+                  <span className="absolute right-2 top-2 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                    {unreadMessages > 99 ? '99+' : unreadMessages}
+                  </span>
+                )}
+                {isCollapsed && path === '/matches' && unreadMatches > 0 && (
+                  <span className="absolute right-2 top-2 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                    {unreadMatches > 99 ? '99+' : unreadMatches}
+                  </span>
+                )}
               </NavLink>
             </li>
           ))}
         </ul>
       </nav>
+
+      <div className="mt-auto p-4 border-t border-slate-800">
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="w-full flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+        </button>
+      </div>
     </aside>
   )
 }

@@ -1,21 +1,28 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ChevronLeft,
   CheckCircle,
+  Home,
   Moon,
   Zap,
   Wind,
   Wine,
 } from 'lucide-react'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { formatBudget } from '@/utils/formatters'
 import { useAuthStore } from '@/store/authStore'
 import { getUserProfile } from '@/firebase/profiles'
 import { hasLiked, likeProfile } from '@/firebase/matches'
+import { db } from '@/firebase/config'
 import { useMatchStore } from '@/store/useMatchStore'
 import { calculateCompatibilityScore, getCompatibilityPercentage } from '@/engine/compatibilityEngine'
-import type { UserProfile, ScoreBreakdown } from '@/types'
+import { ImageGalleryModal } from '@/components/ui/ImageGalleryModal'
+import type { Listing, UserProfile, ScoreBreakdown } from '@/types'
+
+const DEFAULT_GRADIENT =
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%231d4ed8"/><stop offset="100%" stop-color="%230f172a"/></linearGradient></defs><rect width="800" height="600" fill="url(%23g)"/></svg>'
 
 const ProfileDetailPage: React.FC = () => {
   const { uid } = useParams<{ uid: string }>()
@@ -28,9 +35,12 @@ const ProfileDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [scoreBreakdown, setScoreBreakdown] = useState<ScoreBreakdown | null>(null)
   const [compatibilityScore, setCompatibilityScore] = useState<number>(0)
+  const [hostListing, setHostListing] = useState<Listing | null>(null)
   const [isSubmittingLike, setIsSubmittingLike] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
   const [likeSent, setLikeSent] = useState(false)
+  const [galleryOpen, setGalleryOpen] = useState(false)
+  const [galleryStartIndex, setGalleryStartIndex] = useState(0)
 
   useEffect(() => {
     let isMounted = true
@@ -96,6 +106,46 @@ const ProfileDetailPage: React.FC = () => {
     }
   }, [uid, currentUser])
 
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchHostListing = async () => {
+      if (!profile || profile.role !== 'HOST') {
+        if (isMounted) setHostListing(null)
+        return
+      }
+
+      try {
+        const listingQuery = query(
+          collection(db, 'listings'),
+          where('hostId', '==', profile.uid),
+          where('status', '==', 'active')
+        )
+
+        const snapshot = await getDocs(listingQuery)
+
+        if (!isMounted) return
+
+        if (snapshot.empty) {
+          setHostListing(null)
+          return
+        }
+
+        const firstListing = snapshot.docs[0]
+        setHostListing({ id: firstListing.id, ...(firstListing.data() as Omit<Listing, 'id'>) })
+      } catch (err) {
+        console.error('Failed to fetch host listing', err)
+        if (isMounted) setHostListing(null)
+      }
+    }
+
+    fetchHostListing()
+
+    return () => {
+      isMounted = false
+    }
+  }, [profile])
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen text-blue-600 dark:text-blue-400 font-syne font-bold bg-slate-50 dark:bg-slate-950">
@@ -146,27 +196,20 @@ const ProfileDetailPage: React.FC = () => {
     return `Active ${diffDays}d ago`
   }
 
-  function getInitials(name: string): string {
-    if (!name) return '?'
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
-  }
-
-  const activityStatus = getActivityStatus(profile.lastActive)
-  const primaryZone = profile.zones?.[0] || '—'
-  const isSelfProfile = !!currentUser && currentUser.uid === profile.uid
+  const viewedUser = profile
+  const activityStatus = getActivityStatus(viewedUser.lastActive)
+  const primaryZone = viewedUser.zones?.[0] || '—'
+  const isSelfProfile = !!currentUser && currentUser.uid === viewedUser.uid
+  const coverImg = hostListing?.photos?.[0] || viewedUser.photoURL || DEFAULT_GRADIENT
+  const additionalPhotos = hostListing?.photos?.slice(1, 5) ?? []
 
   const handleMatchClick = async () => {
-    if (!currentUser || !profile || isSubmittingLike || isSelfProfile) return
+    if (!currentUser || !viewedUser || isSubmittingLike || isSelfProfile) return
 
     setIsSubmittingLike(true)
     setActionError(null)
     try {
-      const result = await likeProfile(currentUser.uid, profile.uid)
+      const result = await likeProfile(currentUser.uid, viewedUser.uid)
 
       if (result.matched && result.matchId) {
         await new Promise<void>((resolve) => {
@@ -180,9 +223,9 @@ const ProfileDetailPage: React.FC = () => {
             avatar: currentUser.photoURL,
           },
           userB: {
-            uid: profile.uid,
-            name: profile.displayName,
-            avatar: profile.photoURL,
+            uid: viewedUser.uid,
+            name: viewedUser.displayName,
+            avatar: viewedUser.photoURL,
           },
         })
         return
@@ -201,75 +244,130 @@ const ProfileDetailPage: React.FC = () => {
     }
   }
 
+  const handlePassClick = () => {
+    navigate('/discover')
+  }
+
   return (
-    // Desktop Containerization: slate-50 background, centered floating card on desktop
     <div className="bg-slate-50 dark:bg-slate-950 min-h-screen">
-      {/* Centered profile card container - full screen on mobile, floating card on desktop */}
-      <div className="max-w-3xl mx-auto bg-white dark:bg-slate-900 min-h-screen md:min-h-[calc(100vh-4rem)] md:my-8 md:rounded-2xl md:shadow-xl overflow-hidden relative pb-24 border border-transparent dark:border-slate-800">
-        <div className="relative">
-          <div className="w-full h-32 bg-slate-200 dark:bg-slate-800" />
-
-          <button
-            onClick={() => navigate('/discover')}
-            className="absolute top-4 left-4 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-full p-2 hover:bg-white dark:hover:bg-slate-900 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-            aria-label="Go back"
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 lg:p-8">
+        <div className="lg:col-span-7 flex flex-col gap-4">
+          <div
+            className="relative w-full h-80 sm:h-96 lg:h-[500px] lg:rounded-2xl overflow-hidden group cursor-pointer"
+            onClick={() => {
+              setGalleryStartIndex(0)
+              setGalleryOpen(true)
+            }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setGalleryStartIndex(0)
+                setGalleryOpen(true)
+              }
+            }}
+            aria-label="Open full-screen gallery"
           >
-            <ChevronLeft className="w-5 h-5 text-slate-900 dark:text-slate-50" />
-          </button>
-        </div>
-
-        <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 border-4 border-white dark:border-slate-900 shadow-sm flex items-center justify-center -mt-12 ml-6 text-3xl font-syne font-bold text-slate-300 dark:text-slate-500 overflow-hidden">
-          {profile.photoURL ? (
             <img
-              src={profile.photoURL}
-              alt={profile.displayName}
-              className="h-full w-full object-cover"
+              src={coverImg}
+              alt={viewedUser.displayName}
+              className="object-cover w-full h-full"
             />
-          ) : (
-            getInitials(profile.displayName)
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent flex flex-col justify-end p-6">
+              <button
+                onClick={() => navigate('/discover')}
+                className="absolute top-4 left-4 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-full p-2 hover:bg-white dark:hover:bg-slate-900 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                aria-label="Go back"
+              >
+                <ChevronLeft className="w-5 h-5 text-slate-900 dark:text-slate-50" />
+              </button>
+              <div className="flex items-end justify-between gap-3">
+                <div className="min-w-0">
+                  <h1 className="text-3xl font-bold text-white">
+                    {viewedUser.displayName}, {viewedUser.age}
+                  </h1>
+                  <p className="text-sm text-white/90 mt-1">
+                    Year {viewedUser.courseYear} • {viewedUser.school}
+                  </p>
+                </div>
+                <div className="bg-emerald-500 text-white px-4 py-2 rounded-2xl text-sm font-black shadow-md border border-emerald-400 whitespace-nowrap">
+                  {compatibilityScore}% Match
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {additionalPhotos.length > 0 && (
+            <div className="hidden lg:grid grid-cols-4 gap-3">
+              {additionalPhotos.map((photo, i) => (
+                <div
+                  key={`${photo}-${i}`}
+                  className="h-24 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => {
+                    setGalleryStartIndex(i + 1)
+                    setGalleryOpen(true)
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      setGalleryStartIndex(i + 1)
+                      setGalleryOpen(true)
+                    }
+                  }}
+                  aria-label={`Open full-screen gallery at image ${i + 2}`}
+                >
+                  <img
+                    src={photo}
+                    alt={`Room preview ${i + 2}`}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
-        <div className="px-6 pt-3 pb-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="font-syne text-2xl font-bold text-slate-900 dark:text-slate-50 leading-tight">
-                {profile.displayName}, {profile.age}
-              </h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 leading-tight">
-                Year {profile.courseYear} • {profile.school}
-              </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {activityStatus}
-              </p>
-            </div>
+        <div className="lg:col-span-5 flex flex-col gap-6 p-6 lg:p-0 pb-24 lg:pb-0">
+          {hostListing && (
+            <Link
+              to={`/listing/${hostListing.id}`}
+              className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            >
+              <div>
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                  KES {hostListing.roommateShare.toLocaleString()} • {hostListing.zone}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  {hostListing.housingType}
+                </p>
+              </div>
+              <span className="text-sm font-medium text-blue-600 dark:text-blue-400 inline-flex items-center gap-1">
+                <Home className="h-4 w-4" />
+                View Room
+              </span>
+            </Link>
+          )}
 
-            <div className="bg-emerald-500 text-white px-4 py-2 rounded-2xl text-lg font-black shadow-md border-2 border-emerald-400 whitespace-nowrap">
-              {compatibilityScore}% Compatible
+          <div className="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-100 dark:border-slate-700">
+            <div className="flex items-center justify-between text-sm">
+              <div>
+                <p className="text-slate-500 dark:text-slate-400 font-medium">Budget</p>
+                <p className="font-bold text-slate-900 dark:text-slate-50 text-lg">
+                  {formatBudget(viewedUser.minBudget, viewedUser.maxBudget)}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-slate-500 dark:text-slate-400 font-medium">Zone</p>
+                <p className="font-bold text-slate-900 dark:text-slate-50 text-lg">
+                  {primaryZone}
+                </p>
+              </div>
             </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">{activityStatus}</p>
           </div>
-        </div>
 
-        {/* Budget & Zone Block */}
-        <div className="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 mb-6 mx-6">
-          <div className="flex items-center justify-between text-sm">
-            <div>
-              <p className="text-slate-500 dark:text-slate-400 font-medium">Budget</p>
-              <p className="font-bold text-slate-900 dark:text-slate-50 text-lg">
-                {formatBudget(profile.minBudget, profile.maxBudget)}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-slate-500 dark:text-slate-400 font-medium">Zone</p>
-              <p className="font-bold text-slate-900 dark:text-slate-50 text-lg">
-                {primaryZone}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Compatibility Breakdown */}
-        <div className="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 mb-6 mx-6">
+          <div className="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-100 dark:border-slate-700">
           <h2 className="font-syne text-lg font-bold text-slate-900 dark:text-slate-50 mb-4">
             Compatibility Breakdown
           </h2>
@@ -283,7 +381,7 @@ const ProfileDetailPage: React.FC = () => {
                   color={scoreBreakdown.budgetOverlap ? "emerald" : "amber"}
                 />
                 <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
-                  Their budget: KES {profile.minBudget} - {profile.maxBudget}
+                  Their budget: KES {viewedUser.minBudget} - {viewedUser.maxBudget}
                 </span>
               </div>
 
@@ -305,7 +403,7 @@ const ProfileDetailPage: React.FC = () => {
                   color="emerald"
                 />
                 <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
-                  Cleanliness: {profile.lifestyle.cleanlinessLevel}
+                  Cleanliness: {viewedUser.lifestyle.cleanlinessLevel}
                 </span>
               </div>
 
@@ -316,7 +414,7 @@ const ProfileDetailPage: React.FC = () => {
                   color="emerald"
                 />
                 <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
-                  Sleep preference: {profile.lifestyle.sleepTime}
+                  Sleep preference: {viewedUser.lifestyle.sleepTime}
                 </span>
               </div>
 
@@ -327,7 +425,7 @@ const ProfileDetailPage: React.FC = () => {
                   color="emerald"
                 />
                 <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 block">
-                  Noise tolerance: {profile.lifestyle.noiseTolerance}
+                  Noise tolerance: {viewedUser.lifestyle.noiseTolerance}
                 </span>
               </div>
             </div>
@@ -338,26 +436,24 @@ const ProfileDetailPage: React.FC = () => {
           )}
         </div>
 
-        {/* Bio Section */}
-        {profile.bio && (
-          <div className="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 mb-6 mx-6">
+          {viewedUser.bio && (
+            <div className="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-100 dark:border-slate-700">
             <h3 className="font-syne text-sm font-bold text-slate-900 dark:text-slate-50 mb-2">
               About
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              {profile.bio}
+              {viewedUser.bio}
             </p>
           </div>
         )}
 
-        {/* Living Habits & Preferences */}
-        <div className="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 mb-6 mx-6">
+          <div className="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-100 dark:border-slate-700">
           <h2 className="font-syne text-lg font-bold text-slate-900 dark:text-slate-50 mb-4">
             Living Habits & Preferences
           </h2>
 
           <div className="space-y-3">
-            {!profile.lifestyle.smoking && (
+            {!viewedUser.lifestyle.smoking && (
               <div className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-emerald-500 dark:text-emerald-300 flex-shrink-0" />
                 <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">
@@ -366,7 +462,7 @@ const ProfileDetailPage: React.FC = () => {
               </div>
             )}
 
-            {!profile.lifestyle.alcohol && (
+            {!viewedUser.lifestyle.alcohol && (
               <div className="flex items-center gap-3">
                 <Wine className="w-5 h-5 text-emerald-500 dark:text-emerald-300 flex-shrink-0" />
                 <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">
@@ -378,54 +474,62 @@ const ProfileDetailPage: React.FC = () => {
             <div className="flex items-center gap-3">
               <Moon className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
               <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">
-                {profile.lifestyle.sleepTime} Bird
+                {viewedUser.lifestyle.sleepTime} Bird
               </span>
             </div>
 
             <div className="flex items-center gap-3">
               <Zap className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
               <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">
-                {profile.lifestyle.cleanlinessLevel} Cleanliness Standard
+                {viewedUser.lifestyle.cleanlinessLevel} Cleanliness Standard
               </span>
             </div>
 
             <div className="flex items-center gap-3">
               <Wind className="w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
               <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">
-                {profile.lifestyle.noiseTolerance} Noise Tolerance
+                {viewedUser.lifestyle.noiseTolerance} Noise Tolerance
               </span>
             </div>
           </div>
-        </div>
+          </div>
 
-        {/* Sticky Action Dock - locked to centered container bottom */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-3xl bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 p-4 flex gap-4 pb-safe md:rounded-b-2xl md:pb-4">
-          <button
-            onClick={() => console.log('Pass')}
-            className="flex-[1] py-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-50 transition-colors border border-slate-200 dark:border-slate-700"
-          >
-            Pass
-          </button>
-          <button
-            onClick={handleMatchClick}
-            disabled={isSubmittingLike || likeSent || isSelfProfile}
-            className="flex-[2] py-4 rounded-xl bg-brand-500 text-white font-bold shadow-lg shadow-brand-500/30 hover:bg-brand-600 transition-all disabled:bg-brand-300 disabled:cursor-not-allowed disabled:shadow-none"
-          >
-            {isSelfProfile
-              ? 'This is you'
-              : isSubmittingLike
-                ? 'Matching...'
-                : likeSent
-                  ? 'Like sent'
-                  : 'Match'}
-          </button>
+          <div className="mt-auto">
+            <div className="flex gap-4">
+              <button
+                onClick={handlePassClick}
+                className="flex-1 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                Pass
+              </button>
+              <button
+                onClick={handleMatchClick}
+                disabled={likeSent || isSubmittingLike || isSelfProfile}
+                className="flex-1 py-3 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors shadow-sm disabled:bg-blue-300 disabled:cursor-not-allowed"
+              >
+                {isSelfProfile
+                  ? 'This is you'
+                  : isSubmittingLike
+                    ? 'Sending...'
+                    : likeSent
+                      ? 'Liked'
+                      : 'Like Profile'}
+              </button>
+            </div>
+            {actionError && (
+              <p className="mt-3 text-sm text-red-600 dark:text-red-300">{actionError}</p>
+            )}
+          </div>
         </div>
-        {actionError && (
-          <p className="fixed bottom-[5.25rem] left-1/2 z-20 w-full max-w-3xl -translate-x-1/2 px-4 text-center text-sm text-red-600 dark:text-red-300">
-            {actionError}
-          </p>
-        )}
       </div>
+
+      {galleryOpen && hostListing?.photos && (
+        <ImageGalleryModal
+          images={hostListing.photos}
+          initialIndex={galleryStartIndex}
+          onClose={() => setGalleryOpen(false)}
+        />
+      )}
     </div>
   )
 }
