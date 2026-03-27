@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Home } from 'lucide-react'
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { toast } from 'react-hot-toast'
 import { getListingById } from '@/firebase/listings'
 import { ImageGalleryModal } from '@/components/ui/ImageGalleryModal'
 import { useAuthStore } from '@/store/authStore'
+import { db } from '@/firebase/config'
 import type { Listing } from '@/types'
 
 const ListingDetailPage: React.FC = () => {
@@ -14,11 +17,31 @@ const ListingDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null)
 
-  const handleMessageOwner = () => {
+  const handleMessageOwner = async () => {
     if (!listing || !currentUser) return
 
     const chatId = [currentUser.uid, listing.hostId].sort().join('_')
-    navigate(`/chat/${chatId}`)
+    const chatData = {
+      participants: [currentUser.uid, listing.hostId],
+      status: 'matched',
+      updatedAt: serverTimestamp(),
+      lastMessage: '',
+      unreadBy: [],
+    }
+
+    try {
+      await setDoc(doc(db, 'chats', chatId), chatData, { merge: true })
+      navigate(`/chat/${chatId}`)
+    } catch (error: any) {
+      if (error?.code === 'permission-denied') {
+        toast.error('You must match with this user before sending a message!', {
+          icon: '🔒',
+        })
+        return
+      }
+      toast.error('Could not start conversation. Please try again.')
+      console.error(error)
+    }
   }
 
   useEffect(() => {

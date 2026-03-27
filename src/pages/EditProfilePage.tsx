@@ -11,6 +11,7 @@ import { getUserProfile } from '@/firebase/profiles'
 import { db } from '@/firebase/config'
 import { TUK_ZONES, TukZone } from '@/constants/zones'
 import type { UserProfile, UserRole } from '@/types'
+import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
 
 const TUK_COURSES = [
   'BSc Information Science',
@@ -57,6 +58,8 @@ const EditProfilePage: React.FC = () => {
   const [minBudget, setMinBudget] = useState('')
   const [maxBudget, setMaxBudget] = useState('')
   const [selectedZones, setSelectedZones] = useState<TukZone[]>([])
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
 
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -153,6 +156,7 @@ const EditProfilePage: React.FC = () => {
         ? parsedMaxBudget
         : profile?.maxBudget ?? 0
     const resolvedCourse = course.trim() || profile?.school || ''
+    const intent = role
 
     if (resolvedMinBudget < 3000) {
       setSaveError('Minimum budget must be at least 3,000 KES')
@@ -166,7 +170,13 @@ const EditProfilePage: React.FC = () => {
       return
     }
 
-    const updatedData = {
+    if ((intent === 'SEEKER' || intent === 'FLEX') && !currentUser?.photoURL && !avatarFile) {
+      toast.error('A profile photo is required for Seekers and Flex users.')
+      setIsSaving(false)
+      return
+    }
+
+    const updatedData: Partial<UserProfile> = {
       role,
       displayName: resolvedName,
       age: resolvedAge,
@@ -178,6 +188,12 @@ const EditProfilePage: React.FC = () => {
     }
 
     try {
+      if (avatarFile) {
+        setIsUploading(true)
+        const uploadedPhotoUrl = await uploadToCloudinary(avatarFile)
+        updatedData.photoURL = uploadedPhotoUrl
+      }
+
       await updateDoc(doc(db, 'profiles', uid), updatedData)
 
       if (profile) {
@@ -198,6 +214,7 @@ const EditProfilePage: React.FC = () => {
         setSaveError('Failed to update your profile. Please try again.')
       }
     } finally {
+      setIsUploading(false)
       setIsSaving(false)
     }
   }
@@ -321,6 +338,30 @@ const EditProfilePage: React.FC = () => {
                   </button>
                 )
               })}
+            </div>
+
+            <div className="mt-8 p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2">
+                Profile Photo {role === 'HOST' ? '(Optional)' : '(Required)'}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+                {role === 'HOST'
+                  ? 'You will upload your room photos later in the Listing Wizard.'
+                  : 'Hosts need to see who they are matching with. Please upload a clear photo of yourself.'}
+              </p>
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-200 dark:file:bg-slate-700 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-800 dark:file:text-slate-100 hover:file:bg-slate-300 dark:hover:file:bg-slate-600"
+                disabled={isSaving}
+              />
+              {avatarFile && (
+                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                  Selected: {avatarFile.name}
+                </p>
+              )}
             </div>
           </section>
 
@@ -465,11 +506,11 @@ const EditProfilePage: React.FC = () => {
             </button>
             <button
               type="submit"
-              disabled={isSaving}
+              disabled={isSaving || isUploading}
               className="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
             >
               {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isUploading ? 'Uploading photo...' : isSaving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>

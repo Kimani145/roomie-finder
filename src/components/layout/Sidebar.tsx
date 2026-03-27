@@ -49,14 +49,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       className={[
-        'relative hidden md:flex sticky top-0 h-screen flex-col overflow-hidden border-r border-slate-800 bg-slate-900 transition-all duration-300 shrink-0',
+        'hidden md:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 sticky top-0 h-screen overflow-hidden shrink-0',
         isCollapsed ? 'w-20' : 'w-64',
         className ?? '',
       ].join(' ')}
     >
-      <div className="flex items-center h-16 px-4 border-b border-slate-800 shrink-0">
+      <div className="flex items-center h-16 px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
         {!isCollapsed && (
-          <span className="text-xl font-syne font-bold text-brand-400 truncate">
+          <span className="text-xl font-syne font-bold text-brand-600 dark:text-brand-400 truncate">
             Roomie Finder
           </span>
         )}
@@ -82,8 +82,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     isCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
                     'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
                     isActive
-                      ? 'bg-blue-500/15 text-blue-300 font-bold rounded-xl'
-                      : 'text-slate-300 hover:bg-slate-800/80 rounded-xl',
+                      ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 font-bold rounded-xl'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl',
                   ].join(' ')
                 }
               >
@@ -117,11 +117,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </ul>
       </nav>
 
-      <div className="mt-auto p-4 border-t border-slate-800">
+      <div className="mt-auto p-4 border-t border-slate-200 dark:border-slate-800">
         <button
           type="button"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="w-full flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="w-full flex items-center justify-center p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}

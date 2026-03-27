@@ -1,73 +1,72 @@
 # 🏠 Roomie Finder
 
-> Student roommate matching built on compatibility, not listings.
+Student roommate matching for TUK students, built around compatibility scoring instead of pure listing search.
 
-## Stack
+## Core Features
 
-- **React 18** + **TypeScript**
-- **Vite** (dev server + bundler)
-- **Firebase** (Firestore, Auth)
-- **Cloudinary** (unsigned image uploads)
-- **Zustand** (state management)
-- **React Router v6**
+- Compatibility-driven discovery feed (rooms + roommates)
+- Mutual-like matching flow
+- Real-time chat with unread tracking (`unreadBy`)
+- Persistent notification history (Firestore-backed)
+- Role-based profiles (`HOST`, `SEEKER`, `FLEX`)
+- Listing creation wizard with Cloudinary image uploads
+- Inline avatar upload from Profile page
+- Responsive app shell with collapsible desktop sidebar
+- PWA metadata support (`site.webmanifest`, favicon set, apple touch icon)
 
----
+## Tech Stack
+
+- React 18 + TypeScript
+- Vite
+- Firebase Auth + Firestore
+- Zustand
+- React Router v6
+- Tailwind CSS
+- Cloudinary (unsigned uploads)
 
 ## Project Structure
 
-```
+```txt
 src/
 ├── components/
-│   ├── ui/           # Shared design system components (Button, Badge, BottomSheet…)
-│   ├── onboarding/   # Multi-step profile wizard
-│   ├── discovery/    # Feed, filter pills, profile cards
-│   ├── layout/       # App shell, responsive nav, notification bell
-│   └── GlobalListeners.tsx  # Background realtime toasts + notification sync
+│   ├── discovery/
+│   ├── layout/
+│   ├── onboarding/
+│   ├── ui/
+│   └── GlobalListeners.tsx
 ├── engine/
-│   └── compatibilityEngine.ts   # Core scoring + matching logic
+│   └── compatibilityEngine.ts
 ├── firebase/
-│   ├── config.ts     # Firebase init
-│   ├── profiles.ts   # Firestore profile CRUD
-│   ├── listings.ts   # Listing fetch helpers (host and by id)
-│   └── matches.ts    # Like / mutual match logic + recipient notifications
+│   ├── config.ts
+│   ├── listings.ts
+│   ├── matches.ts
+│   ├── notifications.ts
+│   └── profiles.ts
 ├── hooks/
-│   ├── useAuthListener.ts
+│   ├── useAuth.ts
 │   ├── useDiscovery.ts
-│   └── useChat.ts    # Shared chat send/read/unread logic
-├── pages/            # Route-level page components
-│   ├── ProfileDetailPage.tsx   # Full profile view + lightbox trigger
-│   ├── MessagesPage.tsx        # Gmail-style unread inbox rows
-│   ├── NotificationsPage.tsx   # Notification center with action redirects
-│   └── ListingDetailPage.tsx   # Listing destination route
+│   └── useChat.ts
+├── pages/
 ├── store/
 │   ├── authStore.ts
 │   ├── discoveryStore.ts
-│   └── notificationStore.ts    # Message/match counters + notification feed
+│   └── notificationStore.ts
 ├── types/
-│   └── index.ts      # All TypeScript types
-├── utils/
-│   └── formatters.ts
-└── styles/
-    └── global.css
+│   └── index.ts
+└── utils/
+    ├── formatters.ts
+    └── uploadToCloudinary.ts
 ```
-
----
 
 ## Getting Started
 
 ```bash
-# 1. Install dependencies
 npm install
-
-# 2. Set up Firebase
 cp .env.example .env
-# Fill in your Firebase + Cloudinary values in .env
-
-# 3. Start dev server
 npm run dev
 ```
 
-Required environment variables:
+### Required Environment Variables
 
 ```bash
 VITE_FIREBASE_API_KEY=
@@ -81,91 +80,73 @@ VITE_CLOUDINARY_CLOUD_NAME=
 VITE_CLOUDINARY_UPLOAD_PRESET=
 ```
 
----
+## Available Scripts
 
-## Architecture
-
-### Realtime Notification Engine
-
-- `GlobalListeners` runs inside auth context and outside route pages.
-- Chat listener (`chats` where participants include current user):
-    - Recomputes unread message count (`unreadBy includes currentUser.uid`).
-    - On `modified` doc changes, toasts when current user is newly added to `unreadBy`.
-    - Pushes actionable notifications (`/chat/:chatId`) into the notification store.
-- Match listener (`matches` where `recipientId == currentUser.uid`):
-    - Toasts `🎉 New Match!` on newly added docs after initial snapshot.
-    - Increments unread match badge and creates notification items linking to `/matches`.
-
-### Unread Message Contract (Gmail-style)
-
-- On send, parent `chats/{chatId}` is updated with `unreadBy: [recipientUid]`.
-- On chat open, current user is removed from `unreadBy`.
-- Inbox rows in Messages use this for unread highlighting:
-    - `bg-blue-50/50 dark:bg-blue-900/10 border-l-4 border-l-brand-500 font-semibold`
-    - unread message text: `text-slate-900 dark:text-white`
-    - read message text: `text-slate-500 dark:text-slate-400 font-normal`
-
-### Profile + Media UX
-
-- `ImageGalleryModal` is a reusable full-screen lightbox with close and prev/next controls.
-- Profile cover and thumbnails open full-screen gallery using listing photos.
-- Host listing preview links directly to `/listing/:listingId`.
-
-### Responsive App Shell
-
-- Header collision fixed with strict breakpoints:
-    - Mobile header: `flex md:hidden`
-    - Desktop header: `hidden md:flex`
-- Sidebar and footer nav now show live unread badges for Messages and Matches.
-- Header notification bell shows aggregate count and dropdown shortcuts.
-
-### New Routes
-
-- `/notifications` — notification center.
-- `/listing/:listingId` — listing detail destination for profile listing previews.
-
-### Two-Pipeline Design
-
-**Profile Creation Flow (Input)**
-Captures structured compatibility data across budget, zone, room type, lifestyle enums, and hard-constraint booleans.
-
-**Discovery Engine (Query)**
-- **Hard filters** — Firestore server-side: `zone == selectedZone`, `status == active`
-- **Soft filters** — Client-side scoring after load
-
-### Compatibility Scoring
-
-| Factor            | Points |
-|-------------------|--------|
-| Zone match        | +20    |
-| Sleep schedule    | +15    |
-| Cleanliness       | +20    |
-| Noise tolerance   | +10    |
-| Smoking conflict  | −100 (eliminates) |
-
-### Budget Overlap Formula
-
-```
-overlap = (userA.min <= userB.max) AND (userA.max >= userB.min)
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run lint
+npm run type-check
 ```
 
-### Zero Results Strategy
+## Architecture Notes
 
-When results = 0, soft filters are relaxed progressively:
-`noiseTolerance → guestFrequency → sleepTime → cleanlinessLevel`
+### Discovery + Compatibility
 
----
+- Discovery uses hard filters + soft scoring.
+- Compatibility scoring considers budget overlap, zone overlap, and lifestyle fit.
+- If strict matches are empty, soft filters relax progressively.
 
-## Build Sprints
+### Chat Gate + Error Handling
 
-| Sprint | Feature |
-|--------|---------|
-| ✅ 1 | Project scaffold + types + engine |
-| ✅ 2 | Profile creation wizard (onboarding) |
-| ✅ 3 | Discovery feed + filter pills + bottom sheets |
-| ✅ 4 | Profile view + edit |
-| ✅ 5 | Matches list |
-| ✅ 6 | Chat (mutual match gate) |
-| ✅ 7 | Full-screen profile image lightbox |
-| ✅ 8 | Gmail-style unread inbox + unreadBy chat contract |
-| ✅ 9 | Global notification engine + badges + bell + notifications page |
+- Chat entry is protected by Firestore rules and matching state.
+- Chat initialization handles `permission-denied` gracefully and informs users they must match first.
+
+### Notifications
+
+- `GlobalListeners` subscribes to matches/chats and writes notification records to Firestore.
+- Notification center and bell read from `notifications` collection in descending `createdAt`.
+- Clicking a notification marks it read, then routes to its deep link.
+
+### Media Uploads
+
+- Listing photos and avatars use shared `uploadToCloudinary` utility.
+- Edit Profile and Profile avatar flows support conditional upload UX and progress states.
+
+### App Shell + Layout
+
+- Shared `AppLayout` controls sidebar collapse state.
+- Header, sidebar, and content areas are synchronized for light/dark elevation layers.
+- Chat page uses strict flex layout: only message pane scrolls.
+
+## PWA / Icons
+
+The app includes:
+
+- `public/favicon-16x16.png`
+- `public/favicon-32x32.png`
+- `public/favicon.ico`
+- `public/apple-touch-icon.png`
+- `public/site.webmanifest`
+
+`index.html` is wired with icon links, manifest, and `theme-color`.
+
+## Key Routes
+
+- `/discover`
+- `/matches`
+- `/messages`
+- `/chat/:matchId`
+- `/notifications`
+- `/listing/:listingId`
+- `/profile`
+- `/edit-profile`
+
+## Security Model (Firestore)
+
+- Authenticated, verified student gating
+- Immutable-like behavior for likes
+- Match participant checks
+- Chat participant checks
+- Notification ownership checks (`recipientId == auth.uid`)

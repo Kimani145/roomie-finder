@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore'
 import { toast } from 'react-hot-toast'
 import { getUserProfile } from '@/firebase/profiles'
 import { useNotificationStore } from '@/store/notificationStore'
+import { createNotification, subscribeToNotifications } from '@/firebase/notifications'
 
 const isActiveChat = (data: { status?: string }) => data.status !== 'unmatched'
 
@@ -13,7 +14,7 @@ const GlobalListeners: React.FC = () => {
   const {
     setUnreadMessages,
     setUnreadMatches,
-    pushNotification,
+    setNotifications,
   } = useNotificationStore()
   const unreadByMapRef = useRef<Record<string, boolean>>({})
   const chatsInitializedRef = useRef(false)
@@ -74,12 +75,12 @@ const GlobalListeners: React.FC = () => {
                 const otherUser = await getUserProfile(otherUid)
                 const senderName = otherUser?.displayName || 'Unknown'
                 toast(`New message from ${senderName}`, { icon: '💬' })
-                pushNotification({
-                  id: `message-${docChange.doc.id}-${Date.now()}`,
+                await createNotification({
+                  recipientId: currentUser.uid,
                   type: 'message',
-                  title: `New message from ${senderName}`,
-                  actionPath: `/chat/${docChange.doc.id}`,
-                  createdAt: Date.now(),
+                  title: 'New message',
+                  body: `${senderName} sent you a new message.`,
+                  link: `/chat/${docChange.doc.id}`,
                 })
               } catch (error) {
                 console.error('Failed to get sender info:', error)
@@ -96,7 +97,7 @@ const GlobalListeners: React.FC = () => {
     })
 
     return () => unsubscribe()
-  }, [currentUser, pushNotification, setUnreadMessages])
+  }, [currentUser, setUnreadMessages])
 
   useEffect(() => {
     if (!currentUser) {
@@ -110,7 +111,7 @@ const GlobalListeners: React.FC = () => {
       where('recipientId', '==', currentUser.uid)
     )
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
       if (!matchesInitializedRef.current) {
         matchesInitializedRef.current = true
         return
@@ -121,13 +122,28 @@ const GlobalListeners: React.FC = () => {
         if (docChange.type === 'added') {
           newMatchCount += 1
           toast.success('🎉 New Match!')
-          pushNotification({
-            id: `match-${docChange.doc.id}-${Date.now()}`,
-            type: 'match',
-            title: '🎉 New Match!',
-            actionPath: '/matches',
-            createdAt: Date.now(),
-          })
+          try {
+            const matchData = docChange.doc.data() as {
+              userA?: string
+              userB?: string
+            }
+            const otherUid =
+              matchData.userA === currentUser.uid ? matchData.userB : matchData.userA
+            let otherUserName = 'someone'
+            if (otherUid) {
+              const otherUser = await getUserProfile(otherUid)
+              otherUserName = otherUser?.displayName || 'someone'
+            }
+            await createNotification({
+              recipientId: currentUser.uid,
+              type: 'match',
+              title: 'New Match!',
+              body: `You and ${otherUserName} liked each other.`,
+              link: `/matches`,
+            })
+          } catch (error) {
+            console.error('Failed to persist match notification:', error)
+          }
         }
       }
 
@@ -139,7 +155,26 @@ const GlobalListeners: React.FC = () => {
     })
 
     return () => unsubscribe()
-  }, [currentUser, pushNotification, setUnreadMatches])
+  }, [currentUser, setUnreadMatches])
+
+  useEffect(() => {
+    if (!currentUser) {
+      setNotifications([])
+      return
+    }
+
+    const unsubscribe = subscribeToNotifications(
+      currentUser.uid,
+      (notifications) => {
+        setNotifications(notifications)
+      },
+      (error) => {
+        console.error('Failed to subscribe to notification history:', error)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [currentUser, setNotifications])
 
   return null
 }

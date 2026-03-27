@@ -84,9 +84,9 @@ const DiscoveryPage: React.FC = () => {
   })
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-4">
-        <div className="sticky top-0 z-40 bg-slate-50 dark:bg-slate-950 pt-6 pb-4 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-4 mb-6">
+        <div className="sticky top-0 md:top-0 z-40 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 pt-4 pb-3 mb-6 -mx-4 px-4 sm:mx-0 sm:px-0 transition-all flex flex-col gap-4">
           {canToggleView && (
             <div className="flex justify-center">
               <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl">

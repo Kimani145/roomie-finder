@@ -6,26 +6,29 @@ export interface AppNotification {
   id: string
   type: AppNotificationType
   title: string
-  actionPath: string
+  body: string
+  link: string
   createdAt: number
-  read: boolean
+  isRead: boolean
 }
 
 interface NotificationState {
   unreadMessages: number
   unreadMatches: number
+  unreadNotifications: number
   notifications: AppNotification[]
   setUnreadMessages: (count: number) => void
   setUnreadMatches: (count: number) => void
+  setNotifications: (notifications: AppNotification[]) => void
   clearUnreadMatches: () => void
-  pushNotification: (notification: Omit<AppNotification, 'read'>) => void
-  markNotificationRead: (id: string) => void
-  markAllNotificationsRead: () => void
+  markNotificationReadLocal: (id: string) => void
+  markAllNotificationsReadLocal: () => void
 }
 
 export const useNotificationStore = create<NotificationState>((set) => ({
   unreadMessages: 0,
   unreadMatches: 0,
+  unreadNotifications: 0,
   notifications: [],
 
   setUnreadMessages: (count) =>
@@ -34,28 +37,30 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   setUnreadMatches: (count) =>
     set({ unreadMatches: Math.max(0, Number.isFinite(count) ? count : 0) }),
 
+  setNotifications: (notifications) =>
+    set({
+      notifications,
+      unreadNotifications: notifications.filter((item) => !item.isRead).length,
+    }),
+
   clearUnreadMatches: () => set({ unreadMatches: 0 }),
 
-  pushNotification: (notification) =>
+  markNotificationReadLocal: (id) =>
     set((state) => {
-      if (state.notifications.some((item) => item.id === notification.id)) {
-        return state
-      }
-
       return {
-        notifications: [{ ...notification, read: false }, ...state.notifications].slice(0, 50),
+        notifications: state.notifications.map((item) =>
+          item.id === id ? { ...item, isRead: true } : item
+        ),
+        unreadNotifications: Math.max(
+          0,
+          state.notifications.filter((item) => !item.isRead && item.id !== id).length
+        ),
       }
     }),
 
-  markNotificationRead: (id) =>
+  markAllNotificationsReadLocal: () =>
     set((state) => ({
-      notifications: state.notifications.map((item) =>
-        item.id === id ? { ...item, read: true } : item
-      ),
-    })),
-
-  markAllNotificationsRead: () =>
-    set((state) => ({
-      notifications: state.notifications.map((item) => ({ ...item, read: true })),
+      notifications: state.notifications.map((item) => ({ ...item, isRead: true })),
+      unreadNotifications: 0,
     })),
 }))
