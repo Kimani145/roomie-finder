@@ -63,6 +63,7 @@ export async function likeProfile(
         userA,
         userB,
         participants: [userA, userB],
+        recipientId: fromUid,
         status: 'matched',
         compatibilityVersion: 1,
         createdAt: serverTimestamp(),

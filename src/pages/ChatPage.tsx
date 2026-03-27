@@ -1,9 +1,9 @@
 // TODO (V2): Implement custom chat themes. Store { themeColor: 'gradient-purple' } in chats/{chatId} doc.
 import React, { useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
-  addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -11,12 +11,12 @@ import {
   query,
   serverTimestamp,
   setDoc,
-  updateDoc,
 } from 'firebase/firestore'
-import { ArrowLeft, Send } from 'lucide-react'
+import { ArrowLeft, MoreVertical, Send } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { db } from '@/firebase/config'
 import { useAuthStore } from '@/store/authStore'
+import { getOtherParticipantUid, markChatAsRead, sendChatMessage } from '@/hooks/useChat'
 
 type ChatMessage = {
   id: string
@@ -28,17 +28,24 @@ type ChatMessage = {
 type ChatHeaderProfile = {
   displayName?: string
   photoURL?: string | null
+  uid?: string
+  role?: string
 }
 
 const ChatPage: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>()
   const chatId = matchId
+  const navigate = useNavigate()
+  const location = useLocation()
   const { currentUser } = useAuthStore()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [otherUser, setOtherUser] = useState<ChatHeaderProfile | null>(null)
+  const [isSafetyMenuOpen, setIsSafetyMenuOpen] = useState(false)
+  const [isSafetyActionPending, setIsSafetyActionPending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const safetyMenuRef = useRef<HTMLDivElement | null>(null)
   const lastNotifiedMessageIdRef = useRef<string | null>(null)
   const hasLoadedMessagesRef = useRef(false)
 
@@ -67,6 +74,12 @@ const ChatPage: React.FC = () => {
       hour: 'numeric',
       minute: '2-digit',
     }).format(new Date(timestamp))
+
+  const handleBack = () => {
+    navigate(
+      (location.state as { from?: string } | null)?.from || '/messages'
+    )
+  }
 
   useEffect(() => {
     if (!chatId) return
@@ -128,7 +141,7 @@ const ChatPage: React.FC = () => {
   useEffect(() => {
     if (!chatId || !currentUser) return
 
-    const otherUid = chatId.split('_').find((id) => id !== currentUser.uid)
+    const otherUid = getOtherParticipantUid(chatId, currentUser.uid)
     if (!otherUid) return
 
     let cancelled = false
@@ -140,6 +153,8 @@ const ChatPage: React.FC = () => {
           setOtherUser({
             displayName: data.displayName ?? 'Unknown',
             photoURL: data.photoURL ?? null,
+            uid: otherUid,
+            role: data.role ?? 'Member',
           })
         }
       } catch (error) {
@@ -153,8 +168,143 @@ const ChatPage: React.FC = () => {
   }, [chatId, currentUser])
 
   useEffect(() => {
+    if (!chatId || !currentUser) return
+
+    const markAsRead = async () => {
+      try {
+        await markChatAsRead(chatId, currentUser.uid)
+      } catch (error) {
+        console.error('Failed to mark chat as read:', error)
+      }
+    }
+
+    markAsRead()
+  }, [chatId, currentUser])
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    if (!isSafetyMenuOpen) return
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (
+        safetyMenuRef.current &&
+        !safetyMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsSafetyMenuOpen(false)
+      }
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsSafetyMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isSafetyMenuOpen])
+
+  const unmatchChat = async ({
+    skipConfirm = false,
+    showSuccessToast = true,
+    navigateAfter = true,
+  }: {
+    skipConfirm?: boolean
+    showSuccessToast?: boolean
+    navigateAfter?: boolean
+  } = {}) => {
+    if (!chatId) return false
+
+    if (
+      !skipConfirm &&
+      !window.confirm(
+        'Are you sure you want to unmatch? This action cannot be undone.'
+      )
+    ) {
+      return false
+    }
+
+    try {
+      setIsSafetyActionPending(true)
+      await deleteDoc(doc(db, 'matches', chatId))
+      await setDoc(
+        doc(db, 'chats', chatId),
+        {
+          status: 'unmatched',
+          unreadBy: [],
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      )
+
+      setIsSafetyMenuOpen(false)
+      if (showSuccessToast) {
+        toast.success('Unmatched successfully.')
+      }
+
+      if (navigateAfter) {
+        navigate('/matches')
+      }
+
+      return true
+    } catch (error) {
+      console.error('Failed to unmatch user:', error)
+      toast.error('We could not unmatch this conversation right now.')
+      return false
+    } finally {
+      setIsSafetyActionPending(false)
+    }
+  }
+
+  const handleUnmatch = async () => {
+    await unmatchChat()
+  }
+
+  const handleReport = async () => {
+    if (!currentUser?.uid || !otherUser?.uid) {
+      toast.error('We could not identify this user for reporting.')
+      return
+    }
+
+    const reason = window.prompt(
+      'Briefly describe why you are reporting this user:'
+    )?.trim()
+
+    if (!reason) return
+
+    try {
+      setIsSafetyActionPending(true)
+      await setDoc(doc(collection(db, 'reports')), {
+        reportedUserId: otherUser.uid,
+        reportedBy: currentUser.uid,
+        reason,
+        createdAt: serverTimestamp(),
+        status: 'pending',
+      })
+
+      const didUnmatch = await unmatchChat({
+        skipConfirm: true,
+        showSuccessToast: false,
+        navigateAfter: false,
+      })
+      if (!didUnmatch) return
+      toast.success('User reported. Our safety team will review this shortly.')
+      navigate('/matches')
+    } catch (error) {
+      console.error('Failed to report user:', error)
+      toast.error('We could not submit your report right now.')
+    } finally {
+      setIsSafetyActionPending(false)
+    }
+  }
 
   const sendMessage = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -167,58 +317,109 @@ const ChatPage: React.FC = () => {
     setIsSending(true)
 
     try {
-      const participants = chatId.split('_')
-      const chatRef = doc(db, 'chats', chatId)
-      await setDoc(
-        chatRef,
-        {
-          participants,
-          lastMessage: trimmed,
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true }
-      )
-
-      await addDoc(collection(db, 'chats', chatId, 'messages'), {
-        senderUid: currentUser.uid,
+      await sendChatMessage({
+        chatId,
+        currentUserUid: currentUser.uid,
         text: trimmed,
-        createdAt: serverTimestamp(),
-      })
-
-      await updateDoc(doc(db, 'chats', chatId), {
-        lastMessage: trimmed,
-        lastMessageTime: serverTimestamp(),
       })
     } catch (error) {
       console.error('Failed to send message:', error)
+      toast.error(
+        error instanceof Error && error.message === 'chat-unmatched'
+          ? 'This conversation is no longer available.'
+          : 'We could not send your message right now.'
+      )
+      setNewMessage(trimmed)
     } finally {
       setIsSending(false)
     }
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] lg:h-screen w-full max-w-4xl mx-auto border-x border-slate-200 dark:border-slate-700 shadow-sm relative bg-white dark:bg-slate-900">
-      <div className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shrink-0 z-10">
-        <Link to="/matches" className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
-          <ArrowLeft className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-        </Link>
-        {otherUser?.photoURL ? (
-          <img
-            src={otherUser.photoURL}
-            alt={otherUser.displayName}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-700/40 flex items-center justify-center text-brand-700 dark:text-brand-200 font-syne font-bold text-base shrink-0">
-            {otherUser?.displayName?.charAt(0)?.toUpperCase() || '?'}
+    <div className="flex flex-col h-[calc(100vh-4rem)] md:h-screen overflow-hidden">
+      <div className="shrink-0 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-4 flex items-center justify-between z-10">
+        <div className="flex items-center gap-4 min-w-0">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+          </button>
+          <Link
+            to={otherUser?.uid ? `/profile/${otherUser.uid}` : '/messages'}
+            onClick={(e) => {
+              if (!otherUser?.uid) {
+                e.preventDefault()
+              }
+            }}
+            className="flex items-center gap-3 group min-w-0"
+          >
+            {otherUser?.photoURL ? (
+              <img
+                src={otherUser.photoURL}
+                alt={otherUser.displayName ?? 'Avatar'}
+                className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 group-hover:opacity-80 transition-opacity"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-700/40 flex items-center justify-center text-brand-700 dark:text-brand-200 font-syne font-bold text-base shrink-0 group-hover:opacity-80 transition-opacity">
+                {otherUser?.displayName?.charAt(0)?.toUpperCase() || '?'}
+              </div>
+            )}
+            <div className="min-w-0">
+              <h2 className="truncate font-syne font-bold text-slate-900 dark:text-slate-50">
+                {otherUser?.displayName ?? 'Chat'}
+              </h2>
+              <p className="text-xs text-brand-500 font-medium">
+                {otherUser?.role ?? 'Member'}
+              </p>
+            </div>
+          </Link>
+        </div>
+        <div className="flex items-center">
+          <div className="relative" ref={safetyMenuRef}>
+            <button
+              type="button"
+              onClick={() => setIsSafetyMenuOpen((isOpen) => !isOpen)}
+              disabled={isSafetyActionPending}
+              className="rounded-full p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+              aria-haspopup="menu"
+              aria-expanded={isSafetyMenuOpen}
+              aria-label="Open trust and safety menu"
+            >
+              <MoreVertical className="h-5 w-5" />
+            </button>
+            {isSafetyMenuOpen && (
+              <div
+                className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-xl border border-slate-200 bg-white py-2 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+                role="menu"
+              >
+                <button
+                  type="button"
+                  onClick={handleUnmatch}
+                  disabled={isSafetyActionPending}
+                  className="block w-full px-4 py-2 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-200 dark:hover:bg-slate-800"
+                  role="menuitem"
+                >
+                  Unmatch
+                </button>
+                <button
+                  type="button"
+                  onClick={handleReport}
+                  disabled={isSafetyActionPending}
+                  className="block w-full px-4 py-2 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400 dark:hover:bg-red-950/40"
+                  role="menuitem"
+                >
+                  Report user
+                </button>
+              </div>
+            )}
           </div>
-        )}
-        <h2 className="font-bold text-slate-800 dark:text-slate-100 text-lg">
-          {otherUser?.displayName ?? 'Chat'}
-        </h2>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col bg-slate-50 dark:bg-slate-950">
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col space-y-4">
         {messages.length === 0 ? (
           <p className="text-center text-slate-400 dark:text-slate-500 my-auto">
             Start the conversation
@@ -269,7 +470,7 @@ const ChatPage: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shrink-0">
+      <div className="shrink-0 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 p-4">
         <form onSubmit={sendMessage} className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full px-4 py-2">
           <input
             type="text"

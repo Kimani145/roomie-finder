@@ -2,6 +2,7 @@ import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { Compass, Users, MessageCircle, User, Building } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
+import { useNotificationStore } from '@/store/notificationStore'
 
 // ─── Route Configuration ──────────────────────────────────────────────────────
 interface NavItem {
@@ -20,6 +21,7 @@ const BASE_NAV: NavItem[] = [
 export const BottomNav: React.FC = () => {
   const location = useLocation()
   const { currentUser } = useAuthStore()
+  const { unreadMessages, unreadMatches } = useNotificationStore()
 
   const navItems: NavItem[] = [
     ...BASE_NAV,
@@ -63,13 +65,25 @@ export const BottomNav: React.FC = () => {
           >
             {({ isActive }) => (
               <>
-                <Icon
-                  className={[
-                    'h-6 w-6 transition-transform duration-150',
-                    isActive && 'scale-110',
-                  ].join(' ')}
-                  aria-hidden="true"
-                />
+                <span className="relative">
+                  <Icon
+                    className={[
+                      'h-6 w-6 transition-transform duration-150',
+                      isActive && 'scale-110',
+                    ].join(' ')}
+                    aria-hidden="true"
+                  />
+                  {path === '/messages' && unreadMessages > 0 && (
+                    <span className="absolute -top-1 -right-2 min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+                      {unreadMessages > 99 ? '99+' : unreadMessages}
+                    </span>
+                  )}
+                  {path === '/matches' && unreadMatches > 0 && (
+                    <span className="absolute -top-1 -right-2 min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+                      {unreadMatches > 99 ? '99+' : unreadMatches}
+                    </span>
+                  )}
+                </span>
                 <span
                   className={[
                     'text-[10px] font-semibold uppercase tracking-wider',

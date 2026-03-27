@@ -1,4 +1,4 @@
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
 import { db } from './config'
 import type { Listing } from '@/types'
 
@@ -47,4 +47,11 @@ export async function fetchListingsByHostIds(
   })
 
   return listingsByHostId
+}
+
+export async function getListingById(listingId: string): Promise<Listing | null> {
+  const listingSnap = await getDoc(doc(db, LISTINGS_COLLECTION, listingId))
+  if (!listingSnap.exists()) return null
+
+  return toListing(listingSnap.data(), listingSnap.id)
 }

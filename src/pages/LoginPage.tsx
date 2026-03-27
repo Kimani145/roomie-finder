@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Mail, Lock, AlertCircle, LogIn, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, AlertCircle, LogIn, Eye, EyeOff, Info } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import type { AuthServiceError } from '@/services/authService'
 
@@ -98,6 +98,10 @@ const LoginPage: React.FC = () => {
               />
               <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400 dark:text-slate-500" />
             </div>
+            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+              <Info className="h-3.5 w-3.5" />
+              Please use your official @students.tukenya.ac.ke email.
+            </p>
           </div>
 
           {/* Password */}

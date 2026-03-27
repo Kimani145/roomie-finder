@@ -40,6 +40,10 @@ export const useMatches = () => {
             if (!currentUser) return null;
 
             const match = doc.data() as Match;
+            if (match.status !== 'matched') {
+              return null;
+            }
+
             const otherUserId = match.participants.find(
               (id) => id !== currentUser.uid
             );
