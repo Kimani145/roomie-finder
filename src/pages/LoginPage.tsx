@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Mail, Lock, AlertCircle, LogIn, Eye, EyeOff, Info } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-import type { AuthServiceError } from '@/services/authService'
+//import type { AuthServiceError } from '@/services/authService'
 
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate()
+ // const navigate = useNavigate()
   const { login } = useAuth()
 
   const [email, setEmail] = useState('')
