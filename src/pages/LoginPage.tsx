@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import { Mail, Lock, AlertCircle, LogIn, Eye, EyeOff, Info } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-//import type { AuthServiceError } from '@/services/authService'
 
 const LoginPage: React.FC = () => {
- // const navigate = useNavigate()
-  const { login } = useAuth()
+  const location = useLocation()
+  const { login, user, loading, emailVerified, hasProfile } = useAuth()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,7 +20,6 @@ const LoginPage: React.FC = () => {
 
     try {
       await login(email, password);
-      // Let the AuthContext/AppRoutes handle the redirect automatically once currentUser populates
     } catch (err: any) {
       console.error("Login failed:", err);
       // STRICT: We ONLY clear the password. DO NOT clear the email.
@@ -39,6 +37,18 @@ const LoginPage: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  // Post-login redirect: runs on every render once auth state is populated
+  if (!loading && user) {
+    if (!emailVerified) {
+      return <Navigate to="/verify-email" replace />
+    }
+    if (!hasProfile) {
+      return <Navigate to="/onboarding" replace />
+    }
+    const from = (location.state as { from?: string } | null)?.from
+    return <Navigate to={from ?? '/discover'} replace />
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-6 sm:px-8">
