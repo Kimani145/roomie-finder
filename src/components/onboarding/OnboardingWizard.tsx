@@ -348,7 +348,7 @@ export const OnboardingWizard: React.FC = () => {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   minLength={2}
-                  placeholder="Joseph"
+                  placeholder="Lucky"
                   className={[
                     inputClassName,
                     vitalsErrors.firstName ? inputErrorClassName : '',
@@ -440,9 +440,12 @@ export const OnboardingWizard: React.FC = () => {
               </div>
 
               <div className="flex flex-col md:col-span-2">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                  In one sentence, what are you looking for?
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5 block">
+                  The Headline
                 </label>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                  In one sentence, what are you looking for? (Max 100 chars)
+                </p>
                 <input
                   type="text"
                   value={bioQuote}

@@ -74,7 +74,9 @@ const GlobalListeners: React.FC = () => {
               try {
                 const otherUser = await getUserProfile(otherUid)
                 const senderName = otherUser?.displayName || 'Unknown'
-                toast(`New message from ${senderName}`, { icon: '💬' })
+                // Only trigger active screen popups for Medium and High priority events.
+                // Low priority events (like passive profile likes) should only silently increment the Notification Bell counter.
+                toast.success(`New message from ${senderName}`, { icon: '💬' })
                 await createNotification({
                   recipientId: currentUser.uid,
                   type: 'message',
@@ -84,6 +86,8 @@ const GlobalListeners: React.FC = () => {
                 })
               } catch (error) {
                 console.error('Failed to get sender info:', error)
+                // Only trigger active screen popups for Medium and High priority events.
+                // Only trigger active screen popups for Medium and High priority events.
                 toast('New message received', { icon: '💬' })
               }
             }
@@ -93,7 +97,7 @@ const GlobalListeners: React.FC = () => {
         }
       }
     }, (error) => {
-      console.error('Failed to listen to chats:', error)
+      console.error('Listener permission error:', error)
     })
 
     return () => unsubscribe()
@@ -121,6 +125,10 @@ const GlobalListeners: React.FC = () => {
       for (const docChange of snapshot.docChanges()) {
         if (docChange.type === 'added') {
           newMatchCount += 1
+          // Only trigger active screen popups for Medium and High priority events.
+          // Low priority events (like passive profile likes) should only silently increment the Notification Bell counter.
+          // Only trigger active screen popups for Medium and High priority events.
+          // Low priority events (like passive profile likes) should only silently increment the Notification Bell counter.
           toast.success('🎉 New Match!')
           try {
             const matchData = docChange.doc.data() as {
@@ -151,7 +159,7 @@ const GlobalListeners: React.FC = () => {
         setUnreadMatches(useNotificationStore.getState().unreadMatches + newMatchCount)
       }
     }, (error) => {
-      console.error('Failed to listen to matches:', error)
+      console.error('Listener permission error:', error)
     })
 
     return () => unsubscribe()
@@ -169,7 +177,7 @@ const GlobalListeners: React.FC = () => {
         setNotifications(notifications)
       },
       (error) => {
-        console.error('Failed to subscribe to notification history:', error)
+        console.error('Listener permission error:', error)
       }
     )
 

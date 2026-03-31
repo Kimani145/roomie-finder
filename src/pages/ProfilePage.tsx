@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { db } from '@/firebase/config';
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
+import FullScreenLoader from '@/components/ui/FullScreenLoader';
 
 const ProfilePage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -95,13 +96,7 @@ const ProfilePage: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
-        <span className="text-sm text-slate-500 dark:text-slate-400">
-          Loading profile…
-        </span>
-      </div>
-    );
+    return <FullScreenLoader />;
   }
 
   if (!profile) {
@@ -143,11 +138,6 @@ const ProfilePage: React.FC = () => {
               <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
                 {profile.displayName}
               </h1>
-              {profile.bioQuote && (
-                <p className="mt-1 text-sm italic font-serif text-slate-600 dark:text-slate-300">
-                  "{profile.bioQuote}"
-                </p>
-              )}
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 {user?.email}
               </p>
@@ -157,6 +147,11 @@ const ProfilePage: React.FC = () => {
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
                 {profile.gender} · {profile.age} yrs · Year {profile.courseYear}
               </p>
+              {profile.bioQuote && (
+                <p className="text-lg font-serif italic text-slate-700 dark:text-slate-300 border-l-4 border-brand-500 pl-4 my-6 text-left w-full mt-6">
+                  "{profile.bioQuote}"
+                </p>
+              )}
             </div>
             <div className="space-y-2 pt-4">
               <button

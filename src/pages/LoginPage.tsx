@@ -15,38 +15,30 @@ const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsLoading(true)
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
 
     try {
-      const user = await login(email, password)
-
-      if (!user.emailVerified) {
-        // Unverified → send them to the holding page
-        navigate('/verify-email', { replace: true })
+      await login(email, password);
+      // Let the AuthContext/AppRoutes handle the redirect automatically once currentUser populates
+    } catch (err: any) {
+      console.error("Login failed:", err);
+      // STRICT: We ONLY clear the password. DO NOT clear the email.
+      setPassword(''); 
+      
+      // Map Firebase Auth errors to human-readable strings
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        setError('Incorrect email or password. Please try again.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Please try again later.');
       } else {
-        // Verified → into the app
-        navigate('/discover', { replace: true })
-      }
-    } catch (err) {
-      const authErr = err as AuthServiceError
-      switch (authErr.code) {
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-        case 'auth/invalid-credential':
-          setError('Invalid email or password. Please try again.')
-          break
-        case 'auth/too-many-requests':
-          setError('Too many failed attempts. Please try again later.')
-          break
-        default:
-          setError(authErr.message || 'Something went wrong. Please try again.')
+        setError(err.message || 'Failed to sign in. Please check your connection.');
       }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-6 sm:px-8">
@@ -66,9 +58,9 @@ const LoginPage: React.FC = () => {
 
         {/* Error Banner */}
         {error && (
-          <div className="mb-6 flex items-start gap-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-500/50 p-4">
-            <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-300 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-red-700 dark:text-red-200 font-medium">{error}</p>
+          <div className="mb-6 flex items-center gap-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-500/50 p-4">
+            <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400 shrink-0" />
+            <p className="text-sm font-medium text-red-700 dark:text-red-200">{error}</p>
           </div>
         )}
 

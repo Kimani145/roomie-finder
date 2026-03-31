@@ -75,31 +75,31 @@ export function useDiscovery() {
         if (!currentUser) {
           setCandidates(buildPublicResults(rawCandidates, listingsByHostId))
           setRelaxed(false)
-          return
-        }
-
-        const results = runDiscoveryEngine(
-          currentUser,
-          rawCandidates,
-          filters,
-          listingsByHostId
-        )
-
-        if (results.length === 0) {
-          // Relax filters and retry
-          const { results: relaxedResults, relaxedFilters } =
-            runRelaxedDiscovery(
-              currentUser,
-              rawCandidates,
-              filters,
-              listingsByHostId
-            )
-
-          setCandidates(relaxedResults)
-          setRelaxed(true, Object.keys(relaxedFilters))
+          // Removing early return here so it safely reaches finally block
         } else {
-          setCandidates(results)
-          setRelaxed(false)
+          const results = runDiscoveryEngine(
+            currentUser,
+            rawCandidates,
+            filters,
+            listingsByHostId
+          )
+
+          if (results.length === 0) {
+            // Relax filters and retry
+            const { results: relaxedResults, relaxedFilters } =
+              runRelaxedDiscovery(
+                currentUser,
+                rawCandidates,
+                filters,
+                listingsByHostId
+              )
+
+            setCandidates(relaxedResults)
+            setRelaxed(true, Object.keys(relaxedFilters))
+          } else {
+            setCandidates(results)
+            setRelaxed(false)
+          }
         }
       } catch (err) {
         console.error('Discovery failed:', err)

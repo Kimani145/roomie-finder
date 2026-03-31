@@ -19,9 +19,11 @@ function getActivityOpacity(lastActive: Date): number {
   return 0.4 // older
 }
 
-function getInitials(name: string): string {
+function getInitials(name?: string): string {
+  if (!name) return '?'
   return name
     .split(' ')
+    .filter(Boolean)
     .map((n) => n[0])
     .join('')
     .toUpperCase()

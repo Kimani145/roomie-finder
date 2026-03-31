@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
+import { useAuthStore } from '@/store/authStore'
+import { AlertTriangle } from 'lucide-react'
+import { auth } from '@/firebase/config'
 
 interface ProtectedRouteProps {
   children: React.ReactElement
@@ -19,7 +22,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   allowWithoutProfile = false,
 }) => {
+  const location = useLocation()
   const { user, loading, emailVerified, hasProfile, reloadUser } = useAuth()
+  const currentUser = useAuthStore(state => state.currentUser)
   const [checkingClaims, setCheckingClaims] = useState(false)
   const [tokenEmailVerified, setTokenEmailVerified] = useState<boolean | null>(null)
 
@@ -68,8 +73,26 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/verify-email" replace />
   }
 
+  // Anti-Banned User Interceptor (Must run regardless of allowWithoutProfile)
+  if (currentUser?.status === ('banned' as any)) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mb-6">
+          <AlertTriangle className="w-8 h-8" />
+        </div>
+        <h1 className="text-2xl font-syne font-bold text-white mb-2">Account Suspended</h1>
+        <p className="text-slate-400 max-w-md mb-8">
+          Your access to Roomie Finder has been revoked due to a violation of our community guidelines.
+        </p>
+        <button onClick={() => auth.signOut()} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors">
+          Sign Out
+        </button>
+      </div>
+    );
+  }
+
   // Prevent users with an existing profile from re-entering onboarding.
-  if (allowWithoutProfile && hasProfile) {
+    if (allowWithoutProfile && hasProfile && location.pathname === '/onboarding') {
     return <Navigate to="/discover" replace />
   }
 
