@@ -1,18 +1,30 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import { Mail, Lock, AlertCircle, LogIn, Eye, EyeOff, Info } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-//import type { AuthServiceError } from '@/services/authService'
 
 const LoginPage: React.FC = () => {
- // const navigate = useNavigate()
-  const { login } = useAuth()
+  const location = useLocation()
+  const { user, emailVerified, hasProfile, login } = useAuth()
+  const from = (location.state as { from?: string } | null)?.from
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
+
+  if (user) {
+    if (!emailVerified) {
+      return <Navigate to="/verify-email" replace />
+    }
+
+    if (!hasProfile) {
+      return <Navigate to="/onboarding" replace />
+    }
+
+    return <Navigate to={from || '/discover'} replace />
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -65,7 +65,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Tier 1: No user at all
   if (!user) {
-    return <Navigate to="/login" replace />
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ from: location.pathname + location.search }}
+      />
+    )
   }
 
   // Tier 2: Signed in but email not verified
