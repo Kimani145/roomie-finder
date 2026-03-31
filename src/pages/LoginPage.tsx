@@ -7,6 +7,10 @@ const LoginPage: React.FC = () => {
   const location = useLocation()
   const { user, emailVerified, hasProfile, login } = useAuth()
   const from = (location.state as { from?: string } | null)?.from
+  const safeFrom =
+    typeof from === 'string' && from.startsWith('/') && !from.startsWith('//')
+      ? from
+      : '/discover'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -23,7 +27,7 @@ const LoginPage: React.FC = () => {
       return <Navigate to="/onboarding" replace />
     }
 
-    return <Navigate to={from || '/discover'} replace />
+    return <Navigate to={safeFrom} replace />
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
