@@ -40,6 +40,8 @@ export function useAuthListener() {
       } catch (err) {
         console.error('Failed to load user profile:', err)
         clearAuth()
+      } finally {
+        setLoading(false)
       }
     })
 

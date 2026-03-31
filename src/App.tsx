@@ -1,7 +1,9 @@
+import ModerationPage from '@/pages/admin/ModerationPage'
+import UserManagementPage from '@/pages/admin/UserManagementPage'
 import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { AppLayout } from '@/components/layout'
+import { AppLayout, AdminLayout } from '@/components/layout'
 import { MatchOverlay } from '@/components/ui/MatchOverlay'
 import GlobalListeners from '@/components/GlobalListeners'
 import SplashScreen from '@/components/ui/SplashScreen'
@@ -9,7 +11,9 @@ import { AuthProvider } from '@/context/AuthContext'
 import { ThemeProvider } from '@/context/ThemeContext'
 import { useAuth } from '@/hooks/useAuth'
 import { ProtectedRoute } from '@/routes/ProtectedRoute'
+import { AdminRoute } from '@/routes/AdminRoute'
 import { useAuthStore } from '@/store/authStore'
+import AdminDashboardPage from '@/pages/AdminDashboardPage'
 import {
   SignUpPage,
   LoginPage,
@@ -76,9 +80,11 @@ const AppRoutes: React.FC = () => {
           <Route
             path="/discover"
             element={
-              <AppLayout>
-                <DiscoveryPage />
-              </AppLayout>
+              <ProtectedRoute allowWithoutProfile>
+                <AppLayout>
+                  <DiscoveryPage />
+                </AppLayout>
+              </ProtectedRoute>
             }
           />
 
@@ -179,6 +185,58 @@ const AppRoutes: React.FC = () => {
                   <MyListingsPage />
                 </AppLayout>
               </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout>
+                  <AdminDashboardPage />
+                </AdminLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/user-management"
+            element={
+              <AdminRoute>
+                <AdminLayout>
+                  <UserManagementPage />
+                </AdminLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/moderation"
+            element={
+              <AdminRoute>
+                <AdminLayout>
+                  <ModerationPage />
+                </AdminLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminRoute>
+                <AdminLayout>
+                  <UserManagementPage />
+                </AdminLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/moderation"
+            element={
+              <AdminRoute>
+                <AdminLayout>
+                  <ModerationPage />
+                </AdminLayout>
+              </AdminRoute>
             }
           />
 

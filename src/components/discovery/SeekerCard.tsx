@@ -13,13 +13,16 @@ interface SeekerCardProps {
   ) => void
 }
 
-const getInitials = (name: string) =>
-  name
+const getInitials = (name?: string) => {
+  if (!name) return '?'
+  return name
     .split(' ')
+    .filter(Boolean)
     .map((word) => word[0])
     .join('')
     .toUpperCase()
     .slice(0, 2)
+}
 
 const formatMoveIn = (moveInMonth?: string | null) => {
   if (!moveInMonth) return 'Flexible'
@@ -36,18 +39,20 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
   onPrimaryAction,
 }) => {
   const { profile, compatibilityScore, scoreBreakdown } = match
+  if (!profile) return null;
+  
   const compatibilityPct = getCompatibilityPercentage(compatibilityScore)
 
   const overlapPills = [
-    scoreBreakdown.sleepMatch > 0 ? `Sleep: ${profile.lifestyle.sleepTime}` : null,
-    scoreBreakdown.cleanlinessMatch > 0
-      ? `Cleanliness: ${profile.lifestyle.cleanlinessLevel}`
+    scoreBreakdown?.sleepMatch > 0 ? `Sleep: ${profile.lifestyle?.sleepTime}` : null,
+    scoreBreakdown?.cleanlinessMatch > 0
+      ? `Cleanliness: ${profile.lifestyle?.cleanlinessLevel}`
       : null,
-    scoreBreakdown.noiseMatch > 0 ? `Noise: ${profile.lifestyle.noiseTolerance}` : null,
-    scoreBreakdown.guestMatch > 0 ? `Guests: ${profile.lifestyle.guestFrequency}` : null,
-    scoreBreakdown.studyMatch > 0 ? `Study: ${profile.lifestyle.studyStyle}` : null,
-    profile.dealBreakers.noSmokingRequired ? 'No Smoking' : null,
-    profile.dealBreakers.noAlcoholRequired ? 'No Alcohol' : null,
+    scoreBreakdown?.noiseMatch > 0 ? `Noise: ${profile.lifestyle?.noiseTolerance}` : null,
+    scoreBreakdown?.guestMatch > 0 ? `Guests: ${profile.lifestyle?.guestFrequency}` : null,
+    scoreBreakdown?.studyMatch > 0 ? `Study: ${profile.lifestyle?.studyStyle}` : null,
+    profile.dealBreakers?.noSmokingRequired ? 'No Smoking' : null,
+    profile.dealBreakers?.noAlcoholRequired ? 'No Alcohol' : null,
   ]
     .filter((pill): pill is string => Boolean(pill))
     .slice(0, 6)

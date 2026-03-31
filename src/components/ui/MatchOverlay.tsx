@@ -1,150 +1,113 @@
-import React from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { MessageCircle, X } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { useMatchStore } from '@/store/useMatchStore'
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useMatchStore } from '../../store/matchStore';
+import { X } from 'lucide-react';
 
-const Avatar: React.FC<{
-  src: string | null
-  name: string
-  className: string
-  initial: { x: number; opacity: number }
-  animate: { x: number; opacity: number }
-}> = ({ src, name, className, initial, animate }) => {
-  if (src) {
-    return (
-      <motion.img
-        src={src}
-        alt={name}
-        initial={initial}
-        animate={animate}
-        transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
-        className={className}
-      />
-    )
-  }
-
-  const initials = name
-    .split(' ')
-    .filter(Boolean)
-    .map((token) => token[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-
-  return (
-    <motion.div
-      initial={initial}
-      animate={animate}
-      transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
-      className={`${className} bg-slate-200 text-slate-700 font-syne text-3xl font-bold flex items-center justify-center`}
-      aria-label={name}
-    >
-      {initials || '?'}
-    </motion.div>
-  )
-}
+type MatchState = 'idle' | 'triggered' | 'animating' | 'resolved';
 
 export const MatchOverlay: React.FC = () => {
-  const navigate = useNavigate()
-  const { isOpen, matchData, closeMatch } = useMatchStore()
+  const { matchData, closeMatch } = useMatchStore();
+  const navigate = useNavigate();
+  const [phase, setPhase] = useState<MatchState>('idle');
 
-  const handleStartChatting = () => {
-    if (!matchData) return
-    closeMatch()
-    navigate(`/chat/${matchData.matchId}`)
-  }
+  // Locked Timings
+  const SUSPENSE_MS = 200;
+  const ANIM_DURATION = 1; // framer-motion uses seconds
+  const CTA_DELAY_MS = 300;
+
+  useEffect(() => {
+    if (matchData) {
+      setPhase('triggered');
+      const suspenseTimer = setTimeout(() => setPhase('animating'), SUSPENSE_MS);
+      const resolveTimer = setTimeout(() => setPhase('resolved'), SUSPENSE_MS + (ANIM_DURATION * 1000));
+      return () => { clearTimeout(suspenseTimer); clearTimeout(resolveTimer); };
+    } else {
+      setPhase('idle');
+    }
+  }, [matchData]);
+
+  if (!matchData) return null;
+
+  const handleChat = () => {
+    closeMatch();
+    navigate(`/messages/${matchData.matchId}`);
+  };
 
   return (
     <AnimatePresence>
-      {isOpen && matchData && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Match reveal overlay"
-        >
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-50 flex items-center justify-center"
-          >
-            <button
-              onClick={closeMatch}
-              className="absolute right-5 top-5 rounded-full border border-slate-500/50 bg-slate-700/40 p-2 text-slate-200 hover:bg-slate-700/70"
-              aria-label="Close match reveal"
-            >
-              <X className="h-5 w-5" />
-            </button>
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/90 backdrop-blur-md"
+      >
+        {/* Dismiss Button */}
+        {phase === 'resolved' && (
+           <button onClick={closeMatch} className="absolute top-6 right-6 p-2 text-slate-400 hover:text-white transition-colors">
+             <X className="w-8 h-8" />
+           </button>
+        )}
 
-            <div className="relative mx-6 w-full max-w-xl text-center">
-              <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-500/20 blur-[100px]" />
+        <div className="relative flex flex-col items-center">
+          {/* The Circles Area */}
+          <div className="relative w-64 h-32 flex items-center justify-center mb-8">
+             {/* Left Circle (Brand Blue) */}
+             <motion.div
+               initial={{ x: -100, scale: 0.9, opacity: 0 }}
+               animate={{ 
+                 x: phase === 'animating' ? 20 : (phase === 'resolved' ? 20 : -100), 
+                 scale: phase === 'resolved' ? 1 : (phase === 'animating' ? [0.9, 1.05, 1] : 0.9),
+                 opacity: phase !== 'triggered' ? 1 : 0
+               }}
+               transition={{ duration: ANIM_DURATION, ease: "easeOut" }}
+               className="absolute w-32 h-32 rounded-full bg-blue-500 shadow-2xl z-10 overflow-hidden border-4 border-slate-900"
+             >
+               {phase === 'resolved' && <img src="/assets/favicon.svg" alt="You" className="w-full h-full object-cover opacity-50 bg-slate-100" />}
+             </motion.div>
 
-              <div className="relative z-10 flex items-center justify-center">
-                <Avatar
-                  src={matchData.userA.avatar}
-                  name={matchData.userA.name}
-                  initial={{ x: -100, opacity: 0 }}
-                  animate={{ x: 12, opacity: 1 }}
-                  className="relative z-10 h-32 w-32 rounded-full border-4 border-white object-cover shadow-2xl"
-                />
-                <Avatar
-                  src={matchData.userB.avatar}
-                  name={matchData.userB.name}
-                  initial={{ x: 100, opacity: 0 }}
-                  animate={{ x: -12, opacity: 1 }}
-                  className="relative z-0 h-32 w-32 rounded-full border-4 border-white object-cover shadow-2xl"
-                />
-              </div>
+             {/* Right Circle (Emerald) */}
+             <motion.div
+               initial={{ x: 100, scale: 0.9, opacity: 0 }}
+               animate={{ 
+                 x: phase === 'animating' ? -20 : (phase === 'resolved' ? -20 : 100), 
+                 scale: phase === 'resolved' ? 1 : (phase === 'animating' ? [0.9, 1.05, 1] : 0.9),
+                 opacity: phase !== 'triggered' ? 1 : 0
+               }}
+               transition={{ duration: ANIM_DURATION, ease: "easeOut" }}
+               className="absolute w-32 h-32 rounded-full bg-emerald-500 shadow-2xl mix-blend-multiply z-20 overflow-hidden border-4 border-slate-900"
+             >
+               {phase === 'resolved' && <img src={matchData.matchedUser.photoURL || '/assets/favicon.svg'} alt="Match" className="w-full h-full object-cover bg-slate-100" />}
+             </motion.div>
+          </div>
 
-              <motion.h2
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.45 }}
-                className="mt-10 font-syne text-3xl font-bold tracking-tight text-white sm:text-4xl"
-              >
-                You and {matchData.userB.name} are a match!
-              </motion.h2>
-
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.35 }}
-                className="mx-auto mt-3 max-w-md text-sm text-slate-300"
-              >
-                You both liked each other. Start the conversation while the momentum is fresh.
-              </motion.p>
-
+          {/* Typography & CTA */}
+          <AnimatePresence>
+            {phase === 'resolved' && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.35 }}
-                className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center"
+                transition={{ delay: CTA_DELAY_MS / 1000 }}
+                className="flex flex-col items-center text-center space-y-6"
               >
-                <button
-                  onClick={handleStartChatting}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-3 font-semibold text-white shadow-lg shadow-brand-500/30 transition hover:bg-brand-600"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  Start Chatting
-                </button>
-                <button
-                  onClick={closeMatch}
-                  className="rounded-xl border border-slate-400/50 px-6 py-3 font-semibold text-slate-100 transition hover:bg-slate-700/40"
-                >
-                  Keep Browsing
-                </button>
-              </motion.div>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  )
-}
+                <div>
+                  <h2 className="text-4xl font-syne font-bold text-white mb-2">It's a Match!</h2>
+                  <p className="text-slate-300">You and {matchData.matchedUser.displayName} liked each other.</p>
+                </div>
 
-export default MatchOverlay
+                <div className="flex flex-col w-full max-w-xs gap-3">
+                  <button onClick={handleChat} className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-all active:scale-[0.98]">
+                    Start Chatting
+                  </button>
+                  <button onClick={closeMatch} className="w-full py-4 bg-transparent text-slate-400 hover:text-white font-medium rounded-xl transition-colors">
+                    Keep Browsing
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};

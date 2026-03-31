@@ -1,0 +1,10 @@
+Navigating to http://localhost:5173/login...
+Filled form. Submitting...
+Waiting for error state...
+
+==================== TEST RESULTS ====================
+Alert UI says     : No alert found!
+Email field value : 
+Password field    : 
+=====================================================
+

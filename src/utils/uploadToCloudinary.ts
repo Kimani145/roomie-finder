@@ -7,7 +7,7 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 export const uploadToCloudinary = async (file: File): Promise<string> => {
   if (!ALLOWED_TYPES.includes(file.type)) {
-    throw new Error('Invalid file type. Only JPG, PNG, and WebP are allowed.')
+    throw new Error('Invalid format. Please upload a JPG, PNG, or WebP image.')
   }
   if (file.size > MAX_FILE_SIZE) {
     throw new Error('File is too large. Maximum size is 5MB.')

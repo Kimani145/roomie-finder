@@ -12,6 +12,7 @@ import { db } from '@/firebase/config'
 import { TUK_ZONES, TukZone } from '@/constants/zones'
 import type { UserProfile, UserRole } from '@/types'
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
+import FullScreenLoader from '@/components/ui/FullScreenLoader'
 
 const TUK_COURSES = [
   'BSc Information Science',
@@ -194,10 +195,10 @@ const EditProfilePage: React.FC = () => {
     try {
       if (avatarFile) {
         setIsUploading(true)
-        let uploadedPhotoUrl = ''
         try {
-          uploadedPhotoUrl = await uploadToCloudinary(avatarFile)
-        } catch (uploadError: any) {
+          const uploadedPhotoUrl = await uploadToCloudinary(avatarFile)
+          updatedData.photoURL = uploadedPhotoUrl
+        } catch (uploadError) {
           const message =
             uploadError instanceof Error
               ? uploadError.message
@@ -206,7 +207,6 @@ const EditProfilePage: React.FC = () => {
           setSaveError(message)
           return
         }
-        updatedData.photoURL = uploadedPhotoUrl
       }
 
       await updateDoc(doc(db, 'profiles', uid), updatedData)
@@ -288,13 +288,7 @@ const EditProfilePage: React.FC = () => {
     'bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none'
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
-        <span className="text-sm text-slate-500 dark:text-slate-400">
-          Loading profile…
-        </span>
-      </div>
-    )
+    return <FullScreenLoader />
   }
 
   if (!profile) {
@@ -447,9 +441,12 @@ const EditProfilePage: React.FC = () => {
               </div>
 
               <div className="flex flex-col md:col-span-2">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                  In one sentence, what are you looking for?
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5 block">
+                  The Headline
                 </label>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                  In one sentence, what are you looking for? (Max 100 chars)
+                </p>
                 <input
                   type="text"
                   value={bioQuote}

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MailCheck, RefreshCw, LogOut, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { auth } from '@/firebase/config'
+import { toast as hotToast } from 'react-hot-toast'
 
 const VerifyEmailPage: React.FC = () => {
   const navigate = useNavigate()
@@ -12,25 +14,22 @@ const VerifyEmailPage: React.FC = () => {
   const [toast, setToast] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null
-
-    if (user && !user.emailVerified) {
-      interval = setInterval(async () => {
-        try {
-          await user.reload()
-          if (user.emailVerified) {
-            if (interval) clearInterval(interval)
+    const interval = setInterval(async () => {
+      try {
+        if (auth.currentUser) {
+          await auth.currentUser.reload()
+          if (auth.currentUser.emailVerified) {
+            clearInterval(interval)
+            hotToast.success('Email verified!')
             navigate('/onboarding', { replace: true })
           }
-        } catch (error) {
-          console.error('Email verification polling failed:', error)
         }
-      }, 3000)
-    }
+      } catch (error) {
+        console.error('Email verification polling failed:', error)
+      }
+    }, 3000)
 
-    return () => {
-      if (interval) clearInterval(interval)
-    }
+    return () => clearInterval(interval)
   }, [user, navigate])
 
   // ── Check verification status ─────────────────────────────────────────────
@@ -100,7 +99,7 @@ const VerifyEmailPage: React.FC = () => {
 
         {/* Body text */}
         <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-2">
-          We&apos;ve sent a verification link to
+          Check your TUK email. We sent a verification link.
         </p>
         <p className="text-sm font-bold text-slate-900 dark:text-slate-50 mb-4 break-all">
           {user?.email ?? 'your email'}

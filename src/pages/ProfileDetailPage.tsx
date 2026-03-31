@@ -16,7 +16,7 @@ import { useAuthStore } from '@/store/authStore'
 import { getUserProfile } from '@/firebase/profiles'
 import { hasLiked, likeProfile } from '@/firebase/matches'
 import { db } from '@/firebase/config'
-import { useMatchStore } from '@/store/useMatchStore'
+import { useMatchStore } from '@/store/matchStore'
 import { calculateCompatibilityScore, getCompatibilityPercentage } from '@/engine/compatibilityEngine'
 import { ImageGalleryModal } from '@/components/ui/ImageGalleryModal'
 import type { Listing, UserProfile, ScoreBreakdown } from '@/types'
@@ -28,7 +28,7 @@ const ProfileDetailPage: React.FC = () => {
   const { uid } = useParams<{ uid: string }>()
   const navigate = useNavigate()
   const { currentUser } = useAuthStore()
-  const openMatch = useMatchStore((state) => state.openMatch)
+  const triggerMatch = useMatchStore((state) => state.triggerMatch)
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
@@ -215,19 +215,12 @@ const ProfileDetailPage: React.FC = () => {
         await new Promise<void>((resolve) => {
           window.setTimeout(resolve, 800)
         })
-        openMatch({
-          matchId: result.matchId,
-          userA: {
-            uid: currentUser.uid,
-            name: currentUser.displayName,
-            avatar: currentUser.photoURL,
-          },
-          userB: {
-            uid: viewedUser.uid,
-            name: viewedUser.displayName,
-            avatar: viewedUser.photoURL,
-          },
-        })
+        triggerMatch({
+          uid: viewedUser.uid,
+          displayName: viewedUser.displayName || 'Someone',
+          photoURL: viewedUser.photoURL || '',
+          role: viewedUser.role || 'SEEKER'
+        }, result.matchId)
         return
       }
 
@@ -286,11 +279,6 @@ const ProfileDetailPage: React.FC = () => {
                   <h1 className="text-3xl font-bold text-white">
                     {viewedUser.displayName}, {viewedUser.age}
                   </h1>
-                  {viewedUser.bioQuote && (
-                    <p className="mt-1 text-sm italic font-serif text-white/90">
-                      "{viewedUser.bioQuote}"
-                    </p>
-                  )}
                   <p className="text-sm text-white/90 mt-1">
                     Year {viewedUser.courseYear} • {viewedUser.school}
                   </p>
@@ -301,6 +289,14 @@ const ProfileDetailPage: React.FC = () => {
               </div>
             </div>
           </div>
+          
+          {viewedUser.bioQuote && (
+            <div className="px-6 md:px-8 mt-6">
+              <p className="text-lg font-serif italic text-slate-700 dark:text-slate-300 border-l-4 border-brand-500 pl-4 my-6">
+                "{viewedUser.bioQuote}"
+              </p>
+            </div>
+          )}
 
           {additionalPhotos.length > 0 && (
             <div className="hidden lg:grid grid-cols-4 gap-3">

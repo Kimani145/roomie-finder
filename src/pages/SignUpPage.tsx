@@ -119,7 +119,7 @@ const SignUpPage: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={handleEmailChange}
-                placeholder="joseph@students.tukenya.ac.ke"
+                placeholder="matilda.tukenya.ac.ke or matilda@students.tukenya.ac.ke"
                 required
                 autoComplete="email"
                 aria-invalid={hasEmailError}

@@ -7,9 +7,11 @@ interface DiscoveryHeaderProps {
   isFilterOpen: boolean
 }
 
-function getInitials(name: string): string {
+function getInitials(name?: string): string {
+  if (!name) return '?'
   return name
     .split(' ')
+    .filter(Boolean)
     .map((n) => n[0])
     .join('')
     .toUpperCase()

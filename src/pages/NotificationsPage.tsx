@@ -1,5 +1,5 @@
 import React from 'react'
-import { Bell, CheckCheck } from 'lucide-react'
+import { Bell, CheckCheck, Heart } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useNotificationStore } from '@/store/notificationStore'
 import { markAllNotificationsRead, markNotificationRead } from '@/firebase/notifications'
@@ -83,6 +83,11 @@ const NotificationsPage: React.FC = () => {
             >
               {!notification.isRead && (
                 <div className="w-2 h-2 rounded-full bg-brand-500 mt-2 shrink-0" />
+              )}
+              {notification.type === 'like_summary' && (
+                 <div className="p-2 bg-pink-100 dark:bg-pink-500/20 text-pink-500 rounded-full shrink-0 flex items-center justify-center">
+                   <Heart className="w-4 h-4 fill-current" />
+                 </div>
               )}
               <div className="min-w-0 w-full">
                 <div className="flex items-start justify-between gap-3">

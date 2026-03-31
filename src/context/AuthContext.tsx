@@ -49,10 +49,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             setHasProfile(false)
             setNeedsOnboarding(true)
           }
-        } catch (err) {
-          console.error('Failed to load user profile:', err)
-          setHasProfile(false)
-          setNeedsOnboarding(true)
+        } catch (err: any) {
+          if (err.code === 'permission-denied') {
+            // User is logged in but lacks Firestore read access (likely unverified email).
+            // DO NOT call logout(). Allow the VerifyEmailPage to render.
+            setHasProfile(false)
+            setNeedsOnboarding(true)
+          } else {
+            console.error('Failed to load user profile:', err)
+            setHasProfile(false)
+            setNeedsOnboarding(true)
+          }
         }
       } else {
         setHasProfile(false)
@@ -66,31 +73,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const register = useCallback(async (email: string, password: string) => {
-    setLoading(true)
     try {
       const createdUser = await registerUser(email, password)
       setUser(createdUser)
       return createdUser
     } catch (error) {
-      setLoading(false)
       throw error as AuthServiceError
     }
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
-    setLoading(true)
     try {
       const loggedInUser = await loginUser(email, password)
       setUser(loggedInUser)
       return loggedInUser
     } catch (error) {
-      setLoading(false)
       throw error as AuthServiceError
     }
   }, [])
 
   const logout = useCallback(async () => {
-    setLoading(true)
     try {
       await logoutUser()
       setUser(null)
@@ -98,8 +100,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       clearAuth()
     } catch (error) {
       throw error as AuthServiceError
-    } finally {
-      setLoading(false)
     }
   }, [clearAuth])
 

@@ -55,8 +55,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ].join(' ')}
     >
       <div className="flex items-center h-16 px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+        <img src="/assets/favicon.svg" alt="Icon" className="w-8 h-8 shrink-0" />
         {!isCollapsed && (
-          <span className="text-xl font-syne font-bold text-brand-600 dark:text-brand-400 truncate">
+          <span className="ml-3 text-xl font-syne font-bold text-brand-600 dark:text-brand-400 truncate">
             Roomie Finder
           </span>
         )}

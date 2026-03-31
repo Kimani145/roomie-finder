@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Home } from 'lucide-react'
+import { Home, Flame } from 'lucide-react'
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { toast } from 'react-hot-toast'
 import { getListingById } from '@/firebase/listings'
@@ -8,6 +8,7 @@ import { ImageGalleryModal } from '@/components/ui/ImageGalleryModal'
 import { useAuthStore } from '@/store/authStore'
 import { db } from '@/firebase/config'
 import type { Listing } from '@/types'
+import { timeAgo } from '@/utils/dateUtils'
 
 const ListingDetailPage: React.FC = () => {
   const { listingId } = useParams<{ listingId: string }>()
@@ -127,6 +128,19 @@ const ListingDetailPage: React.FC = () => {
           <p className="text-slate-600 dark:text-slate-300 mb-4">
             KES {listing.roommateShare.toLocaleString()} roommate share
           </p>
+
+          <div className="w-full bg-gradient-to-r from-amber-500/10 to-transparent border-l-4 border-amber-500 p-4 rounded-r-2xl my-6 flex items-start sm:items-center gap-3">
+            <div className="p-2 bg-amber-500/20 rounded-full shrink-0">
+              <Flame className="w-5 h-5 text-amber-600 dark:text-amber-500" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">This listing is highly active</h4>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                Posted {timeAgo(listing.createdAt)} • {listing.interestCount || 3} Seekers are currently looking at this space.
+              </p>
+            </div>
+          </div>
+
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Amenities: {listing.amenities.length ? listing.amenities.join(', ') : 'Not specified'}
           </p>

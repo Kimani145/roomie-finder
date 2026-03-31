@@ -55,7 +55,7 @@ const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
             />
           ) : (
             <div className="w-12 h-12 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-700/40 flex items-center justify-center text-brand-700 dark:text-brand-200 font-syne font-bold text-lg shrink-0 hover:opacity-80 transition-opacity">
-              {otherUser.displayName.charAt(0)}
+              {(otherUser?.displayName || 'User').charAt(0).toUpperCase()}
             </div>
           )}
         </Link>

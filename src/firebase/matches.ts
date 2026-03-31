@@ -3,10 +3,12 @@ import {
   getDoc,
   setDoc,
   serverTimestamp,
+  increment
 } from 'firebase/firestore'
 import { toast } from 'react-hot-toast'
 import { db } from './config'
 import type { Like, Match } from '@/types'
+import { getUserProfile } from '@/firebase/profiles'
 
 const LIKES_COLLECTION = 'likes'
 const MATCHES_COLLECTION = 'matches'
@@ -51,6 +53,39 @@ export async function likeProfile(
     // Current rules can deny reads on missing docs; treat this as "no reverse like".
     reverseExists = false
   }
+
+  // --- Start Notification Grouping Injection ---
+  if (!reverseExists) {
+    try {
+      const fromUser = await getUserProfile(fromUid)
+      const actorName = fromUser?.displayName || 'Someone'
+      const currentDateString = new Date().toISOString().split('T')[0]
+      const notifRef = doc(db, 'notifications', `likes_${toUid}_${currentDateString}`);
+      
+      const notifSnap = await getDoc(notifRef);
+      const data = notifSnap.exists() ? notifSnap.data() : null;
+      let existingCount = 0;
+      if (data && data.count) {
+        existingCount = data.count;
+      }
+      
+      await setDoc(notifRef, {
+        recipientId: toUid,
+        type: 'like_summary',
+        count: increment(1),
+        latestActorName: actorName,
+        title: 'New Likes',
+        body: existingCount > 0 ? `${actorName} and ${existingCount} others liked your profile.` : `${actorName} liked your profile.`,
+        link: '/discover', // Or wherever they view likes
+        createdAt: serverTimestamp(),
+        isRead: false,
+        priority: 'low'
+      }, { merge: true });
+    } catch (err) {
+      console.error('Failed to group like notification:', err);
+    }
+  }
+  // --- End Notification Grouping Injection ---
 
   if (reverseExists) {
     const [userA, userB] = [fromUid, toUid].sort()

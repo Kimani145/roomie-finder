@@ -110,6 +110,8 @@ export interface Listing {
   }
   createdAt: string
   status: 'active' | 'paused' | 'filled'
+  interestCount?: number
+  viewCount?: number
 }
 
 // ─── Match Result ─────────────────────────────────────────────────────────────
