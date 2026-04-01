@@ -63,7 +63,7 @@ export const MatchOverlay: React.FC = () => {
                transition={{ duration: ANIM_DURATION, ease: "easeOut" }}
                className="absolute w-32 h-32 rounded-full bg-blue-500 shadow-2xl z-10 overflow-hidden border-4 border-slate-900"
              >
-               {phase === 'resolved' && <img src="/assets/favicon.svg" alt="You" className="w-full h-full object-cover opacity-50 bg-slate-100" />}
+               {phase === 'resolved' && <img src="/favicon.svg" alt="You" className="w-full h-full object-cover opacity-50 bg-slate-100" />}
              </motion.div>
 
              {/* Right Circle (Emerald) */}
@@ -77,7 +77,7 @@ export const MatchOverlay: React.FC = () => {
                transition={{ duration: ANIM_DURATION, ease: "easeOut" }}
                className="absolute w-32 h-32 rounded-full bg-emerald-500 shadow-2xl mix-blend-multiply z-20 overflow-hidden border-4 border-slate-900"
              >
-               {phase === 'resolved' && <img src={matchData.matchedUser.photoURL || '/assets/favicon.svg'} alt="Match" className="w-full h-full object-cover bg-slate-100" />}
+               {phase === 'resolved' && <img src={matchData.matchedUser.photoURL || '/favicon.svg'} alt="Match" className="w-full h-full object-cover bg-slate-100" />}
              </motion.div>
           </div>
 
