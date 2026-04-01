@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock, AlertCircle, LogIn, Eye, EyeOff, Info } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
-//import type { AuthServiceError } from '@/services/authService'
 
 const LoginPage: React.FC = () => {
- // const navigate = useNavigate()
+  const navigate = useNavigate()
   const { login } = useAuth()
 
   const [email, setEmail] = useState('')
@@ -21,7 +20,8 @@ const LoginPage: React.FC = () => {
 
     try {
       await login(email, password);
-      // Let the AuthContext/AppRoutes handle the redirect automatically once currentUser populates
+      // Wait for AuthContext to populate currentUser, but also trigger manual navigation
+      navigate('/discover');
     } catch (err: any) {
       console.error("Login failed:", err);
       // STRICT: We ONLY clear the password. DO NOT clear the email.
