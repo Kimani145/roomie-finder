@@ -21,7 +21,7 @@ const AdminSidebar: React.FC<{ isCollapsed: boolean; setIsCollapsed: (v: boolean
     >
       {/* Top Left Branding */}
       <div className="flex items-center h-16 px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
-        <img src="/assets/favicon.svg" alt="Icon" className="w-8 h-8 shrink-0" />
+        <img src="/favicon.svg" alt="Icon" className="w-8 h-8 shrink-0" />
         {!isCollapsed && (
           <span className="ml-3 text-xl font-syne font-bold text-brand-600 dark:text-brand-400 truncate">
             Roomie Finder <span className="text-amber-500 text-xs tracking-widest uppercase ml-1">Admin</span>
