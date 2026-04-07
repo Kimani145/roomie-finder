@@ -1,0 +1,36 @@
+node_modules
+.DS_Store
+.env
+.env.*
+!.env.example
+dist
+build
+coverage
+logs
+*.log
+firebase-debug.log*
+firestore.indexes.json
+
+# Temporary scripts and reports
+*.patch
+patch*.js
+fixBuild*.js
+test-*.js
+test-*.mjs
+*_errors.txt
+check_ts.txt
+result.txt
+snap.json
+LINUX_ALIGNMENT_REPORT.md
+REFACTOR_COMPLETE.md
+TAILWIND_FIX.md
+TROUBLESHOOTING.md
+
+# Build artifacts & temp files
+*.tsbuildinfo
+.tmp-*
+
+# Deleted/Backup files
+deleted_files/
+*.old.ts
+*.old.js
