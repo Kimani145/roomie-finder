@@ -69,8 +69,35 @@ const ProfilePage: React.FC = () => {
   }, [profile]);
 
   const isPaused = profileStatus === 'paused';
-  const toggleStatus = () => {
-    setProfileStatus((prev) => (prev === 'active' ? 'paused' : 'active'));
+  const toggleStatus = async () => {
+    if (!currentUser) return;
+    const newStatus = profileStatus === 'active' ? 'paused' : 'active';
+    setProfileStatus(newStatus); // Optimistic UI update
+
+    try {
+      const promise = updateDoc(doc(db, 'profiles', currentUser.uid), {
+        status: newStatus,
+        updatedAt: new Date()
+      });
+      
+      toast.promise(promise, {
+        loading: 'Updating profile status...',
+        success: `Profile ${newStatus === 'paused' ? 'paused' : 'active'}!`,
+        error: 'Failed to update profile status.'
+      });
+
+      await promise;
+      
+      // Update local state to match
+      const nextUser = { ...currentUser, status: newStatus } as any;
+      setCurrentUser(nextUser);
+      if (profile) setProfile({ ...profile, status: newStatus });
+      
+    } catch (error) {
+      console.error('Failed to update profile status:', error);
+      // Revert optimistic update on error
+      setProfileStatus(profileStatus);
+    }
   };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {

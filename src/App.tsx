@@ -80,7 +80,7 @@ const AppRoutes: React.FC = () => {
           <Route
             path="/discover"
             element={
-              <ProtectedRoute allowWithoutProfile allowGuest>
+              <ProtectedRoute allowGuest>
                 <AppLayout>
                   <DiscoveryPage />
                 </AppLayout>
