@@ -9,7 +9,7 @@ import {
   Wind,
   Wine,
 } from 'lucide-react'
-import { collection, getDocs, query, where } from 'firebase/firestore'
+import { collection, getDocs, limit, query, where } from 'firebase/firestore'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { formatBudget } from '@/utils/formatters'
 import { useAuthStore } from '@/store/authStore'
@@ -119,7 +119,8 @@ const ProfileDetailPage: React.FC = () => {
         const listingQuery = query(
           collection(db, 'listings'),
           where('hostId', '==', profile.uid),
-          where('status', '==', 'active')
+          where('status', '==', 'active'),
+          limit(1)
         )
 
         const snapshot = await getDocs(listingQuery)
@@ -209,7 +210,7 @@ const ProfileDetailPage: React.FC = () => {
     setIsSubmittingLike(true)
     setActionError(null)
     try {
-      const result = await likeProfile(currentUser.uid, viewedUser.uid)
+      const result = await likeProfile(currentUser.uid, viewedUser.uid, hostListing?.id)
 
       if (result.matched && result.matchId) {
         await new Promise<void>((resolve) => {

@@ -100,6 +100,8 @@ const ListingDetailPage: React.FC = () => {
     )
   }
 
+  const interestCount = listing.interestCount ?? 0
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 w-full">
       <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
@@ -136,7 +138,9 @@ const ListingDetailPage: React.FC = () => {
             <div>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white">This listing is highly active</h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                Posted {timeAgo(listing.createdAt)} • {listing.interestCount || 3} Seekers are currently looking at this space.
+                Posted {timeAgo(listing.createdAt)} • {interestCount}{' '}
+                {interestCount === 1 ? 'seeker is' : 'seekers are'} interested in this
+                space.
               </p>
             </div>
           </div>

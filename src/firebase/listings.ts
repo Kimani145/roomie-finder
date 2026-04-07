@@ -4,6 +4,21 @@ import type { Listing } from '@/types'
 
 const LISTINGS_COLLECTION = 'listings'
 
+function toIsoString(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (value instanceof Date) return value.toISOString()
+  if (
+    value &&
+    typeof value === 'object' &&
+    'toDate' in value &&
+    typeof value.toDate === 'function'
+  ) {
+    return value.toDate().toISOString()
+  }
+
+  return new Date().toISOString()
+}
+
 function toListing(data: any, id: string): Listing | null {
   if (!data?.hostId || !data?.zone || !data?.housingType) return null
 
@@ -21,11 +36,10 @@ function toListing(data: any, id: string): Listing | null {
       petsAllowed: !!data?.houseRules?.petsAllowed,
       guestPolicy: data?.houseRules?.guestPolicy ?? '',
     },
-    createdAt:
-      typeof data.createdAt === 'string'
-        ? data.createdAt
-        : new Date().toISOString(),
+    createdAt: toIsoString(data.createdAt),
     status: data.status ?? 'active',
+    interestCount: Number(data.interestCount ?? 0),
+    viewCount: Number(data.viewCount ?? 0),
   }
 }
 
@@ -43,7 +57,14 @@ export async function fetchListingsByHostIds(
     if (!listing) return
     if (!hostIdSet.has(listing.hostId)) return
     if (listing.status !== 'active') return
-    listingsByHostId[listing.hostId] = listing
+
+    const existingListing = listingsByHostId[listing.hostId]
+    if (
+      !existingListing ||
+      new Date(listing.createdAt).getTime() >= new Date(existingListing.createdAt).getTime()
+    ) {
+      listingsByHostId[listing.hostId] = listing
+    }
   })
 
   return listingsByHostId

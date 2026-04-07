@@ -14,6 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
   const location = useLocation()
   const { theme, setTheme } = useTheme()
   const { currentUser } = useAuthStore()
+  const showDesktopBrand = !currentUser || isCollapsed
 
   const initials = currentUser?.displayName
     ? currentUser.displayName
@@ -49,15 +50,18 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
           </span>
         </Link>
 
-        {isCollapsed && (
-          <span className="hidden md:block text-xl font-syne font-bold text-brand-600 dark:text-brand-400 animate-fade-in">
+        {showDesktopBrand && (
+          <Link
+            to="/discover"
+            className="hidden md:block text-xl font-syne font-bold text-brand-600 dark:text-brand-400 animate-fade-in"
+          >
             Roomie Finder
-          </span>
+          </Link>
         )}
       </div>
 
       <div className="flex items-center gap-4">
-        <NotificationBell />
+        {currentUser && <NotificationBell />}
 
         <button
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -68,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
           {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
         </button>
 
-        {currentUser && (
+        {currentUser ? (
           <>
             <div className="hidden sm:block text-right">
               <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
@@ -96,6 +100,21 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
               )}
             </Link>
           </>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Link
+              to="/signup"
+              className="hidden sm:inline-flex items-center rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            >
+              Create account
+            </Link>
+            <Link
+              to="/login"
+              className="inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+            >
+              Sign in
+            </Link>
+          </div>
         )}
       </div>
     </header>
