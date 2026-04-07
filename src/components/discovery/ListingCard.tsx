@@ -35,7 +35,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   onPrimaryAction,
 }) => {
   const { profile, listing, compatibilityScore } = match
-  if (!profile) return null;
+  if (!profile) return null
+
+  const interestCount = listing?.interestCount ?? 0
 
   const compatibilityPct = getCompatibilityPercentage(compatibilityScore)
   const heroPhoto = listing?.photos?.[0]
@@ -81,7 +83,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           {listing && (
             <div className="flex items-center gap-1.5 mt-3 text-amber-600 dark:text-amber-500 text-xs font-bold bg-amber-50 dark:bg-amber-500/10 px-2 py-1.5 rounded-md w-fit">
               <Flame className="w-3.5 h-3.5" />
-              <span>{listing.interestCount || 3} people interested</span>
+              <span>
+                {interestCount} {interestCount === 1 ? 'person' : 'people'} interested
+              </span>
             </div>
           )}
         </div>

@@ -9,6 +9,8 @@ interface ProtectedRouteProps {
   children: React.ReactElement
   /** If true, skip the profile check (used for the onboarding route itself). */
   allowWithoutProfile?: boolean
+  /** If true, unauthenticated users can pass this route. */
+  allowGuest?: boolean
 }
 
 /**
@@ -21,6 +23,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   allowWithoutProfile = false,
+  allowGuest = false,
 }) => {
   const location = useLocation()
   const { user, loading, emailVerified, hasProfile, reloadUser } = useAuth()
@@ -64,7 +67,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Tier 1: No user at all
-  if (!user) {
+  if (!user && !loading) {
+    if (allowGuest) return <>{children}</>
     return <Navigate to="/login" replace />
   }
 

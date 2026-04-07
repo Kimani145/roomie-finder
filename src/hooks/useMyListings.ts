@@ -3,6 +3,21 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import type { Listing } from '@/types'
 
+function toIsoString(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (value instanceof Date) return value.toISOString()
+  if (
+    value &&
+    typeof value === 'object' &&
+    'toDate' in value &&
+    typeof value.toDate === 'function'
+  ) {
+    return value.toDate().toISOString()
+  }
+
+  return new Date().toISOString()
+}
+
 function docToListing(data: Record<string, unknown>, id: string): Listing {
   const houseRules = (data.houseRules as Record<string, unknown>) ?? {}
   return {
@@ -19,9 +34,10 @@ function docToListing(data: Record<string, unknown>, id: string): Listing {
       petsAllowed: !!houseRules.petsAllowed,
       guestPolicy: String(houseRules.guestPolicy ?? ''),
     },
-    createdAt:
-      typeof data.createdAt === 'string' ? data.createdAt : new Date().toISOString(),
+    createdAt: toIsoString(data.createdAt),
     status: (data.status as Listing['status']) ?? 'active',
+    interestCount: Number(data.interestCount ?? 0),
+    viewCount: Number(data.viewCount ?? 0),
   }
 }
 

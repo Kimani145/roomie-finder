@@ -3,7 +3,8 @@ import {
   getDoc,
   setDoc,
   serverTimestamp,
-  increment
+  increment,
+  updateDoc,
 } from 'firebase/firestore'
 import { toast } from 'react-hot-toast'
 import { db } from './config'
@@ -16,7 +17,8 @@ const MATCHES_COLLECTION = 'matches'
 // ─── Like a profile ───────────────────────────────────────────────────────────
 export async function likeProfile(
   fromUid: string,
-  toUid: string
+  toUid: string,
+  listingId?: string | null
 ): Promise<{ matched: boolean; matchId?: string }> {
   if (fromUid === toUid) return { matched: false }
 
@@ -24,6 +26,7 @@ export async function likeProfile(
   // update; treat that case as "already liked" and continue.
   const likeId = `${fromUid}_${toUid}`
   const likeRef = doc(db, LIKES_COLLECTION, likeId)
+  let createdLike = false
 
   try {
     await setDoc(likeRef, {
@@ -31,6 +34,7 @@ export async function likeProfile(
       toUid,
       createdAt: serverTimestamp(),
     } as Omit<Like, 'createdAt'> & { createdAt: ReturnType<typeof serverTimestamp> })
+    createdLike = true
   } catch (error: any) {
     if (error?.code !== 'permission-denied') throw error
 
@@ -38,6 +42,16 @@ export async function likeProfile(
     // Confirm existence before suppressing.
     const existingLike = await getDoc(likeRef)
     if (!existingLike.exists()) throw error
+  }
+
+  if (createdLike && listingId) {
+    try {
+      await updateDoc(doc(db, 'listings', listingId), {
+        interestCount: increment(1),
+      })
+    } catch (error) {
+      console.error('Failed to update listing interest count:', error)
+    }
   }
 
   // Check if the other person already liked us (mutual match)

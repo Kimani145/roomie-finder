@@ -143,6 +143,8 @@ const ListingWizardPage: React.FC = () => {
         },
         createdAt: serverTimestamp(),
         status: 'active' as const,
+        interestCount: 0,
+        viewCount: 0,
       }
 
       await setDoc(listingRef, listingData)
