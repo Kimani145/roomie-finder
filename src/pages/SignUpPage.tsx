@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import {
   Mail,
   Lock,
@@ -15,9 +15,11 @@ import type { AuthServiceError } from '@/services/authService'
 
 const SignUpPage: React.FC = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { register } = useAuth()
 
-  const [email, setEmail] = useState('')
+  const initialEmail = location.state?.initialEmail || ''
+  const [email, setEmail] = useState(initialEmail)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)

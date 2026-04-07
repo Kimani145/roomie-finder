@@ -96,13 +96,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Prevent users with an existing profile from re-entering onboarding.
-    if (allowWithoutProfile && hasProfile && location.pathname === '/onboarding') {
+  if (allowWithoutProfile && hasProfile && location.pathname === '/onboarding') {
     return <Navigate to="/discover" replace />
   }
 
-  // Tier 3: Verified but no Firestore profile yet
-  if (!allowWithoutProfile && !hasProfile) {
-    return <Navigate to="/onboarding" replace />
+  // 3. Handle Missing Profiles (The Limbo Fix)
+  // If they are logged in, but have no profile, force them to onboarding 
+  // UNLESS the current route explicitly allows users without profiles (e.g., the /onboarding route itself).
+  if (user && !hasProfile && !loading) {
+    if (allowWithoutProfile) return <>{children}</>;
+    return <Navigate to="/onboarding" replace />;
   }
 
   // All tiers passed

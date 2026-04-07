@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { deleteDoc, doc } from 'firebase/firestore'
+import { deleteDoc, updateDoc, doc } from 'firebase/firestore'
 import toast from 'react-hot-toast'
 import { Home } from 'lucide-react'
 import { db } from '@/firebase/config'
@@ -56,6 +56,28 @@ const MyListingsPage: React.FC = () => {
     } catch (err) {
       console.error('Delete listing error:', err)
       toast.error('Failed to delete listing')
+    }
+  }
+
+  const handleTogglePause = async (listingId: string, currentStatus: Listing['status']) => {
+    try {
+      const newStatus = currentStatus === 'active' ? 'paused' : 'active'
+      const statusText = newStatus === 'paused' ? 'paused' : 'activated'
+      
+      const updatePromise = updateDoc(doc(db, 'listings', listingId), {
+        status: newStatus,
+        updatedAt: Date.now() // Simple timestamp fallback since we aren't using serverTimestamp here
+      })
+
+      toast.promise(updatePromise, {
+        loading: 'Updating status...',
+        success: `Listing successfully ${statusText}!`,
+        error: 'Failed to update status.',
+      })
+      
+      await updatePromise
+    } catch (error) {
+      console.error('Toggle pause error:', error)
     }
   }
 
@@ -154,9 +176,10 @@ const MyListingsPage: React.FC = () => {
                 </Link>
                 <button
                   type="button"
+                  onClick={() => handleTogglePause(listing.id, listing.status)}
                   className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
                 >
-                  Pause
+                  {listing.status === 'paused' ? 'Resume' : 'Pause'}
                 </button>
                 <button
                   type="button"

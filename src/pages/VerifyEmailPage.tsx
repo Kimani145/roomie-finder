@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MailCheck, RefreshCw, LogOut, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { MailCheck, RefreshCw, LogOut, AlertCircle, CheckCircle2, Edit2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { auth } from '@/firebase/config'
 import { toast as hotToast } from 'react-hot-toast'
 
 const VerifyEmailPage: React.FC = () => {
   const navigate = useNavigate()
-  const { user, reloadUser, resendVerification, logout } = useAuth()
+  const { user, resendVerification, logout } = useAuth()
 
   const [checking, setChecking] = useState(false)
   const [resending, setResending] = useState(false)
@@ -21,7 +21,11 @@ const VerifyEmailPage: React.FC = () => {
           if (auth.currentUser.emailVerified) {
             clearInterval(interval)
             hotToast.success('Email verified!')
-            navigate('/onboarding', { replace: true })
+            
+            // STRICT: Force a hard browser redirect, do NOT use useNavigate here.
+            setTimeout(() => {
+              window.location.href = '/'
+            }, 1000)
           }
         }
       } catch (error) {
@@ -33,24 +37,38 @@ const VerifyEmailPage: React.FC = () => {
   }, [user, navigate])
 
   // ── Check verification status ─────────────────────────────────────────────
-  const handleContinue = async () => {
+  const handleCheckVerification = async () => {
     setChecking(true)
     setToast(null)
 
     try {
-      const verified = await reloadUser()
-      if (verified) {
-        navigate('/onboarding', { replace: true })
+      // 1. Force fetch the latest user data from the server
+      await auth.currentUser?.reload()
+      
+      // 2. Force a refresh of the local auth token to trigger context updates
+      await auth.currentUser?.getIdToken(true)
+      
+      // 3. Evaluate the fresh status
+      if (auth.currentUser?.emailVerified) {
+        // Keep your existing success toast/notification here
+        hotToast.success("Email verified!");
+        
+        // STRICT: Force a hard browser redirect, do NOT use useNavigate here.
+        // This guarantees AuthContext rebuilds with the fresh emailVerified = true state.
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
       } else {
         setToast({
           type: 'error',
-          message: 'Email not verified yet. Please check your inbox.',
+          message: "We haven't detected the verification yet. Please ensure you clicked the link in your latest email.",
         })
       }
-    } catch {
+    } catch (err: any) {
+      console.error("Verification check failed:", err)
       setToast({
         type: 'error',
-        message: 'Could not check verification status. Try again.',
+        message: "An error occurred while checking. Please try refreshing the page.",
       })
     } finally {
       setChecking(false)
@@ -101,9 +119,22 @@ const VerifyEmailPage: React.FC = () => {
         <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-2">
           Check your TUK email. We sent a verification link.
         </p>
-        <p className="text-sm font-bold text-slate-900 dark:text-slate-50 mb-4 break-all">
-          {user?.email ?? 'your email'}
-        </p>
+        <div className="flex items-center justify-center gap-2 mb-4 break-all">
+          <p className="text-sm font-bold text-slate-900 dark:text-slate-50">
+            {user?.email ?? 'your email'}
+          </p>
+          <button
+            onClick={async () => {
+              const currentEmail = user?.email
+              await logout()
+              navigate('/signup', { state: { initialEmail: currentEmail } })
+            }}
+            className="text-slate-400 hover:text-blue-500 transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+            title="Edit email address"
+          >
+            <Edit2 className="h-4 w-4" />
+          </button>
+        </div>
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-8">
           You must verify your institutional identity before accessing the
           compatibility engine. Check your inbox (and spam folder) for the link.
@@ -140,7 +171,7 @@ const VerifyEmailPage: React.FC = () => {
 
         {/* Primary CTA */}
         <button
-          onClick={handleContinue}
+          onClick={handleCheckVerification}
           disabled={checking}
           className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
         >
