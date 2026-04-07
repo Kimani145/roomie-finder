@@ -1,6 +1,14 @@
 import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { collection, doc, serverTimestamp, setDoc } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  serverTimestamp,
+  where,
+  writeBatch,
+} from 'firebase/firestore'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { db } from '@/firebase/config'
@@ -22,7 +30,7 @@ const AMENITY_OPTIONS = [
 
 const ListingWizardPage: React.FC = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user: currentUser } = useAuth()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -103,7 +111,7 @@ const ListingWizardPage: React.FC = () => {
       return
     }
 
-    if (!user) {
+    if (!currentUser?.uid) {
       toast.error('You need to be signed in to publish a listing.')
       return
     }
@@ -127,9 +135,22 @@ const ListingWizardPage: React.FC = () => {
       }
 
       const listingRef = doc(collection(db, 'listings'))
+      const batch = writeBatch(db)
+
+      const activeListingsQuery = query(
+        collection(db, 'listings'),
+        where('hostId', '==', currentUser.uid),
+        where('status', '==', 'active')
+      )
+
+      const activeListingsSnapshot = await getDocs(activeListingsQuery)
+      activeListingsSnapshot.forEach((listingDoc) => {
+        batch.update(listingDoc.ref, { status: 'paused' })
+      })
+
       const listingData = {
         id: listingRef.id,
-        hostId: user.uid,
+        hostId: currentUser.uid,
         zone: zone as TukZone,
         housingType: housingType as HousingType,
         rentTotal: rentValue,
@@ -147,7 +168,8 @@ const ListingWizardPage: React.FC = () => {
         viewCount: 0,
       }
 
-      await setDoc(listingRef, listingData)
+      batch.set(listingRef, listingData)
+      await batch.commit()
       toast.success('Listing published successfully!')
       navigate('/my-listings')
     } catch (error) {

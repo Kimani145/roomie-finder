@@ -366,7 +366,7 @@ const ProfilePage: React.FC = () => {
                     </p>
                     <button
                       type="button"
-                      onClick={() => Maps('/listings')}
+                      onClick={() => Maps('/my-listings')}
                       className="mt-3 inline-flex items-center rounded-lg bg-blue-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
                     >
                       Go to Listings

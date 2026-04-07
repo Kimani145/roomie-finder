@@ -1,11 +1,16 @@
-import React, { useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Users, MessageSquare } from 'lucide-react';
-import { useMatches, HydratedMatch } from '@/hooks/useMatches';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { getCompatibilityPercentage } from '@/engine/compatibilityEngine';
-import { formatCourseYear, formatTimeAgo, getMatchBadgeClasses } from '@/utils/formatters';
-import { useNotificationStore } from '@/store/notificationStore';
+import React, { useEffect } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Users, MessageSquare } from 'lucide-react'
+import { useMatches, HydratedMatch } from '@/hooks/useMatches'
+import { Skeleton } from '@/components/ui/Skeleton'
+import { getCompatibilityPercentage } from '@/engine/compatibilityEngine'
+import {
+  formatBudget,
+  formatCourseYear,
+  formatTimeAgo,
+  getMatchBadgeClasses,
+} from '@/utils/formatters'
+import { useNotificationStore } from '@/store/notificationStore'
 
 const MatchListItemSkeleton: React.FC = () => (
   <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm overflow-hidden mb-4">
@@ -18,26 +23,51 @@ const MatchListItemSkeleton: React.FC = () => (
     </div>
     <Skeleton className="h-10 w-24 rounded-xl bg-slate-200 dark:bg-slate-700" />
   </div>
-);
+)
+
+const formatMoveIn = (moveInMonth?: string | null) => {
+  if (!moveInMonth) return 'Flexible move-in'
+
+  const date = new Date(`${moveInMonth}-01`)
+  if (Number.isNaN(date.getTime())) return moveInMonth
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    year: 'numeric',
+  }).format(date)
+}
 
 const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { otherUser } = match;
-  const compatibilityPct = getCompatibilityPercentage(match.compatibilityScore);
-  const primaryZone = otherUser.zones?.[0] ?? '—';
-  const roleLabel =
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { otherUser, listing } = match
+  const compatibilityPct = getCompatibilityPercentage(match.compatibilityScore)
+  const primaryZone = listing?.zone ?? otherUser.zones?.[0] ?? '—'
+
+  const summaryLabel =
     otherUser.role === 'HOST'
-      ? `Host in ${primaryZone}`
+      ? [
+          listing?.housingType ?? 'Host',
+          primaryZone,
+          listing ? `KES ${listing.roommateShare.toLocaleString()}/roommate` : null,
+        ]
+          .filter(Boolean)
+          .join(' • ')
       : otherUser.role === 'SEEKER'
-        ? 'Seeker'
-        : 'Flexible';
+        ? `${formatBudget(otherUser.minBudget, otherUser.maxBudget)} • ${formatMoveIn(
+            otherUser.moveInMonth
+          )}`
+        : `Flexible • ${primaryZone}`
+
+  const metaLabel = [formatCourseYear(otherUser.courseYear), `Matched ${formatTimeAgo(match.createdAt)}`]
+    .filter(Boolean)
+    .join(' • ')
 
   const handleMessageClick = () => {
     navigate(`/chat/${match.matchId}`, {
       state: { from: location.pathname },
-    });
-  };
+    })
+  }
 
   return (
     <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm hover:shadow-md transition-shadow mb-4 overflow-hidden">
@@ -73,11 +103,10 @@ const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
             </span>
           </div>
           <span className="text-xs text-brand-600 dark:text-brand-400 font-medium">
-            {roleLabel}
+            {summaryLabel}
           </span>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            {formatCourseYear(otherUser.courseYear)} • Matched{' '}
-            {formatTimeAgo(new Date(match.createdAt))}
+            {metaLabel}
           </p>
         </div>
       </div>
@@ -89,17 +118,17 @@ const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
         <span>Message</span>
       </button>
     </div>
-  );
-};
+  )
+}
 
 const MatchesPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { matches, isLoading, error } = useMatches();
-  const clearUnreadMatches = useNotificationStore((state) => state.clearUnreadMatches);
+  const navigate = useNavigate()
+  const { matches, isLoading, error } = useMatches()
+  const clearUnreadMatches = useNotificationStore((state) => state.clearUnreadMatches)
 
   useEffect(() => {
-    clearUnreadMatches();
-  }, [clearUnreadMatches]);
+    clearUnreadMatches()
+  }, [clearUnreadMatches])
 
   const renderContent = () => {
     if (isLoading) {
@@ -109,7 +138,7 @@ const MatchesPage: React.FC = () => {
           <MatchListItemSkeleton />
           <MatchListItemSkeleton />
         </div>
-      );
+      )
     }
 
     if (error) {
@@ -117,7 +146,7 @@ const MatchesPage: React.FC = () => {
         <div className="text-center py-20 text-red-500 dark:text-red-400">
           <p>Sorry, we couldn't load your matches. Please try again later.</p>
         </div>
-      );
+      )
     }
 
     if (!isLoading && matches.length === 0) {
@@ -139,7 +168,7 @@ const MatchesPage: React.FC = () => {
             Find Your Roomie
           </button>
         </div>
-      );
+      )
     }
 
     return (
@@ -153,8 +182,8 @@ const MatchesPage: React.FC = () => {
             <MatchListItem key={match.matchId} match={match} />
           ))}
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
@@ -168,7 +197,7 @@ const MatchesPage: React.FC = () => {
       </div>
       {renderContent()}
     </div>
-  );
-};
+  )
+}
 
-export default MatchesPage;
+export default MatchesPage

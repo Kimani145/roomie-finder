@@ -39,6 +39,7 @@ const ProfileDetailPage: React.FC = () => {
   const [isSubmittingLike, setIsSubmittingLike] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
   const [likeSent, setLikeSent] = useState(false)
+  const [hasReverseLike, setHasReverseLike] = useState(false)
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [galleryStartIndex, setGalleryStartIndex] = useState(0)
 
@@ -73,6 +74,9 @@ const ProfileDetailPage: React.FC = () => {
                 try {
                   const alreadyLiked = await hasLiked(currentUser.uid, fetchedProfile.uid)
                   if (isMounted) setLikeSent(alreadyLiked)
+                  
+                  const theyLikedMe = await hasLiked(fetchedProfile.uid, currentUser.uid)
+                  if (isMounted) setHasReverseLike(theyLikedMe)
                 } catch (likeErr: any) {
                   if (
                     likeErr?.code !== 'permission-denied' &&
@@ -515,7 +519,7 @@ const ProfileDetailPage: React.FC = () => {
                     ? 'Sending...'
                     : likeSent
                       ? 'Liked'
-                      : 'Like Profile'}
+                      : hasReverseLike ? 'Match' : 'Like Profile'}
               </button>
             </div>
             {actionError && (

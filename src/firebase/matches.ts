@@ -1,5 +1,6 @@
 import {
   doc,
+  collection,
   getDoc,
   setDoc,
   serverTimestamp,
@@ -38,10 +39,13 @@ export async function likeProfile(
   } catch (error: any) {
     if (error?.code !== 'permission-denied') throw error
 
-    // Under immutable-like rules, an existing doc throws permission-denied.
-    // Confirm existence before suppressing.
-    const existingLike = await getDoc(likeRef)
-    if (!existingLike.exists()) throw error
+    try {
+      const existingLike = await getDoc(likeRef)
+      if (!existingLike.exists()) throw error
+    } catch (readError) {
+      console.error('Fallback getDoc likeRef failed:', readError);
+      throw error; // Throw original
+    }
   }
 
   if (createdLike && listingId) {
@@ -69,37 +73,28 @@ export async function likeProfile(
   }
 
   // --- Start Notification Grouping Injection ---
-  if (!reverseExists) {
+  if (!reverseExists && createdLike) {
     try {
       const fromUser = await getUserProfile(fromUid)
       const actorName = fromUser?.displayName || 'Someone'
-      const currentDateString = new Date().toISOString().split('T')[0]
-      const notifRef = doc(db, 'notifications', `likes_${toUid}_${currentDateString}`);
-      
-      const notifSnap = await getDoc(notifRef);
-      const data = notifSnap.exists() ? notifSnap.data() : null;
-      let existingCount = 0;
-      if (data && data.count) {
-        existingCount = data.count;
-      }
+      const notifRef = doc(collection(db, 'notifications'))
       
       await setDoc(notifRef, {
         recipientId: toUid,
-        type: 'like_summary',
-        count: increment(1),
+        type: 'like',
+        actorId: fromUid,
         latestActorName: actorName,
-        title: 'New Likes',
-        body: existingCount > 0 ? `${actorName} and ${existingCount} others liked your profile.` : `${actorName} liked your profile.`,
-        link: '/discover', // Or wherever they view likes
+        title: 'New Like!',
+        body: `${actorName} liked your profile. Tap to view and match!`,
+        link: `/profile/${fromUid}`,
         createdAt: serverTimestamp(),
         isRead: false,
-        priority: 'low'
-      }, { merge: true });
+        priority: 'high'
+      })
     } catch (err) {
-      console.error('Failed to group like notification:', err);
+      console.error('Failed to send like notification:', err)
     }
   }
-  // --- End Notification Grouping Injection ---
 
   if (reverseExists) {
     const [userA, userB] = [fromUid, toUid].sort()
