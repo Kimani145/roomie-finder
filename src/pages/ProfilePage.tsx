@@ -304,9 +304,9 @@ const ProfilePage: React.FC = () => {
 
               <div className="space-y-4">
                 <div className="rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
                         Profile Status
                       </p>
                       <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -317,7 +317,7 @@ const ProfilePage: React.FC = () => {
                       type="button"
                       onClick={toggleStatus}
                       aria-label="Toggle profile status"
-                      className={`${isPaused ? 'bg-slate-400 dark:bg-slate-600' : 'bg-emerald-500'} relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
+                      className={`${isPaused ? 'bg-slate-400 dark:bg-slate-600' : 'bg-emerald-500'} relative shrink-0 inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none`}
                     >
                       <span
                         className={`${isPaused ? 'translate-x-1' : 'translate-x-6'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useLocation } from 'react-router-dom'
 import { useNetwork } from '@/hooks/useNetwork'
 import { useAuthStore } from '@/store/authStore'
@@ -26,12 +27,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       )}
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {!isOnline && (
-          <div className="sticky top-0 w-full bg-slate-800 text-slate-200 text-xs font-semibold py-1.5 px-4 text-center flex items-center justify-center gap-2 z-50 relative">
-            <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            You are offline. Viewing cached data.
-          </div>
-        )}
+        <AnimatePresence>
+          {!isOnline && (
+            <motion.div
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -50, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="sticky top-0 w-full bg-amber-100 text-amber-900 dark:bg-slate-800 dark:text-slate-200 text-xs font-semibold py-2 px-4 text-center flex items-center justify-center gap-2 z-50 relative shadow-md"
+            >
+              <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+              You are offline.
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <Header isCollapsed={isCollapsed} />
 
