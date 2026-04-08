@@ -123,6 +123,22 @@ export async function likeProfile(
       if (!existingMatch.exists()) throw error
     }
 
+    try {
+      await setDoc(
+        doc(db, 'chats', matchId),
+        {
+          participants: [userA, userB],
+          status: 'matched',
+          lastMessage: '',
+          unreadBy: [],
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      )
+    } catch (error) {
+      console.error('Failed to initialize chat thread for match:', error)
+    }
+
     toast.success('🎉 You have a new match!')
     return { matched: true, matchId }
   }

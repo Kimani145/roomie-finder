@@ -16,7 +16,12 @@ import { ArrowLeft, MoreVertical, Send } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { db } from '@/firebase/config'
 import { useAuthStore } from '@/store/authStore'
-import { getOtherParticipantUid, markChatAsRead, sendChatMessage } from '@/hooks/useChat'
+import {
+  getChatParticipants,
+  getOtherParticipantUid,
+  markChatAsRead,
+  sendChatMessage,
+} from '@/hooks/useChat'
 
 type ChatMessage = {
   id: string
@@ -44,6 +49,8 @@ const ChatPage: React.FC = () => {
   const [otherUser, setOtherUser] = useState<ChatHeaderProfile | null>(null)
   const [isSafetyMenuOpen, setIsSafetyMenuOpen] = useState(false)
   const [isSafetyActionPending, setIsSafetyActionPending] = useState(false)
+  const [chatReady, setChatReady] = useState(false)
+  const [chatLoadError, setChatLoadError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const safetyMenuRef = useRef<HTMLDivElement | null>(null)
   const lastNotifiedMessageIdRef = useRef<string | null>(null)
@@ -89,7 +96,65 @@ const ChatPage: React.FC = () => {
   }
 
   useEffect(() => {
-    if (!chatId) return
+    if (!chatId || !currentUser) {
+      setChatReady(false)
+      setChatLoadError(null)
+      return
+    }
+
+    let cancelled = false
+    hasLoadedMessagesRef.current = false
+    lastNotifiedMessageIdRef.current = null
+    setChatReady(false)
+    setChatLoadError(null)
+    setMessages([])
+
+    ;(async () => {
+      try {
+        const chatRef = doc(db, 'chats', chatId)
+        const matchSnap = await getDoc(doc(db, 'matches', chatId))
+        const matchData = matchSnap.data() as {
+          participants?: string[]
+          status?: string
+        } | undefined
+        const participants = matchData?.participants ?? getChatParticipants(chatId)
+
+        if (
+          !matchSnap.exists() ||
+          matchData?.status !== 'matched' ||
+          participants.length !== 2 ||
+          !participants.includes(currentUser.uid)
+        ) {
+          throw new Error('chat-unavailable')
+        }
+
+        await setDoc(
+          chatRef,
+          {
+            participants,
+            status: 'matched',
+          },
+          { merge: true }
+        )
+
+        if (!cancelled) {
+          setChatReady(true)
+        }
+      } catch (error) {
+        console.error('Failed to initialize chat thread:', error)
+        if (!cancelled) {
+          setChatLoadError('This conversation is not available right now.')
+        }
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [chatId, currentUser])
+
+  useEffect(() => {
+    if (!chatId || !chatReady) return
 
     const q = query(
       collection(db, 'chats', chatId, 'messages'),
@@ -143,7 +208,7 @@ const ChatPage: React.FC = () => {
     })
 
     return () => unsubscribe()
-  }, [chatId, currentUser])
+  }, [chatId, chatReady, currentUser])
 
   useEffect(() => {
     if (!chatId || !currentUser) return
@@ -175,7 +240,7 @@ const ChatPage: React.FC = () => {
   }, [chatId, currentUser])
 
   useEffect(() => {
-    if (!chatId || !currentUser) return
+    if (!chatId || !currentUser || !chatReady) return
 
     const markAsRead = async () => {
       try {
@@ -186,7 +251,7 @@ const ChatPage: React.FC = () => {
     }
 
     markAsRead()
-  }, [chatId, currentUser])
+  }, [chatId, chatReady, currentUser])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -317,7 +382,7 @@ const ChatPage: React.FC = () => {
 
   const sendMessage = async (event: React.FormEvent) => {
     event.preventDefault()
-    if (!chatId || !currentUser) return
+    if (!chatId || !currentUser || !chatReady) return
 
     const trimmed = newMessage.trim()
     if (!trimmed) return
@@ -428,10 +493,22 @@ const ChatPage: React.FC = () => {
         </div>
       </div>
 
+      {chatLoadError && (
+        <div className="shrink-0 border-b border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-500/40 dark:bg-red-950/30 dark:text-red-200">
+          {chatLoadError}
+        </div>
+      )}
+
+      {!chatReady && !chatLoadError && (
+        <div className="shrink-0 border-b border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+          Preparing conversation...
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto p-4 flex flex-col space-y-4">
         {messages.length === 0 ? (
           <p className="text-center text-slate-400 dark:text-slate-500 my-auto">
-            Start the conversation
+            {chatReady ? 'Start the conversation' : 'Opening conversation...'}
           </p>
         ) : (
           (() => {
@@ -510,14 +587,21 @@ const ChatPage: React.FC = () => {
         <form onSubmit={sendMessage} className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full px-4 py-2">
           <input
             type="text"
-            placeholder="Type your message..."
+            placeholder={
+              chatLoadError
+                ? 'Conversation unavailable'
+                : chatReady
+                  ? 'Type your message...'
+                  : 'Preparing conversation...'
+            }
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            disabled={!chatReady || Boolean(chatLoadError) || isSending}
             className="flex-1 bg-transparent focus:outline-none text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
           />
           <button
             type="submit"
-            disabled={isSending}
+            disabled={isSending || !chatReady || Boolean(chatLoadError)}
             className="p-2 rounded-full bg-brand-500 hover:bg-brand-600 text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <Send className="w-5 h-5" />
