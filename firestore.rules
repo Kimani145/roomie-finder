@@ -8,7 +8,7 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function hasInstitutionalEmail() {
+    function hasAllowedStudentEmail() {
       return request.auth.token.email is string
         && (
           request.auth.token.email.matches('.*@students[.]tukenya[.]ac[.]ke$')
@@ -19,7 +19,7 @@ service cloud.firestore {
     function isVerifiedStudent() {
       return isSignedIn()
         && request.auth.token.email_verified == true
-        && hasInstitutionalEmail();
+        && hasAllowedStudentEmail();
     }
 
     function isOwner(userId) {
@@ -122,6 +122,7 @@ service cloud.firestore {
           'userA',
           'userB',
           'participants',
+          'recipientId',
           'status',
           'compatibilityVersion',
           'createdAt',
@@ -145,6 +146,8 @@ service cloud.firestore {
         && data.participants.size() == 2
         && data.userA in data.participants
         && data.userB in data.participants
+        // Allow legacy docs that still carry recipientId while we migrate the app away from it.
+        && (!data.keys().hasAny(['recipientId']) || data.recipientId is string)
         && data.status in ['pending', 'matched', 'archived']
         && data.compatibilityVersion is int;
     }
@@ -182,7 +185,7 @@ service cloud.firestore {
       allow update: if (isOwner(userId) && isVerifiedStudent() && validProfileDoc(request.resource.data)) || isAdmin();
     }
 
-   // =========================================================================
+   	// =========================================================================
     // LISTINGS
     // =========================================================================
     match /listings/{listingId} {
@@ -212,6 +215,28 @@ service cloud.firestore {
       // DELETION: Must own the existing listing
       allow delete: if isVerifiedStudent() 
         && resource.data.hostId == request.auth.uid;
+    }
+
+		// =========================================================================
+    // LI	KES
+    // =========================================================================
+    match /likes/{likeId} {
+      // Needed for reverse-like check in likeProfile()
+      allow read: if isVerifiedStudent()
+        && (
+          likeId.matches('^' + request.auth.uid + '_.*') ||
+          likeId.matches('.*_' + request.auth.uid + '$') ||
+          resource.data.fromUid == request.auth.uid ||
+          resource.data.toUid == request.auth.uid
+        );
+
+      allow create: if isVerifiedStudent()
+        && request.resource.data.fromUid == request.auth.uid
+        && request.resource.data.keys().hasAll(['fromUid', 'toUid', 'createdAt'])
+        && request.resource.data.toUid != request.auth.uid;
+
+      // Immutable interaction record
+      allow update, delete: if false;
     }
 
     // =========================================================================

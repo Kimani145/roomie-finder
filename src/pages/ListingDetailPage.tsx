@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Home, Flame } from 'lucide-react'
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { toast } from 'react-hot-toast'
 import { getListingById } from '@/firebase/listings'
 import { ImageGalleryModal } from '@/components/ui/ImageGalleryModal'
@@ -22,6 +22,16 @@ const ListingDetailPage: React.FC = () => {
     if (!listing || !currentUser) return
 
     const chatId = [currentUser.uid, listing.hostId].sort().join('_')
+    const matchSnap = await getDoc(doc(db, 'matches', chatId))
+    const matchData = matchSnap.data() as { status?: string } | undefined
+
+    if (!matchSnap.exists() || matchData?.status !== 'matched') {
+      toast.error('You must match with this user before sending a message!', {
+        icon: '🔒',
+      })
+      return
+    }
+
     const chatData = {
       participants: [currentUser.uid, listing.hostId],
       status: 'matched',

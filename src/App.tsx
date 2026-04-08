@@ -30,6 +30,7 @@ import {
   ListingWizardPage,
   MyListingsPage,
   ListingDetailPage,
+  ForgotPasswordPage,
 } from '@/pages'
 
 const AppRoutes: React.FC = () => {
@@ -64,6 +65,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/" element={<Navigate to="/discover" replace />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
 
           {/* Onboarding (verified but no profile yet — no app layout) */}
