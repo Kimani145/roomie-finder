@@ -112,7 +112,8 @@ const GlobalListeners: React.FC = () => {
 
     const q = query(
       collection(db, 'matches'),
-      where('recipientId', '==', currentUser.uid)
+      where('participants', 'array-contains', currentUser.uid),
+      where('status', '==', 'matched')
     )
 
     const unsubscribe = onSnapshot(q, async (snapshot) => {

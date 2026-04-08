@@ -170,9 +170,8 @@ export interface Match {
   userA: string
   userB: string
   participants: [string, string]
-  recipientId?: string
   createdAt: Date
-  status: 'pending' | 'matched' | 'archived' | 'unmatched'
+  status: 'pending' | 'matched' | 'archived'
   compatibilityVersion: number
   chatUnlocked: boolean
 }

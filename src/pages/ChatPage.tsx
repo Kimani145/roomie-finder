@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
   collection,
-  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -11,6 +10,7 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  updateDoc,
 } from 'firebase/firestore'
 import { ArrowLeft, MoreVertical, Send } from 'lucide-react'
 import { toast } from 'react-hot-toast'
@@ -241,7 +241,6 @@ const ChatPage: React.FC = () => {
 
     try {
       setIsSafetyActionPending(true)
-      await deleteDoc(doc(db, 'matches', chatId))
       await setDoc(
         doc(db, 'chats', chatId),
         {
@@ -251,6 +250,9 @@ const ChatPage: React.FC = () => {
         },
         { merge: true }
       )
+      await updateDoc(doc(db, 'matches', chatId), {
+        status: 'archived',
+      })
 
       setIsSafetyMenuOpen(false)
       if (showSuccessToast) {
