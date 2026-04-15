@@ -23,6 +23,7 @@ interface NotificationState {
   clearUnreadMatches: () => void
   markNotificationReadLocal: (id: string) => void
   markAllNotificationsReadLocal: () => void
+  markNotificationsReadForMatchLocal: (matchId: string) => void
 }
 
 export const useNotificationStore = create<NotificationState>((set) => ({
@@ -63,4 +64,21 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       notifications: state.notifications.map((item) => ({ ...item, isRead: true })),
       unreadNotifications: 0,
     })),
+
+  markNotificationsReadForMatchLocal: (matchId) =>
+    set((state) => {
+      const nextNotifications = state.notifications.map((item) => {
+        if (item.isRead) return item
+
+        const isMatchNotification =
+          item.link === `/chat/${matchId}` || item.link === `/messages/${matchId}`
+
+        return isMatchNotification ? { ...item, isRead: true } : item
+      })
+
+      return {
+        notifications: nextNotifications,
+        unreadNotifications: nextNotifications.filter((item) => !item.isRead).length,
+      }
+    }),
 }))

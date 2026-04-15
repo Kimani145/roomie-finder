@@ -40,7 +40,7 @@ const DiscoveryPage: React.FC = () => {
 
   const handlePrimaryAction = (
     targetId: string,
-    event?: React.MouseEvent<HTMLAnchorElement>
+    event?: React.MouseEvent<HTMLElement>
   ) => {
     if (!targetId) return
 
@@ -242,7 +242,7 @@ const DiscoveryPage: React.FC = () => {
 
         {/* Ranked feed - Strict responsive grid */}
         {!isLoading && displayedResults.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {activeViewMode === 'rooms'
               ? displayedResults.map((match) => (
                   <ListingCard

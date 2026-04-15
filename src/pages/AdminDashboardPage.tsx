@@ -21,6 +21,11 @@ interface ReportDoc {
   createdAt: any
 }
 
+interface GovernancePressureMetric {
+  label: string
+  value: number | null
+}
+
 const AdminCardStats: React.FC<{ loading: boolean; label: string; value: number | string; icon: any }> = ({ loading, label, value, icon: Icon }) => (
   <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex items-start justify-between">
     <div className="space-y-2">
@@ -44,6 +49,13 @@ const AdminDashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  // TODO: Replace with dedicated aggregation query once governance metrics endpoint is available.
+  const governanceMetrics: GovernancePressureMetric[] = [
+    { label: 'Active Reports (24h)', value: null },
+    { label: 'Total Matches Formed', value: null },
+    { label: 'Inactive Users (>14 days)', value: null },
+  ]
 
   const fetchDashboardData = async () => {
     try {
@@ -149,6 +161,29 @@ const AdminDashboardPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {governanceMetrics.map((metric) => (
+          <div
+            key={metric.label}
+            className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700/50 dark:bg-slate-800 shadow-lg shadow-black/20"
+          >
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+              {metric.label}
+            </p>
+            {metric.value === null ? (
+              <>
+                {/* TODO: Bind real metric value after backend aggregation lands. */}
+                <div className="mt-3 h-8 w-24 rounded bg-slate-200 dark:bg-slate-700 animate-pulse" />
+              </>
+            ) : (
+              <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-slate-50">
+                {metric.value}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+
       <div>
         <h1 className="text-3xl font-syne font-bold text-slate-900 dark:text-slate-50">System Telemetry</h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">Real-time platform health and active user metrics.</p>
