@@ -40,7 +40,7 @@ export const BottomNav: React.FC = () => {
 
   return (
     <nav
-      className="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 z-50 pb-safe md:hidden"
+      className="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700/50 z-50 pb-safe md:hidden"
       aria-label="Primary navigation"
     >
       <div className="max-w-md mx-auto w-full flex justify-between h-16 items-center px-2">
@@ -59,7 +59,7 @@ export const BottomNav: React.FC = () => {
                 // Active state — Blue
                 isActive
                   ? 'text-blue-500 dark:text-blue-400'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300',
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:bg-slate-700/50',
               ].join(' ')
             }
           >

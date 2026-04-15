@@ -19,6 +19,7 @@ import { db } from '@/firebase/config'
 import { useMatchStore } from '@/store/matchStore'
 import { calculateCompatibilityScore, getCompatibilityPercentage } from '@/engine/compatibilityEngine'
 import { ImageGalleryModal } from '@/components/ui/ImageGalleryModal'
+import { CompatibilityInsights } from '@/components/ui/CompatibilityInsights'
 import type { Listing, UserProfile, ScoreBreakdown } from '@/types'
 
 const DEFAULT_GRADIENT =
@@ -441,6 +442,14 @@ const ProfileDetailPage: React.FC = () => {
             </p>
           )}
         </div>
+
+          {currentUser && scoreBreakdown && (
+            <CompatibilityInsights
+              viewer={currentUser}
+              candidate={viewedUser}
+              scoreBreakdown={scoreBreakdown}
+            />
+          )}
 
           {viewedUser.bio && (
             <div className="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-100 dark:border-slate-700">

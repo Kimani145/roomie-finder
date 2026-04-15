@@ -7,29 +7,22 @@ interface CompatibilityBadgeProps {
 }
 
 function getBadgeMeta(pct: number): { label: string; ringClass: string; glowColor: string; textClass: string } {
-  if (pct >= 80)
+  if (pct >= 90)
     return {
-      label: 'Great Match',
+      label: 'Top Match',
       ringClass: 'ring-emerald-500',
       glowColor: 'shadow-emerald-500/30',
       textClass: 'text-emerald-400',
     }
-  if (pct >= 60)
+  if (pct >= 75)
     return {
-      label: 'Good Match',
+      label: 'Strong Match',
       ringClass: 'ring-blue-400',
       glowColor: 'shadow-blue-400/30',
       textClass: 'text-blue-400',
     }
-  if (pct >= 40)
-    return {
-      label: 'Decent Match',
-      ringClass: 'ring-amber-400',
-      glowColor: 'shadow-amber-400/20',
-      textClass: 'text-amber-400',
-    }
   return {
-    label: 'Some Overlap',
+    label: 'Fair Match',
     ringClass: 'ring-slate-500',
     glowColor: 'shadow-slate-500/20',
     textClass: 'text-slate-400',

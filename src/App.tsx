@@ -50,7 +50,7 @@ const AppRoutes: React.FC = () => {
 
   console.info('[App.tsx] Routing initialized')
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 dark:text-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 dark:text-slate-50">
       <BrowserRouter>
         <Toaster
           position="top-right"

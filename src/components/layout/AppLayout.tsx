@@ -21,12 +21,19 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const showAuthenticatedChrome = Boolean(currentUser)
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50">
+    <div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 relative selection:bg-brand-200 selection:text-brand-900">
+      {/* Decorative ambient gradients for light mode */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden dark:hidden z-0">
+        <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-brand-100/60 blur-[100px]" />
+        <div className="absolute top-1/4 -left-20 h-[400px] w-[400px] rounded-full bg-emerald-50/50 blur-[100px]" />
+        <div className="absolute bottom-0 right-1/4 h-[600px] w-[600px] rounded-full bg-amber-50/40 blur-[120px]" />
+      </div>
+
       {showAuthenticatedChrome && (
         <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       )}
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 bg-transparent">
         <AnimatePresence>
           {!isOnline && (
             <motion.div
@@ -34,7 +41,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -50, opacity: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="sticky top-0 w-full bg-amber-100 text-amber-900 dark:bg-slate-800 dark:text-slate-200 text-xs font-semibold py-2 px-4 text-center flex items-center justify-center gap-2 z-50 relative shadow-md"
+              className="sticky top-0 w-full bg-amber-100 text-amber-900 dark:bg-slate-800 dark:text-slate-200 text-xs font-semibold py-2 px-4 text-center flex items-center justify-center gap-2 z-50 border border-slate-700/50 shadow-lg shadow-black/20"
             >
               <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
               You are offline.
@@ -44,7 +51,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
         <Header isCollapsed={isCollapsed} />
 
-        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900">
+        <main className="flex-1 overflow-y-auto bg-transparent backdrop-blur-[2px]">
           {children}
           {showAuthenticatedChrome && !isChatRoute && (
             <div className="h-20 md:hidden" aria-hidden="true" />

@@ -15,7 +15,9 @@ import {
 import { ArrowLeft, MoreVertical, Send } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { db } from '@/firebase/config'
+import { markAllNotificationsReadForMatch } from '@/firebase/notifications'
 import { useAuthStore } from '@/store/authStore'
+import { useNotificationStore } from '@/store/notificationStore'
 import {
   getChatParticipants,
   getOtherParticipantUid,
@@ -43,6 +45,9 @@ const ChatPage: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { currentUser } = useAuthStore()
+  const markNotificationsReadForMatchLocal = useNotificationStore(
+    (state) => state.markNotificationsReadForMatchLocal
+  )
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [isSending, setIsSending] = useState(false)
@@ -244,14 +249,21 @@ const ChatPage: React.FC = () => {
 
     const markAsRead = async () => {
       try {
+        const otherUid = getOtherParticipantUid(chatId, currentUser.uid)
         await markChatAsRead(chatId, currentUser.uid)
+        await markAllNotificationsReadForMatch({
+          recipientId: currentUser.uid,
+          matchId: chatId,
+          senderId: otherUid,
+        })
+        markNotificationsReadForMatchLocal(chatId)
       } catch (error) {
         console.error('Failed to mark chat as read:', error)
       }
     }
 
     markAsRead()
-  }, [chatId, chatReady, currentUser])
+  }, [chatId, chatReady, currentUser, markNotificationsReadForMatchLocal])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

@@ -83,6 +83,8 @@ const GlobalListeners: React.FC = () => {
                   title: 'New message',
                   body: `${senderName} sent you a new message.`,
                   link: `/chat/${docChange.doc.id}`,
+                  matchId: docChange.doc.id,
+                  senderId: otherUid,
                 })
               } catch (error) {
                 console.error('Failed to get sender info:', error)
@@ -149,6 +151,8 @@ const GlobalListeners: React.FC = () => {
               title: 'New Match!',
               body: `You and ${otherUserName} liked each other.`,
               link: `/matches`,
+              matchId: docChange.doc.id,
+              senderId: otherUid,
             })
           } catch (error) {
             console.error('Failed to persist match notification:', error)
