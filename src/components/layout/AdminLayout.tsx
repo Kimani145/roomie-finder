@@ -15,12 +15,12 @@ const ADMIN_NAV = [
 const AdminSidebar: React.FC<{ isCollapsed: boolean; setIsCollapsed: (v: boolean) => void }> = ({ isCollapsed, setIsCollapsed }) => {
   return (
     <aside
-      className={`hidden md:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ${
+      className={`hidden md:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700/50 transition-all duration-300 ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
       {/* Top Left Branding */}
-      <div className="flex items-center h-16 px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+      <div className="flex items-center h-16 px-4 border-b border-slate-200 dark:border-slate-700/50 shrink-0">
         <img src="/favicon.svg" alt="Icon" className="w-8 h-8 shrink-0" />
         {!isCollapsed && (
           <span className="ml-3 text-xl font-syne font-bold text-brand-600 dark:text-brand-400 truncate">
@@ -38,8 +38,8 @@ const AdminSidebar: React.FC<{ isCollapsed: boolean; setIsCollapsed: (v: boolean
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
                 isActive
-                  ? 'bg-slate-100 dark:bg-slate-800 text-amber-600 dark:text-amber-400 font-medium'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100'
+                  ? 'bg-slate-100 dark:bg-slate-800 text-amber-600 dark:text-amber-400 font-medium border border-slate-700/50'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-slate-100'
               }`
             }
             title={isCollapsed ? label : undefined}
@@ -51,9 +51,9 @@ const AdminSidebar: React.FC<{ isCollapsed: boolean; setIsCollapsed: (v: boolean
       </nav>
 
       {/* Bottom Collapse Toggle */}
-      <div className="mt-auto p-4 border-t border-slate-200 dark:border-slate-800 shrink-0">
+      <div className="mt-auto p-4 border-t border-slate-200 dark:border-slate-700/50 shrink-0">
         <button
-          className="flex items-center justify-center w-full p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+          className="flex items-center justify-center w-full p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-50 dark:bg-slate-800 border border-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl transition-colors"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <ChevronLeft className={`w-5 h-5 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
@@ -78,7 +78,7 @@ const AdminHeader: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
     : 'A'
 
   return (
-    <header className="sticky top-0 z-[100] h-16 shrink-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-[100] h-16 shrink-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between px-4 sm:px-6">
       <div className="flex items-center gap-4">
         <Link
           to="/admin"
@@ -101,7 +101,7 @@ const AdminHeader: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
       <div className="flex items-center gap-4">
         <button
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300"
+          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-slate-600 dark:text-slate-300"
           aria-label="Toggle Dark Mode"
           type="button"
         >
@@ -133,7 +133,7 @@ const AdminHeader: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
 const AdminBottomNav: React.FC = () => {
   return (
     <nav
-      className="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 z-50 pb-safe md:hidden"
+      className="fixed bottom-0 w-full bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700/50 z-50 pb-safe md:hidden"
       aria-label="Admin primary navigation"
     >
       <div className="max-w-md mx-auto w-full flex justify-between h-16 items-center px-4">
@@ -146,7 +146,7 @@ const AdminBottomNav: React.FC = () => {
               `flex flex-col items-center justify-center gap-1 rounded-xl px-4 py-2 outline-none transition-all duration-150 active:scale-[0.98] ${
                 isActive
                   ? 'text-amber-500 dark:text-amber-400'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:bg-slate-700/50'
               }`
             }
           >

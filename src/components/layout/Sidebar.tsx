@@ -49,12 +49,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       className={[
-        'hidden md:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 sticky top-0 h-screen overflow-hidden shrink-0',
+        'hidden md:flex flex-col bg-white/60 backdrop-blur-xl dark:bg-slate-900 border-r border-slate-200/50 dark:border-slate-700/50 transition-all duration-300 sticky top-0 h-screen overflow-hidden shrink-0 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.05)] dark:shadow-none z-20 hover:bg-white/80',
         isCollapsed ? 'w-20' : 'w-64',
         className ?? '',
       ].join(' ')}
     >
-      <div className="flex items-center h-16 px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+      <div className="flex items-center h-16 px-4 border-b border-slate-200/50 dark:border-slate-700/50 shrink-0">
         <img src="/favicon.svg" alt="Icon" className="w-8 h-8 shrink-0" />
         {!isCollapsed && (
           <span className="ml-3 text-xl font-syne font-bold text-brand-600 dark:text-brand-400 truncate">
@@ -79,12 +79,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 title={isCollapsed ? label : undefined}
                 className={({ isActive }) =>
                   [
-                    'relative flex items-center py-2.5 text-sm outline-none transition-colors',
+                    'relative flex items-center py-2.5 text-sm outline-none transition-all duration-200',
                     isCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
-                    'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
+                    'focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
                     isActive
-                      ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 font-bold rounded-xl'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl',
+                      ? 'bg-gradient-to-r from-brand-50 to-brand-100/50 dark:from-brand-500/20 dark:to-brand-500/10 text-brand-700 dark:text-brand-300 font-bold rounded-xl shadow-sm dark:shadow-none border border-brand-100/50 dark:border-brand-500/20'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-brand-800 dark:hover:text-white hover:bg-slate-50/80 dark:hover:bg-slate-800/50 rounded-xl hover:translate-x-1',
                   ].join(' ')
                 }
               >
@@ -118,11 +118,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </ul>
       </nav>
 
-      <div className="mt-auto p-4 border-t border-slate-200 dark:border-slate-800">
+      <div className="mt-auto p-4 border-t border-slate-200/50 dark:border-slate-700/50">
         <button
           type="button"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="w-full flex items-center justify-center p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          className="w-full flex items-center justify-center p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-brand-700 dark:hover:text-white hover:bg-brand-50/50 dark:hover:bg-slate-800 transition-all hover:scale-105 active:scale-95"
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}

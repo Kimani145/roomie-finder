@@ -31,7 +31,7 @@ export const MatchOverlay: React.FC = () => {
 
   const handleChat = () => {
     closeMatch();
-    navigate(`/messages/${matchData.matchId}`);
+    navigate(`/chat/${matchData.matchId}`);
   };
 
   return (
