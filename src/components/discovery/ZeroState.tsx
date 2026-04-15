@@ -32,10 +32,10 @@ export const ZeroState: React.FC<ZeroStateProps> = ({
       {isRelaxed ? (
         <>
           <h2 className="font-syne text-xl font-bold text-slate-900 dark:text-slate-50">
-            No perfect matches found
+            Your colony is quiet right now.
           </h2>
           <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-            Showing closest compatible roommates.{' '}
+            Adjust your filters or check back later as more people join the nest.{' '}
             {humanKeys && (
               <span className="text-slate-500 dark:text-slate-400">
                 We relaxed your{' '}
@@ -50,10 +50,10 @@ export const ZeroState: React.FC<ZeroStateProps> = ({
       ) : (
         <>
           <h2 className="font-syne text-xl font-bold text-slate-900 dark:text-slate-50">
-            No matches found in this Zone
+            Your colony is quiet right now.
           </h2>
           <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-            There are currently no users in your selected zone that match your strict budget constraints. Try expanding your budget range or selecting a different zone.
+            Adjust your filters or check back later as more people join the nest.
           </p>
         </>
       )}

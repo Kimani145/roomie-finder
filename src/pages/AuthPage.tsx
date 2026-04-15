@@ -54,7 +54,7 @@ const AuthPage: React.FC = () => {
         {/* Brand Header */}
         <div className="text-center mb-8">
           <h1 className="font-syne text-brand-600 dark:text-brand-400 text-2xl font-bold mb-2">
-            Roomie Finder
+            Colony
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             {isSignUp
@@ -128,7 +128,7 @@ const AuthPage: React.FC = () => {
             className="w-full bg-brand-500 hover:bg-brand-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand-500/25 transition-all mt-6"
           >
             {isLoading
-              ? 'Please wait...'
+              ? 'Weaving your matches\u2026'
               : isSignUp
               ? 'Create Account'
               : 'Sign In'}

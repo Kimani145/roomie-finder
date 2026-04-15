@@ -41,12 +41,12 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
         >
           <div className="flex items-center gap-1">
             <span className="text-xl font-syne font-bold text-brand-600 dark:text-brand-400">
-              Roomie Finder
+              Colony
             </span>
             <span className="text-[10px] text-slate-400">©</span>
           </div>
           <span className="text-[10px] font-medium text-slate-400">
-            Ranked by Compatibility
+            Smarter Shared Living
           </span>
         </Link>
 
@@ -55,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
             to="/discover"
             className="hidden md:block text-xl font-syne font-bold text-brand-600 dark:text-brand-400 animate-fade-in"
           >
-            Roomie Finder
+            Colony
           </Link>
         )}
       </div>

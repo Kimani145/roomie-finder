@@ -154,18 +154,17 @@ const MatchesPage: React.FC = () => {
         <div className="flex flex-col items-center justify-center py-20">
           <Users className="w-16 h-16 text-slate-300 dark:text-slate-600 mb-4" />
           <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">
-            No Matches... Yet!
+            Your colony is quiet right now.
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-center max-w-md mb-6">
-            Keep swiping in the Discover feed to find your ideal roommate.
-            Your matches will appear here.
+            Adjust your filters or check back later as more people join the nest.
           </p>
           <button
             type="button"
             onClick={() => navigate('/discover')}
             className="mt-2 inline-flex items-center justify-center rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-600"
           >
-            Find Your Roomie
+            Find Your Match
           </button>
         </div>
       )

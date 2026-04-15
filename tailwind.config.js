@@ -20,6 +20,19 @@ export default {
           800: '#1e40af',
           900: '#1e3a8a',
         },
+        weaver: {
+          orange: '#F27221',
+          purple: '#6638B6',
+          dark: '#2D1B4E',
+        },
+        nest: {
+          blue: '#009AE0',
+          light: '#F8FAFC',
+          accent: '#FFB84D',
+        },
+      },
+      borderRadius: {
+        nest: '1.5rem',
       },
       fontFamily: {
         display: ['Syne', 'sans-serif'],

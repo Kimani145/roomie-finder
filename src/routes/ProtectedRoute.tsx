@@ -61,7 +61,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (loading || checkingClaims) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <span className="text-sm text-slate-500">Loading...</span>
+        <span className="text-sm text-slate-500">Weaving your matches…</span>
       </div>
     )
   }
@@ -86,7 +86,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         </div>
         <h1 className="text-2xl font-syne font-bold text-white mb-2">Account Suspended</h1>
         <p className="text-slate-400 max-w-md mb-8">
-          Your access to Roomie Finder has been revoked due to a violation of our community guidelines.
+          Your access to Colony has been revoked due to a violation of our community guidelines.
         </p>
         <button onClick={() => auth.signOut()} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors">
           Sign Out

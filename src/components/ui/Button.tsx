@@ -17,12 +17,12 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 // ─── Variant styles ────────────────────────────────────────────────────────────
 const variantStyles: Record<ButtonVariant, string> = {
   primary: [
-    'bg-blue-500 text-white',
-    'hover:bg-blue-600',
-    'active:bg-blue-700',
-    'disabled:bg-blue-300 disabled:text-blue-100',
-    'shadow-sm shadow-blue-500/20',
-    'ring-offset-slate-900 focus-visible:ring-2 focus-visible:ring-blue-400',
+    'bg-gradient-to-r from-weaver-purple to-weaver-orange text-white',
+    'hover:opacity-90',
+    'transition-opacity',
+    'disabled:opacity-50 disabled:text-white/70',
+    'shadow-sm shadow-weaver-purple/20',
+    'ring-offset-slate-900 focus-visible:ring-2 focus-visible:ring-weaver-purple',
   ].join(' '),
 
   secondary: [

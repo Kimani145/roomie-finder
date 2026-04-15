@@ -113,7 +113,7 @@ const MyListingsPage: React.FC = () => {
             You haven't posted any rooms yet.
           </p>
           <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
-            Create your first listing to start finding compatible roommates.
+            Create your first listing to start finding compatible colonymates.
           </p>
           <Link
             to="/create-listing"

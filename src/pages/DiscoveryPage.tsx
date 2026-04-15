@@ -111,7 +111,7 @@ const DiscoveryPage: React.FC = () => {
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                   }`}
                 >
-                  View Roommates
+                  View Colonymates
                 </button>
               </div>
             </div>
@@ -168,8 +168,8 @@ const DiscoveryPage: React.FC = () => {
                   ? 'listing'
                   : 'listings'
                 : displayedResults.length === 1
-                  ? 'roommate'
-                  : 'roommates'}{' '}
+                  ? 'colonymate'
+                  : 'colonymates'}{' '}
               found
             </span>
           </div>
@@ -179,7 +179,7 @@ const DiscoveryPage: React.FC = () => {
         {hasRelaxedFilters && displayedResults.length > 0 && (
           <div className="mb-5 rounded-xl border border-amber-500/30 dark:border-amber-400/40 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-700 dark:text-amber-200">
             <span className="font-semibold">No perfect matches found.</span>{' '}
-            Showing closest compatible {activeViewMode === 'rooms' ? 'listings' : 'roommates'}.
+            Showing closest compatible {activeViewMode === 'rooms' ? 'listings' : 'colonymates'}.
           </div>
         )}
 
@@ -214,11 +214,10 @@ const DiscoveryPage: React.FC = () => {
               <SearchX className="w-10 h-10 text-slate-400" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-              No exact matches found
+              Your colony is quiet right now.
             </h3>
             <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-8">
-              We couldn&apos;t find anyone matching your exact strict criteria in{' '}
-              {filterZone === 'All' ? 'any zone' : filterZone}.
+              Adjust your filters or check back later as more people join the nest.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">

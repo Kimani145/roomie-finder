@@ -30,7 +30,7 @@ const ROLE_OPTIONS: Array<{
   {
     role: 'HOST',
     title: 'I have a place',
-    subtitle: 'I have a room or house and need a roommate to split costs.',
+    subtitle: 'I have a room or house and need a colonymate to split costs.',
   },
   {
     role: 'SEEKER',
@@ -41,7 +41,7 @@ const ROLE_OPTIONS: Array<{
     role: 'FLEX',
     title: 'I am open to either',
     subtitle:
-      "I'm looking for roommates to hunt for a new place together, or open to moving into theirs.",
+      "I'm looking for colonymates to hunt for a new place together, or open to moving into theirs.",
   },
 ]
 
@@ -301,7 +301,7 @@ export const OnboardingWizard: React.FC = () => {
               Role Selection
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
-              Choose how you want to use Roomie Finder.
+              Choose how you want to use Colony.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

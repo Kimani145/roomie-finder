@@ -40,7 +40,7 @@ export const MatchOverlay: React.FC = () => {
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/90 backdrop-blur-md"
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-weaver-dark/95 backdrop-blur-md"
       >
         {/* Dismiss Button */}
         {phase === 'resolved' && (
@@ -61,7 +61,7 @@ export const MatchOverlay: React.FC = () => {
                  opacity: phase !== 'triggered' ? 1 : 0
                }}
                transition={{ duration: ANIM_DURATION, ease: "easeOut" }}
-               className="absolute w-32 h-32 rounded-full bg-blue-500 shadow-2xl z-10 overflow-hidden border-4 border-slate-900"
+               className="absolute w-32 h-32 rounded-full bg-weaver-purple shadow-2xl z-10 overflow-hidden border-4 border-weaver-dark"
              >
                {phase === 'resolved' && <img src="/favicon.svg" alt="You" className="w-full h-full object-cover opacity-50 bg-slate-100" />}
              </motion.div>
@@ -75,7 +75,7 @@ export const MatchOverlay: React.FC = () => {
                  opacity: phase !== 'triggered' ? 1 : 0
                }}
                transition={{ duration: ANIM_DURATION, ease: "easeOut" }}
-               className="absolute w-32 h-32 rounded-full bg-emerald-500 shadow-2xl mix-blend-multiply z-20 overflow-hidden border-4 border-slate-900"
+               className="absolute w-32 h-32 rounded-full bg-weaver-orange shadow-2xl mix-blend-multiply z-20 overflow-hidden border-4 border-weaver-dark"
              >
                {phase === 'resolved' && <img src={matchData.matchedUser.photoURL || '/favicon.svg'} alt="Match" className="w-full h-full object-cover bg-slate-100" />}
              </motion.div>
@@ -91,12 +91,12 @@ export const MatchOverlay: React.FC = () => {
                 className="flex flex-col items-center text-center space-y-6"
               >
                 <div>
-                  <h2 className="text-4xl font-syne font-bold text-white mb-2">It's a Match!</h2>
-                  <p className="text-slate-300">You and {matchData.matchedUser.displayName} liked each other.</p>
+                  <h2 className="text-4xl font-syne font-bold text-nest-accent mb-2">It's a Match!</h2>
+                  <p className="text-nest-blue">You and {matchData.matchedUser.displayName} liked each other.</p>
                 </div>
 
                 <div className="flex flex-col w-full max-w-xs gap-3">
-                  <button onClick={handleChat} className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-all active:scale-[0.98]">
+                  <button onClick={handleChat} className="w-full py-4 bg-gradient-to-r from-weaver-purple to-weaver-orange hover:opacity-90 text-white font-bold rounded-xl transition-all active:scale-[0.98]">
                     Start Chatting
                   </button>
                   <button onClick={closeMatch} className="w-full py-4 bg-transparent text-slate-400 hover:text-white font-medium rounded-xl transition-colors">

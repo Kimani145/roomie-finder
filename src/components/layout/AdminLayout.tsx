@@ -24,7 +24,7 @@ const AdminSidebar: React.FC<{ isCollapsed: boolean; setIsCollapsed: (v: boolean
         <img src="/favicon.svg" alt="Icon" className="w-8 h-8 shrink-0" />
         {!isCollapsed && (
           <span className="ml-3 text-xl font-syne font-bold text-brand-600 dark:text-brand-400 truncate">
-            Roomie Finder <span className="text-amber-500 text-xs tracking-widest uppercase ml-1">Admin</span>
+            Colony <span className="text-amber-500 text-xs tracking-widest uppercase ml-1">Admin</span>
           </span>
         )}
       </div>
@@ -86,13 +86,13 @@ const AdminHeader: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
         >
           <img src="/favicon.svg" alt="Icon" className="w-8 h-8 shrink-0" />
           <span className="text-xl font-syne font-bold text-brand-600 dark:text-brand-400">
-            Roomie Finder <span className="text-amber-500 text-xs tracking-widest uppercase ml-1">Admin</span>
+            Colony <span className="text-amber-500 text-xs tracking-widest uppercase ml-1">Admin</span>
           </span>
         </Link>
         {isCollapsed && (
           <div className="hidden md:flex items-center gap-3">
             <span className="text-xl font-syne font-bold text-brand-600 dark:text-brand-400">
-              Roomie Finder <span className="text-amber-500 text-xs tracking-widest uppercase ml-1">Admin</span>
+              Colony <span className="text-amber-500 text-xs tracking-widest uppercase ml-1">Admin</span>
             </span>
           </div>
         )}
