@@ -21,7 +21,7 @@ const AdminSidebar: React.FC<{ isCollapsed: boolean; setIsCollapsed: (v: boolean
     >
       {/* Top Left Branding */}
       <div className="flex items-center h-16 px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
-        <img src="/favicon.svg" alt="Icon" className="w-8 h-8 shrink-0" />
+        <img src="/colony-logo.svg" alt="Colony" className="w-8 h-8 shrink-0" />
         {!isCollapsed && (
           <span className="ml-3 text-xl font-syne font-bold text-brand-600 dark:text-brand-400 truncate">
             Colony <span className="text-amber-500 text-xs tracking-widest uppercase ml-1">Admin</span>
@@ -84,7 +84,7 @@ const AdminHeader: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
           to="/admin"
           className="md:hidden flex items-center gap-2 outline-none transition-all duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 rounded-lg py-1"
         >
-          <img src="/favicon.svg" alt="Icon" className="w-8 h-8 shrink-0" />
+          <img src="/colony-logo.svg" alt="Colony" className="w-8 h-8 shrink-0" />
           <span className="text-xl font-syne font-bold text-brand-600 dark:text-brand-400">
             Colony <span className="text-amber-500 text-xs tracking-widest uppercase ml-1">Admin</span>
           </span>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <clipPath id="top-right">
+      <rect x="100" y="0" width="100" height="100"/>
+    </clipPath>
+    <clipPath id="bottom">
+      <rect x="0" y="100" width="200" height="100"/>
+    </clipPath>
+    <clipPath id="top-left">
+      <rect x="0" y="0" width="100" height="100"/>
+    </clipPath>
+  </defs>
+
+  <!-- Base layer: all three ellipses -->
+  <ellipse cx="100" cy="100" rx="72" ry="40"
+    transform="rotate(-30 100 100)"
+    fill="none" stroke="#4A8C3F" stroke-width="13" stroke-linecap="round"/>
+  <ellipse cx="100" cy="100" rx="72" ry="40"
+    transform="rotate(90 100 100)"
+    fill="none" stroke="#1B5E7B" stroke-width="13" stroke-linecap="round"/>
+  <ellipse cx="100" cy="100" rx="72" ry="40"
+    transform="rotate(210 100 100)"
+    fill="none" stroke="#C5A033" stroke-width="13" stroke-linecap="round"/>
+
+  <!-- Weave layer: each strand goes over one other at specific intersections -->
+  <ellipse cx="100" cy="100" rx="72" ry="40"
+    transform="rotate(-30 100 100)"
+    fill="none" stroke="#4A8C3F" stroke-width="13" stroke-linecap="round"
+    clip-path="url(#top-right)"/>
+  <ellipse cx="100" cy="100" rx="72" ry="40"
+    transform="rotate(90 100 100)"
+    fill="none" stroke="#1B5E7B" stroke-width="13" stroke-linecap="round"
+    clip-path="url(#bottom)"/>
+  <ellipse cx="100" cy="100" rx="72" ry="40"
+    transform="rotate(210 100 100)"
+    fill="none" stroke="#C5A033" stroke-width="13" stroke-linecap="round"
+    clip-path="url(#top-left)"/>
+</svg>
