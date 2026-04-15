@@ -11,10 +11,39 @@ export function getMatchLabel(score: number): {
 } {
   const percentage = getCompatibilityPercentage(score)
 
-  if (percentage >= 80) return { label: 'Great Match', color: '#2cb67d', percentage }
-  if (percentage >= 60) return { label: 'Good Match', color: '#5bc4bf', percentage }
-  if (percentage >= 40) return { label: 'Decent Match', color: '#e8c73a', percentage }
-  return { label: 'Some Overlap', color: '#a7a9be', percentage }
+  if (percentage >= 90) return { label: 'Top Match', color: '#34d399', percentage }
+  if (percentage >= 75) return { label: 'Strong Match', color: '#60a5fa', percentage }
+  return { label: 'Fair Match', color: '#94a3b8', percentage }
+}
+
+export function getMatchTierMeta(score: number): {
+  label: 'Top Match' | 'Strong Match' | 'Fair Match'
+  percentage: number
+  classes: string
+} {
+  const percentage = getCompatibilityPercentage(score)
+
+  if (percentage >= 90) {
+    return {
+      label: 'Top Match',
+      percentage,
+      classes: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+    }
+  }
+
+  if (percentage >= 75) {
+    return {
+      label: 'Strong Match',
+      percentage,
+      classes: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+    }
+  }
+
+  return {
+    label: 'Fair Match',
+    percentage,
+    classes: 'bg-slate-800 text-slate-400 border border-slate-700/50',
+  }
 }
 
 /**
@@ -64,16 +93,6 @@ export function formatTimeAgo(date: Date): string {
 }
 
 export function getMatchBadgeClasses(score: number): string {
-  const percentage = getCompatibilityPercentage(score)
-
-  if (percentage >= 80) {
-    return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400'
-  }
-  if (percentage >= 60) {
-    return 'bg-lime-100 text-lime-700 dark:bg-lime-500/20 dark:text-lime-400'
-  }
-  if (percentage >= 40) {
-    return 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'
-  }
-  return 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+  const { classes } = getMatchTierMeta(score)
+  return classes
 }

@@ -11,7 +11,7 @@ interface ListingCardProps {
   showMatchBadge?: boolean
   onPrimaryAction?: (
     targetId: string,
-    event: React.MouseEvent<HTMLAnchorElement>
+    event?: React.MouseEvent<HTMLElement>
   ) => void
 }
 
