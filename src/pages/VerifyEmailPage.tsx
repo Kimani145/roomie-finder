@@ -103,8 +103,8 @@ const VerifyEmailPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center px-6">
-      <div className="max-w-md w-full bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 text-center">
+    <div className="app-shell-surface min-h-screen flex flex-col items-center justify-center px-6">
+      <div className="card-surface card-surface-dingley max-w-md w-full rounded-2xl p-8 text-center">
         {/* Icon */}
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/30">
           <MailCheck className="h-10 w-10 text-blue-500 dark:text-blue-300" />

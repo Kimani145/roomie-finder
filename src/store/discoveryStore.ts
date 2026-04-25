@@ -7,6 +7,8 @@ interface DiscoveryState {
   isLoading: boolean
   hasRelaxedFilters: boolean
   relaxedFilterKeys: string[]
+  hasIntelligence: boolean
+  intelligence: { hints: string[] }
 
   // Active filters
   filters: DiscoveryFilters
@@ -15,6 +17,7 @@ interface DiscoveryState {
   setCandidates: (candidates: MatchResult[]) => void
   setLoading: (loading: boolean) => void
   setRelaxed: (relaxed: boolean, keys?: string[]) => void
+  setIntelligence: (hints: string[]) => void
   updateFilter: <K extends keyof DiscoveryFilters>(key: K, value: DiscoveryFilters[K]) => void
   resetFilters: () => void
 }
@@ -41,11 +44,20 @@ export const useDiscoveryStore = create<DiscoveryState>((set) => ({
   hasRelaxedFilters: false,
   relaxedFilterKeys: [],
   filters: defaultFilters,
+  hasIntelligence: true,
+  intelligence: {
+    hints: [
+      'High match density in Kasarani today.',
+      'You are in the top 20% of active seekers.',
+      "You've passed 12 profiles this session.",
+    ],
+  },
 
   setCandidates: (candidates) => set({ candidates }),
   setLoading: (isLoading) => set({ isLoading }),
   setRelaxed: (hasRelaxedFilters, keys = []) =>
     set({ hasRelaxedFilters, relaxedFilterKeys: keys }),
+  setIntelligence: (hints) => set({ hasIntelligence: hints.length > 0, intelligence: { hints } }),
 
   updateFilter: (key, value) =>
     set((state) => ({

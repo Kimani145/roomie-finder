@@ -1,7 +1,7 @@
 {
-  "name": "Roomie Finder",
-  "short_name": "RoomieFinder",
-  "description": "Secure, trusted roommate matching for TUK students.",
+  "name": "Colony",
+  "short_name": "Colony",
+  "description": "Smarter Shared Living for TUK Students",
   "icons": [
     {
       "src": "/favicon-16x16.png",
@@ -19,8 +19,7 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#0f172a",
-  "background_color": "#0f172a",
-  "display": "standalone",
-  "start_url": "/discover"
+  "theme_color": "#6638B6",
+  "background_color": "#F8FAFC",
+  "display": "standalone"
 }

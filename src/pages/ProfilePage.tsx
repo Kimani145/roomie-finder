@@ -128,7 +128,7 @@ const ProfilePage: React.FC = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col items-center justify-center px-6 text-center">
+      <div className="min-h-full bg-transparent flex flex-col items-center justify-center px-6 text-center">
         <p className="text-sm text-slate-500 dark:text-slate-400">
           No profile found.
         </p>
@@ -139,11 +139,11 @@ const ProfilePage: React.FC = () => {
   const isHost = (currentUser?.role ?? profile.role) === 'HOST';
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-900">
+    <div className="bg-transparent">
       <div className="max-w-6xl mx-auto w-full py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* Left Column (Identity) */}
-          <div className="lg:col-span-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm overflow-hidden p-4 lg:p-6 lg:sticky top-8 space-y-3">
+          <div className="card-surface card-surface-thatch lg:col-span-1 rounded-2xl overflow-hidden p-4 lg:sticky lg:top-8 lg:p-6 space-y-3">
             <div className="flex flex-col items-center text-center">
               <label className="relative inline-block group cursor-pointer mb-4">
                 <img
@@ -202,7 +202,7 @@ const ProfilePage: React.FC = () => {
           {/* Right Column (Data) */}
           <div className="lg:col-span-2 space-y-3">
             {profile.bio && (
-              <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm overflow-hidden p-6">
+              <div className="card-surface card-surface-wine rounded-2xl overflow-hidden p-6">
                 <h2 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase mb-4">
                   About Me
                 </h2>
@@ -213,7 +213,7 @@ const ProfilePage: React.FC = () => {
             )}
 
             {/* Logistics */}
-            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm overflow-hidden p-6">
+            <div className="card-surface card-surface-dingley rounded-2xl overflow-hidden p-6">
               <h2 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase mb-4">
                 Logistics
               </h2>
@@ -239,7 +239,7 @@ const ProfilePage: React.FC = () => {
             </div>
 
             {/* Lifestyle */}
-            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm overflow-hidden p-6">
+            <div className="card-surface card-surface-cello rounded-2xl overflow-hidden p-6">
               <h2 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase mb-4">
                 Lifestyle
               </h2>
@@ -278,7 +278,7 @@ const ProfilePage: React.FC = () => {
             </div>
 
             {/* Deal Breakers */}
-            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm overflow-hidden p-6">
+            <div className="card-surface card-surface-wine rounded-2xl overflow-hidden p-6">
               <h2 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase mb-4">
                 Deal Breakers
               </h2>
@@ -324,13 +324,13 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm overflow-hidden p-6">
+            <div className="card-surface card-surface-thatch rounded-2xl overflow-hidden p-6">
               <h2 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase mb-4">
                 Account Settings
               </h2>
 
               <div className="space-y-4">
-                <div className="rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3">
+                <div className="card-surface-soft card-surface-cello rounded-xl px-4 py-3">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
@@ -357,7 +357,7 @@ const ProfilePage: React.FC = () => {
                 </div>
 
                 {isHost && (
-                  <div className="rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3">
+                  <div className="card-surface-soft card-surface-dingley rounded-xl px-4 py-3">
                     <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
                       Manage Listings
                     </p>

@@ -70,7 +70,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               className={cn(
                 'absolute left-3 top-1/2 -translate-y-1/2 flex-shrink-0',
                 'pointer-events-none text-slate-400',
-                isFocused && 'text-blue-500',
+                isFocused && 'text-weaver-purple',
                 error && 'text-red-400'
               )}
               aria-hidden="true"
@@ -96,7 +96,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             placeholder={floatingLabel ? ' ' : props.placeholder}
             className={cn(
               // Base
-              'peer w-full rounded-xl border bg-white font-sans text-sm text-slate-900',
+              'peer w-full rounded-nest border bg-white font-sans text-sm text-slate-900',
               'outline-none',
               // Padding — account for icons and floating label
               floatingLabel ? 'pb-2 pt-5' : 'py-3',
@@ -105,7 +105,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               // Border + transition
               'border-slate-200 transition-all duration-150',
               // Focus
-              'focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20',
+              'focus:border-weaver-purple focus:ring-2 focus:ring-weaver-purple/20',
               // Error
               error && 'border-red-400 focus:border-red-500 focus:ring-red-500/20',
               // Disabled
@@ -127,7 +127,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 isFloated
                   ? [
                       'top-2 text-[10px] uppercase tracking-wider',
-                      error ? 'text-red-500' : 'text-blue-500',
+                      error ? 'text-red-500' : 'text-weaver-purple',
                     ]
                   : // ── Resting (center of input) ──────────────────────
                     'top-1/2 -translate-y-1/2 text-sm text-slate-400'
@@ -153,7 +153,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               className={cn(
                 'absolute right-3 top-1/2 -translate-y-1/2 flex-shrink-0',
                 'pointer-events-none text-slate-400',
-                isFocused && 'text-blue-500'
+                isFocused && 'text-weaver-purple'
               )}
               aria-hidden="true"
             >
@@ -216,11 +216,11 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
           }
           aria-invalid={!!error}
           className={cn(
-            'min-h-[100px] w-full resize-y rounded-xl border px-4 py-3',
+            'min-h-[100px] w-full resize-y rounded-nest border px-4 py-3',
             'font-sans text-sm text-slate-900',
             'outline-none transition-all duration-150',
             'border-slate-200',
-            'focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20',
+            'focus:border-weaver-purple focus:ring-2 focus:ring-weaver-purple/20',
             error && 'border-red-400 focus:border-red-500 focus:ring-red-500/20',
             'disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400'
           )}

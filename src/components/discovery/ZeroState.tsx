@@ -32,28 +32,28 @@ export const ZeroState: React.FC<ZeroStateProps> = ({
       {isRelaxed ? (
         <>
           <h2 className="font-syne text-xl font-bold text-slate-900 dark:text-slate-50">
-            No perfect matches found
+            Your colony is quiet right now.
           </h2>
           <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-            Showing closest compatible roommates.{' '}
-            {humanKeys && (
-              <span className="text-slate-500 dark:text-slate-400">
-                We relaxed your{' '}
-                <span className="font-medium text-slate-700 dark:text-slate-200">
-                  {humanKeys}
-                </span>{' '}
-                preferences to find more options.
-              </span>
-            )}
+            Adjust your filters or check back later as more people join the nest.
           </p>
+          {humanKeys && (
+            <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+              We relaxed your{' '}
+              <span className="font-medium text-slate-700 dark:text-slate-200">
+                {humanKeys}
+              </span>{' '}
+              preferences to find more options.
+            </p>
+          )}
         </>
       ) : (
         <>
           <h2 className="font-syne text-xl font-bold text-slate-900 dark:text-slate-50">
-            No matches found in this Zone
+            Your colony is quiet right now.
           </h2>
           <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-            There are currently no users in your selected zone that match your strict budget constraints. Try expanding your budget range or selecting a different zone.
+            Adjust your filters or check back later as more people join the nest.
           </p>
         </>
       )}

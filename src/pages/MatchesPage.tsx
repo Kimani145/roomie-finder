@@ -13,7 +13,7 @@ import {
 import { useNotificationStore } from '@/store/notificationStore'
 
 const MatchListItemSkeleton: React.FC = () => (
-  <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm overflow-hidden mb-4">
+  <div className="card-surface card-surface-dingley mb-4 flex items-center justify-between overflow-hidden rounded-2xl p-4">
     <div className="flex items-center space-x-4">
       <Skeleton className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-700" />
       <div className="space-y-2">
@@ -47,10 +47,10 @@ const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
   const summaryLabel =
     otherUser.role === 'HOST'
       ? [
-          listing?.housingType ?? 'Host',
-          primaryZone,
-          listing ? `KES ${listing.roommateShare.toLocaleString()}/roommate` : null,
-        ]
+        listing?.housingType ?? 'Host',
+        primaryZone,
+        listing ? `KES ${listing.roommateShare.toLocaleString()}/match` : null,
+      ]
           .filter(Boolean)
           .join(' • ')
       : otherUser.role === 'SEEKER'
@@ -64,13 +64,13 @@ const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
     .join(' • ')
 
   const handleMessageClick = () => {
-    navigate(`/chat/${match.matchId}`, {
+    navigate(`/messages/${match.matchId}`, {
       state: { from: location.pathname },
     })
   }
 
   return (
-    <div className="flex items-center justify-between p-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl shadow-sm hover:shadow-md transition-shadow mb-4 overflow-hidden">
+    <div className="card-surface card-surface-dingley mb-4 flex items-center justify-between overflow-hidden rounded-2xl p-4 transition-shadow hover:shadow-md">
       <div className="flex items-center space-x-4">
         <Link
           to={`/profile/${otherUser.uid}`}
@@ -154,18 +154,17 @@ const MatchesPage: React.FC = () => {
         <div className="flex flex-col items-center justify-center py-20">
           <Users className="w-16 h-16 text-slate-300 dark:text-slate-600 mb-4" />
           <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">
-            No Matches... Yet!
+            Your colony is quiet right now.
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-center max-w-md mb-6">
-            Keep swiping in the Discover feed to find your ideal roommate.
-            Your matches will appear here.
+            Adjust your filters or check back later as more people join the nest.
           </p>
           <button
             type="button"
             onClick={() => navigate('/discover')}
             className="mt-2 inline-flex items-center justify-center rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-600"
           >
-            Find Your Roomie
+            Explore Discovery
           </button>
         </div>
       )

@@ -30,7 +30,7 @@ const ROLE_OPTIONS: Array<{
   {
     role: 'HOST',
     title: 'I have a place',
-    subtitle: 'I have a room or house and need a roommate to split costs.',
+    subtitle: 'I have a room or house and need a colonymate to split costs.',
   },
   {
     role: 'SEEKER',
@@ -41,7 +41,7 @@ const ROLE_OPTIONS: Array<{
     role: 'FLEX',
     title: 'I am open to either',
     subtitle:
-      "I'm looking for roommates to hunt for a new place together, or open to moving into theirs.",
+      "I'm looking for matches to hunt for a new place together, or open to moving into theirs.",
   },
 ]
 
@@ -301,26 +301,34 @@ export const OnboardingWizard: React.FC = () => {
               Role Selection
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
-              Choose how you want to use Roomie Finder.
+              Choose how you want to use Colony-Roomie Finder.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {ROLE_OPTIONS.map((option) => {
                 const selected = role === option.role
+
+                let themeClassPattern = 'border-weaver-purple bg-weaver-purple/10 dark:bg-weaver-purple/20 text-weaver-purple dark:text-weaver-purple'
+                if (option.role === 'HOST') {
+                  themeClassPattern = 'border-card-dingley bg-card-dingley/10 dark:bg-card-dingley/20 text-card-dingley dark:text-card-dingley'
+                } else if (option.role === 'SEEKER') {
+                  themeClassPattern = 'border-card-wine bg-card-wine/10 dark:bg-card-wine/20 text-card-wine dark:text-card-wine'
+                }
+
                 return (
                   <button
                     key={option.role}
                     type="button"
                     onClick={() => setRole(option.role)}
                     className={[
-                      'rounded-2xl border p-5 text-left transition-colors',
+                      'rounded-nest border p-5 text-left transition-colors',
                       selected
-                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200'
-                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-blue-300',
+                        ? themeClassPattern
+                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-slate-400',
                     ].join(' ')}
                   >
                     <h2 className="font-syne text-lg font-bold mb-2">{option.title}</h2>
-                    <p className="text-sm leading-relaxed">{option.subtitle}</p>
+                    <p className="text-sm leading-relaxed opacity-80">{option.subtitle}</p>
                   </button>
                 )
               })}
@@ -451,7 +459,7 @@ export const OnboardingWizard: React.FC = () => {
                   value={bioQuote}
                   onChange={(e) => setBioQuote(e.target.value.slice(0, 100))}
                   maxLength={100}
-                  placeholder="Looking for a respectful roommate with a similar routine."
+                  placeholder="Looking for a respectful colonymate with a similar routine."
                   className={inputClassName}
                 />
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">

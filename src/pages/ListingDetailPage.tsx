@@ -89,7 +89,7 @@ const ListingDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full text-slate-600 dark:text-slate-300">
-        Loading listing...
+        Weaving your matches...
       </div>
     )
   }
@@ -97,7 +97,7 @@ const ListingDetailPage: React.FC = () => {
   if (!listing) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 text-center">
+        <div className="card-surface card-surface-thatch rounded-2xl p-8 text-center">
           <p className="text-slate-600 dark:text-slate-300">Listing not found.</p>
           <Link
             to="/discover"
@@ -114,7 +114,7 @@ const ListingDetailPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 w-full">
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
+      <div className="card-surface card-surface-cello overflow-hidden rounded-2xl">
         {listing.photos.length > 0 ? (
           <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             {listing.photos.map((photo, index) => (
@@ -138,7 +138,7 @@ const ListingDetailPage: React.FC = () => {
             {listing.housingType} in {listing.zone}
           </h1>
           <p className="text-slate-600 dark:text-slate-300 mb-4">
-            KES {listing.roommateShare.toLocaleString()} roommate share
+            KES {listing.roommateShare.toLocaleString()} match share
           </p>
 
           <div className="w-full bg-gradient-to-r from-amber-500/10 to-transparent border-l-4 border-amber-500 p-4 rounded-r-2xl my-6 flex items-start sm:items-center gap-3">
@@ -161,7 +161,7 @@ const ListingDetailPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 md:left-64 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-4 px-6 z-40 flex items-center justify-between pb-safe">
+      <div className="card-surface-soft card-surface-cello fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between border-x-0 border-b-0 border-t p-4 px-6 pb-safe md:left-64">
         <div>
           <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Rent</p>
           <p className="text-lg font-bold text-slate-900 dark:text-white">

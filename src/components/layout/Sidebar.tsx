@@ -49,17 +49,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       className={[
-        'hidden md:flex flex-col bg-white/60 backdrop-blur-xl dark:bg-slate-900 border-r border-slate-200/50 dark:border-slate-700/50 transition-all duration-300 sticky top-0 h-screen overflow-hidden shrink-0 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.05)] dark:shadow-none z-20 hover:bg-white/80',
+        'sidebar-surface z-20 hidden h-full shrink-0 self-stretch overflow-y-auto border-r border-[#7b667c] shadow-lg transition-all duration-300 hover:brightness-105 md:flex md:flex-col',
         isCollapsed ? 'w-20' : 'w-64',
         className ?? '',
       ].join(' ')}
     >
-      <div className="flex items-center h-16 px-4 border-b border-slate-200/50 dark:border-slate-700/50 shrink-0">
+      <div className="flex items-center h-16 px-4 border-b border-[#7b667c] shrink-0">
         <img src="/favicon.svg" alt="Icon" className="w-8 h-8 shrink-0" />
         {!isCollapsed && (
-          <span className="ml-3 text-xl font-syne font-bold text-brand-600 dark:text-brand-400 truncate">
-            Roomie Finder
-          </span>
+          <div className="ml-3 flex flex-col truncate">
+            <span className="font-extrabold tracking-tight text-white text-2xl leading-none drop-shadow-sm">
+              Colony
+            </span>
+            <span className="text-[10px] font-bold text-weaver-orange uppercase tracking-widest mt-1">
+              Roomie Finder
+            </span>
+          </div>
         )}
       </div>
 
@@ -81,10 +86,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   [
                     'relative flex items-center py-2.5 text-sm outline-none transition-all duration-200',
                     isCollapsed ? 'justify-center px-2' : 'gap-3 px-3',
-                    'focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
+                    'focus-visible:ring-2 focus-visible:ring-weaver-purple focus-visible:ring-offset-2',
                     isActive
-                      ? 'bg-gradient-to-r from-brand-50 to-brand-100/50 dark:from-brand-500/20 dark:to-brand-500/10 text-brand-700 dark:text-brand-300 font-bold rounded-xl shadow-sm dark:shadow-none border border-brand-100/50 dark:border-brand-500/20'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-brand-800 dark:hover:text-white hover:bg-slate-50/80 dark:hover:bg-slate-800/50 rounded-xl hover:translate-x-1',
+                      ? 'bg-weaver-purple/40 text-white font-bold rounded-xl shadow-inner border border-weaver-purple/50'
+                      : 'text-white/60 hover:text-white hover:bg-weaver-purple/20 rounded-xl hover:translate-x-1',
                   ].join(' ')
                 }
               >
@@ -118,11 +123,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </ul>
       </nav>
 
-      <div className="mt-auto p-4 border-t border-slate-200/50 dark:border-slate-700/50">
+      {/* Trust & Completeness Widget */}
+      {!isCollapsed && (
+        <div className="mt-auto mb-6 px-4">
+          <div className="bg-slate-900 rounded-xl p-5 border border-slate-800 shadow-md">
+            <div className="flex justify-between items-end mb-3">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Profile Trust</span>
+              <span className="text-3xl font-black text-nest-accent leading-none">75%</span>
+            </div>
+            <div className="w-full bg-slate-800 rounded-full h-2 mb-4 overflow-hidden">
+              <div className="bg-nest-accent h-full rounded-full w-[75%]" />
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Add <span className="text-slate-200 font-medium">lifestyle habits</span> to unlock better matches.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="p-4 border-t border-[#7b667c]">
         <button
           type="button"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="w-full flex items-center justify-center p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-brand-700 dark:hover:text-white hover:bg-brand-50/50 dark:hover:bg-slate-800 transition-all hover:scale-105 active:scale-95"
+          className="w-full flex items-center justify-center p-2 rounded-nest text-white/50 hover:text-white hover:bg-white/10 transition-all hover:scale-105 active:scale-95"
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}

@@ -34,7 +34,7 @@ export const NotificationBell: React.FC = () => {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 z-[999] bg-white dark:bg-slate-800 shadow-2xl rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
+        <div className="card-surface card-surface-cello absolute right-0 z-[999] mt-2 flex w-80 flex-col overflow-hidden rounded-2xl sm:w-96">
           <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Notifications</p>
           </div>
@@ -62,7 +62,7 @@ export const NotificationBell: React.FC = () => {
                     'block px-4 py-3 border-b border-slate-100 dark:border-slate-700',
                     'hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors',
                     notification.isRead
-                      ? 'bg-white dark:bg-slate-900'
+                      ? 'bg-transparent'
                       : 'bg-blue-50/50 dark:bg-blue-900/10',
                   ].join(' ')}
                 >

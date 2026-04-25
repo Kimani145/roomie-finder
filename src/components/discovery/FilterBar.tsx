@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FilterPill } from './FilterPill'
 import { BottomSheet } from '@/components/ui/BottomSheet'
 import type { DiscoveryFilters, TukZone } from '@/types'
@@ -61,10 +61,44 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     setOpenSheet(null)
   }
 
+  useEffect(() => {
+    let lastScroll = 0
+    const THRESHOLD = 70
+
+    const handleScroll = () => {
+      const current = window.scrollY
+      const pill = document.getElementById('filterPill')
+      const bar = document.getElementById('filterBar')
+
+      if (!pill || !bar) return
+
+      if (current > THRESHOLD && current > lastScroll) {
+        bar.style.opacity = '0'
+        bar.style.pointerEvents = 'none'
+        pill.style.opacity = '1'
+        pill.style.transform = 'translateY(0)'
+      } else {
+        bar.style.opacity = '1'
+        bar.style.pointerEvents = 'auto'
+        pill.style.opacity = '0'
+        pill.style.transform = 'translateY(-100%)'
+      }
+
+      lastScroll = current
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
     <>
       {/* Filter Bar Container */}
-      <div className="overflow-x-auto scrollbar-hide">
+      <div
+        id="filterBar"
+        className="sticky top-0 z-10 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl border-b border-white/60 dark:border-white/10 shadow-sm px-4 py-3 overflow-x-auto scrollbar-hide transition-all duration-300"
+      >
         <div className="flex gap-2">
           <FilterPill
             label={filters.zones?.[0] ? `Zone: ${filters.zones[0]} ▾` : 'Zone ▾'}
@@ -90,6 +124,24 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             onClick={() => setOpenSheet('filters')}
           />
         </div>
+      </div>
+
+      <div
+        id="filterPill"
+        onClick={() => setOpenSheet('filters')}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            setOpenSheet('filters')
+          }
+        }}
+        className="sticky top-4 z-40 mx-auto w-fit bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-lg border border-slate-200 dark:border-white/10 rounded-full px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2 cursor-pointer transition-all duration-300 opacity-0 -translate-y-full"
+      >
+        <span>
+          {filters.zones?.[0] || 'All Zones'} • KES {(filters.maxBudget ?? 50000) / 1000}k ▾
+        </span>
       </div>
 
       {/* Zone Filter Sheet */}
