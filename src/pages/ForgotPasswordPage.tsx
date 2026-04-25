@@ -35,8 +35,8 @@ export const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-6 sm:px-8">
-      <div className="max-w-md w-full mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8">
+    <div className="app-shell-surface min-h-screen flex flex-col justify-center py-12 px-6 sm:px-8">
+      <div className="card-surface card-surface-cello max-w-md w-full mx-auto rounded-2xl p-8">
         
         {/* Brand Header */}
         <div className="text-center mb-8">

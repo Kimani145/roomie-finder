@@ -25,7 +25,6 @@ import {
   ProfileDetailPage,
   MatchesPage,
   MessagesPage,
-  ChatPage,
   NotificationsPage,
   ListingWizardPage,
   MyListingsPage,
@@ -50,7 +49,7 @@ const AppRoutes: React.FC = () => {
 
   console.info('[App.tsx] Routing initialized')
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 dark:text-slate-50">
+    <div className="app-shell-surface min-h-screen dark:text-slate-50">
       <BrowserRouter>
         <Toaster
           position="top-right"
@@ -130,21 +129,11 @@ const AppRoutes: React.FC = () => {
             }
           />
           <Route
-            path="/messages"
+            path="/messages/:matchId?"
             element={
               <ProtectedRoute>
                 <AppLayout>
                   <MessagesPage />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chat/:matchId"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <ChatPage />
                 </AppLayout>
               </ProtectedRoute>
             }

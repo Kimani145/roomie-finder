@@ -293,7 +293,7 @@ const EditProfilePage: React.FC = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-6 text-center">
+      <div className="min-h-full bg-transparent flex items-center justify-center px-6 text-center">
         <p className="text-sm text-slate-500 dark:text-slate-400">
           No profile found.
         </p>
@@ -302,7 +302,7 @@ const EditProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-full bg-transparent">
       <div className="max-w-4xl mx-auto w-full py-8 px-4 space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
@@ -320,7 +320,7 @@ const EditProfilePage: React.FC = () => {
         )}
 
         <form onSubmit={handleSave} className="space-y-6">
-          <section className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+          <section className="card-surface card-surface-thatch rounded-2xl p-6">
             <h2 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase mb-4">
               Intent
             </h2>
@@ -349,7 +349,7 @@ const EditProfilePage: React.FC = () => {
               })}
             </div>
 
-            <div className="mt-8 p-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl">
+            <div className="card-surface-soft card-surface-cello mt-8 rounded-2xl p-6">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2">
                 Profile Photo {role === 'HOST' ? '(Optional)' : '(Required)'}
               </h3>
@@ -374,7 +374,7 @@ const EditProfilePage: React.FC = () => {
             </div>
           </section>
 
-          <section className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+          <section className="card-surface card-surface-wine rounded-2xl p-6">
             <h2 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase mb-4">
               Vitals
             </h2>
@@ -452,7 +452,7 @@ const EditProfilePage: React.FC = () => {
                   value={bioQuote}
                   onChange={(e) => setBioQuote(e.target.value.slice(0, 100))}
                   maxLength={100}
-                  placeholder="Looking for a calm, tidy roommate near campus."
+                  placeholder="Looking for a calm, tidy colonymate near campus."
                   className={inputClassName}
                   disabled={isSaving}
                 />
@@ -463,7 +463,7 @@ const EditProfilePage: React.FC = () => {
             </div>
           </section>
 
-          <section className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+          <section className="card-surface card-surface-dingley rounded-2xl p-6">
             <h2 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase mb-2">
               Logistics
             </h2>
@@ -545,11 +545,11 @@ const EditProfilePage: React.FC = () => {
           </div>
         </form>
 
-        <section className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <section className="card-surface card-surface-cello rounded-2xl p-6">
           <h2 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase mb-4">
             Security
           </h2>
-          <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 p-4">
+          <div className="card-surface-soft card-surface-wine rounded-xl p-4">
             <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-2">
               Change Password
             </h3>

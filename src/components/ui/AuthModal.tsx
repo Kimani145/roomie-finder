@@ -28,7 +28,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       <div
         role="dialog"
         aria-modal="true"
-        className="relative z-10 w-full max-w-md rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 shadow-xl"
+        className="card-surface card-surface-wine relative z-10 w-full max-w-md rounded-2xl p-6"
       >
         <div className="flex items-start justify-between gap-4">
           <div>

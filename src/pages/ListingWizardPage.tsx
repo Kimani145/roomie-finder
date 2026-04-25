@@ -62,11 +62,11 @@ const ListingWizardPage: React.FC = () => {
           : '',
       roommateShare:
         !roommateShare.trim()
-          ? 'Roommate contribution is required.'
+          ? 'Match contribution is required.'
           : Number.isNaN(shareValue) || shareValue <= 0
-          ? 'Roommate contribution must be greater than 0.'
+          ? 'Match contribution must be greater than 0.'
           : shareValue >= rentValue
-          ? 'Roommate contribution must be less than total rent.'
+          ? 'Match contribution must be less than total rent.'
           : '',
     }),
     [housingType, rentTotal, rentValue, roommateShare, shareValue, zone]
@@ -196,7 +196,7 @@ const ListingWizardPage: React.FC = () => {
   const errorTextClassName = 'mt-1.5 text-xs font-medium text-red-600 dark:text-red-300'
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-8">
+    <div className="min-h-full bg-transparent pb-8">
       <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800">
         <div
           className="h-1.5 bg-blue-600 transition-all duration-300"
@@ -273,7 +273,7 @@ const ListingWizardPage: React.FC = () => {
 
               <div>
                 <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5 block">
-                  Roommate Pays (KES)
+                  Match Pays (KES)
                 </label>
                 <input
                   type="number"

@@ -41,12 +41,12 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-6 sm:px-8">
-      <div className="max-w-md w-full mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8">
+    <div className="app-shell-surface min-h-screen flex flex-col justify-center py-12 px-6 sm:px-8">
+      <div className="card-surface card-surface-wine max-w-md w-full mx-auto rounded-2xl p-8">
         {/* Brand Header */}
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/30">
-            <LogIn className="h-7 w-7 text-blue-500 dark:text-blue-300" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-weaver-purple/10 dark:bg-weaver-orange/10">
+            <LogIn className="h-7 w-7 text-weaver-purple dark:text-weaver-orange" />
           </div>
           <h1 className="font-syne text-2xl font-bold text-slate-900 dark:text-slate-50 mb-2">
             Welcome back
@@ -86,7 +86,7 @@ const LoginPage: React.FC = () => {
                 placeholder="joseph@students.tukenya.ac.ke"
                 required
                 autoComplete="email"
-                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-11 pr-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-nest pl-11 pr-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-weaver-purple focus:ring-1 focus:ring-weaver-purple outline-none transition-all"
               />
               <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400 dark:text-slate-500" />
             </div>
@@ -116,7 +116,7 @@ const LoginPage: React.FC = () => {
                 placeholder="Enter your password"
                 required
                 autoComplete="current-password"
-                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-11 pr-10 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-nest pl-11 pr-10 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-weaver-purple focus:ring-1 focus:ring-weaver-purple outline-none transition-all"
               />
               <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400 dark:text-slate-500" />
               <button
@@ -130,7 +130,7 @@ const LoginPage: React.FC = () => {
               </button>
             </div>
             <div className="flex justify-end mt-2">
-              <Link to="/forgot-password" className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400">
+              <Link to="/forgot-password" className="text-sm font-medium text-nest-blue hover:text-nest-accent dark:hover:text-nest-accent transition-colors">
                 Forgot your password?
               </Link>
             </div>
@@ -140,9 +140,9 @@ const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/25 transition-all mt-6 active:scale-[0.98]"
+            className="w-full bg-gradient-to-r from-weaver-purple to-weaver-orange hover:opacity-90 disabled:bg-none disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-nest shadow-lg shadow-weaver-purple/25 transition-all mt-6 active:scale-[0.98]"
           >
-            {isLoading ? 'Signing in…' : 'Sign In'}
+            {isLoading ? 'Weaving your session…' : 'Sign In'}
           </button>
         </form>
 
@@ -151,7 +151,7 @@ const LoginPage: React.FC = () => {
           Don&apos;t have an account?{' '}
           <Link
             to="/signup"
-            className="text-blue-600 dark:text-blue-300 font-bold hover:underline"
+            className="text-nest-blue dark:text-nest-accent font-bold hover:underline"
           >
             Sign Up
           </Link>

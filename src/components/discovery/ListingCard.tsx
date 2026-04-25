@@ -48,7 +48,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     <Link
       to={`/profile/${profile.uid}`}
       onClick={(event) => onPrimaryAction?.(profile.uid, event)}
-      className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden flex flex-col h-full transition-shadow hover:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
+      className="card-surface card-surface-cello group flex h-full flex-col overflow-hidden rounded-nest outline-none transition-all hover:-translate-y-1 hover:shadow-2xl focus-visible:ring-2 focus-visible:ring-weaver-purple focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
     >
       <div className="relative shrink-0">
         {heroPhoto ? (
@@ -67,8 +67,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           </div>
         )}
 
-        <div className="absolute bottom-3 left-3 rounded-full bg-white/95 dark:bg-slate-800/95 border border-slate-200 dark:border-slate-600 px-3 py-1 text-xs font-semibold text-slate-900 dark:text-slate-50 shadow-sm">
-          {formatCurrency(listing?.roommateShare)} / roommate
+        <div className="absolute bottom-3 left-3 rounded-full bg-white/95 dark:bg-card-thatch/35 border border-slate-200 dark:border-white/20 px-3 py-1 text-xs font-semibold text-slate-900 dark:text-white shadow-sm">
+          {formatCurrency(listing?.roommateShare)} / match
         </div>
       </div>
 
@@ -90,7 +90,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-600">
+        <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-white/15">
           <div className="flex items-center gap-2 min-w-0">
             {profile.photoURL ? (
               <img

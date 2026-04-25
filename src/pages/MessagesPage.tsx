@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { MessageSquare, Send, Smile } from 'lucide-react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestore'
 import { db } from '@/firebase/config'
@@ -38,13 +38,24 @@ type ThreadMessage = {
 
 const MessagesPage: React.FC = () => {
   const navigate = useNavigate()
-  const location = useLocation()
+  const { matchId } = useParams<{ matchId?: string }>()
+  const [isDesktopLayout, setIsDesktopLayout] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 768 : false
+  )
   const { currentUser } = useAuthStore()
 
   const [inboxThreads, setInboxThreads] = useState<InboxThread[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
+  
+  useEffect(() => {
+    if (matchId) {
+      setSelectedChatId(matchId)
+    } else if (isDesktopLayout && inboxThreads.length > 0 && !selectedChatId) {
+      navigate(`/messages/${inboxThreads[0].chatId}`, { replace: true })
+    }
+  }, [matchId, isDesktopLayout, inboxThreads, navigate, selectedChatId])
   const [threadMessages, setThreadMessages] = useState<ThreadMessage[]>([])
   const [messageText, setMessageText] = useState('')
   const [isSending, setIsSending] = useState(false)
@@ -52,9 +63,7 @@ const MessagesPage: React.FC = () => {
   const [otherUserTyping, setOtherUserTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
-  const [isDesktopLayout, setIsDesktopLayout] = useState(() =>
-    typeof window !== 'undefined' ? window.innerWidth >= 768 : false
-  )
+  
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -182,8 +191,8 @@ const MessagesPage: React.FC = () => {
           if (!cancelled) {
             setInboxThreads(threads)
             setIsLoading(false)
-            if (threads.length > 0 && !selectedChatId) {
-              setSelectedChatId(threads[0].chatId)
+            if (threads.length > 0 && !selectedChatId && !matchId && isDesktopLayout) {
+              navigate(`/messages/${threads[0].chatId}`, { replace: true })
             }
             if (
               selectedChatId &&
@@ -286,14 +295,12 @@ const MessagesPage: React.FC = () => {
   }
 
   const handleThreadClick = (chatId: string) => {
-    if (isDesktopLayout) {
-      setSelectedChatId(chatId)
-      return
-    }
+    navigate(`/messages/${chatId}`)
+  }
 
-    navigate(`/chat/${chatId}`, {
-      state: { from: location.pathname },
-    })
+  const handleBackToInbox = () => {
+    navigate('/messages')
+    setSelectedChatId(null)
   }
 
   const handleSendMessage = async () => {
@@ -346,7 +353,7 @@ const MessagesPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <section className="md:col-span-1 rounded-2xl border border-slate-200 bg-white overflow-hidden dark:border-slate-700/50 dark:bg-slate-900">
+          <section className={`md:col-span-1 rounded-2xl border border-slate-200 bg-white overflow-hidden dark:border-slate-700/50 dark:bg-slate-900 ${selectedChatId && !isDesktopLayout ? 'hidden' : 'block'}`}>
             {isLoading ? (
               <div>
                 {[0, 1, 2].map((row) => (
@@ -443,20 +450,27 @@ const MessagesPage: React.FC = () => {
             )}
           </section>
 
-          <section className="hidden md:flex md:col-span-2 rounded-2xl border border-slate-200 bg-white dark:border-slate-700/50 dark:bg-slate-900 overflow-hidden flex-col min-h-[70dvh] shadow-lg shadow-black/20">
+          <section className={`md:flex col-span-1 md:col-span-2 rounded-2xl border border-slate-200 bg-white dark:border-slate-700/50 dark:bg-slate-900 overflow-hidden flex-col min-h-[70dvh] shadow-lg shadow-black/20 ${!selectedChatId && !isDesktopLayout ? 'hidden' : 'flex'}`}>
             {!selectedThread ? (
               <div className="flex-1 flex items-center justify-center text-slate-500 dark:text-slate-400">
                 Select a thread to view messages.
               </div>
             ) : (
               <>
-                <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800">
-                  <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800 flex items-center gap-3">
+                  {!isDesktopLayout && (
+                    <button onClick={handleBackToInbox} className="p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </button>
+                  )}
+                  <div>
+                    <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
                     {selectedThread.otherUser?.displayName ?? 'Unknown'}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     {selectedThread.otherUser?.role ?? 'Member'}
                   </p>
+                  </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-950">

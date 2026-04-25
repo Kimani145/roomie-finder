@@ -8,23 +8,31 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+        weaver: {
+          orange: '#F27221',
+          purple: '#6638B6',
+          dark: '#2D1B4E',
+          verte: '#22c55e',
         },
+        nest: {
+          blue: '#009AE0',
+          light: '#F8FAFC',
+          accent: '#FFB84D',
+        },
+        card: {
+          thatch: '#b4999e',
+          cello: '#1c3751',
+          dingley: '#697949',
+          wine: '#5c4c68',
+        }
+      },
+      borderRadius: {
+        nest: '1.5rem',
       },
       fontFamily: {
         display: ['Syne', 'sans-serif'],
         syne: ['Syne', 'sans-serif'],
-        sans: ['DM Sans', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
       },
     },
   },

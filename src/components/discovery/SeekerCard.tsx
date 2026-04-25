@@ -86,7 +86,7 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
         : 'FAIR MATCH - REVIEW PROFILE'
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/60 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_20px_40px_rgb(0,0,0,0.06)] hover:-translate-y-1 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-xl dark:shadow-black/40">
+    <article className="card-surface card-surface-wine group flex h-full flex-col overflow-hidden rounded-nest transition-all hover:-translate-y-1 hover:shadow-2xl">
       <div className="relative p-6 flex flex-col gap-5">
         <div className="absolute top-0 right-0 h-32 w-32 bg-brand-100/30 blur-2xl rounded-full pointer-events-none dark:hidden" />
         <div className="flex items-center justify-between gap-3 relative z-10">
@@ -128,7 +128,7 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
           {formatBudget(profile.minBudget, profile.maxBudget)} • {primaryZone}
         </p>
 
-        <div className="relative z-10 space-y-2 rounded-2xl border border-slate-200/60 bg-white/60 p-4 shadow-sm backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/50">
+        <div className="card-surface-soft card-surface-thatch relative z-10 space-y-2 rounded-2xl p-4">
           {traitSignals.length > 0 ? (
             traitSignals.map((trait) => (
               <div key={trait} className="flex items-center gap-2">
@@ -153,7 +153,7 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
         </p>
       </div>
 
-      <div className="mt-auto grid grid-cols-2 gap-4 border-t border-slate-200/50 bg-slate-50/50 backdrop-blur-md p-5 dark:border-slate-800 dark:bg-slate-950/50">
+      <div className="card-surface-soft card-surface-cello mt-auto grid grid-cols-2 gap-4 border-x-0 border-b-0 border-t p-5">
         <button
           type="button"
           onClick={() => setIsDismissed(true)}
@@ -164,7 +164,7 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
         <Link
           to={`/profile/${profile.uid}`}
           onClick={(event) => onPrimaryAction?.(profile.uid, event)}
-          className="h-14 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-[0_8px_20px_rgba(59,130,246,0.3)] font-black tracking-widest hover:from-brand-400 hover:to-brand-500 hover:shadow-[0_12px_24px_rgba(59,130,246,0.4)] active:scale-95 transition-all duration-200 flex items-center justify-center border border-brand-400/50"
+          className="h-14 rounded-nest bg-gradient-to-r from-weaver-purple to-weaver-orange text-white shadow-[0_8px_20px_rgba(102,56,182,0.3)] font-black tracking-widest hover:opacity-90 hover:shadow-[0_12px_24px_rgba(102,56,182,0.4)] active:scale-95 transition-all duration-200 flex items-center justify-center border border-weaver-purple/50"
         >
           LIKE
         </Link>

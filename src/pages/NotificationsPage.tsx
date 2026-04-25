@@ -59,7 +59,7 @@ const NotificationsPage: React.FC = () => {
       </div>
 
       {notifications.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-10 text-center">
+        <div className="card-surface card-surface-thatch rounded-2xl p-10 text-center">
           <Bell className="h-10 w-10 mx-auto text-slate-400 dark:text-slate-500 mb-3" />
           <p className="text-slate-600 dark:text-slate-300">No notifications yet.</p>
           <Link
@@ -70,7 +70,7 @@ const NotificationsPage: React.FC = () => {
           </Link>
         </div>
       ) : (
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
+        <div className="card-surface card-surface-cello overflow-hidden rounded-2xl">
           {notifications.map((notification) => (
             <div
               key={notification.id}
@@ -78,7 +78,7 @@ const NotificationsPage: React.FC = () => {
               className={`p-4 flex gap-4 cursor-pointer transition-colors border-b border-slate-200 dark:border-slate-800 ${
                 !notification.isRead
                   ? 'bg-blue-50/50 dark:bg-blue-900/10 border-l-4 border-l-brand-500'
-                  : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800'
+                  : 'bg-transparent hover:bg-slate-50/70 dark:hover:bg-white/5'
               }`}
             >
               {!notification.isRead && (

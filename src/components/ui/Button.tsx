@@ -17,28 +17,27 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 // ─── Variant styles ────────────────────────────────────────────────────────────
 const variantStyles: Record<ButtonVariant, string> = {
   primary: [
-    'bg-blue-500 text-white',
-    'hover:bg-blue-600',
-    'active:bg-blue-700',
-    'disabled:bg-blue-300 disabled:text-blue-100',
-    'shadow-sm shadow-blue-500/20',
-    'ring-offset-slate-900 focus-visible:ring-2 focus-visible:ring-blue-400',
+    'bg-weaver-purple text-white shadow-md hover:shadow-lg',
+    'hover:bg-weaver-purple/90 transition-all hover:-translate-y-0.5',
+    'active:scale-95',
+    'disabled:opacity-60 disabled:text-white',
+    'ring-offset-slate-900 focus-visible:ring-2 focus-visible:ring-weaver-purple',
   ].join(' '),
 
   secondary: [
     'bg-slate-100 text-slate-900',
     'hover:bg-slate-200',
-    'active:bg-slate-300',
+    'active:bg-slate-300 active:scale-95 transition-all',
     'disabled:bg-slate-100 disabled:text-slate-400',
     'focus-visible:ring-2 focus-visible:ring-slate-400 ring-offset-white',
   ].join(' '),
 
   outline: [
-    'bg-transparent text-slate-700 border border-slate-200',
-    'hover:bg-slate-50 hover:border-slate-300',
-    'active:bg-slate-100',
+    'bg-transparent text-slate-700 dark:text-slate-300 border-2 border-slate-300 dark:border-slate-700',
+    'hover:bg-slate-50 dark:hover:bg-slate-800',
+    'active:scale-95 transition-all',
     'disabled:border-slate-200 disabled:text-slate-400',
-    'focus-visible:ring-2 focus-visible:ring-blue-400 ring-offset-white',
+    'focus-visible:ring-2 focus-visible:ring-weaver-purple ring-offset-white',
   ].join(' '),
 
   ghost: [

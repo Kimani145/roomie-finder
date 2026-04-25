@@ -1,22 +1,12 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import type { MatchResult } from '@/types'
 import { getCompatibilityPercentage } from '@/engine/compatibilityEngine'
 import { formatBudget } from '@/utils/formatters'
+import { Button } from '@/components/ui/Button'
 
 interface DiscoveryCardProps {
   match: MatchResult
-}
-
-// ─── Recency indicator (active dot opacity) ────────────────────────────────────
-function getActivityOpacity(lastActive: Date): number {
-  const now = new Date()
-  const diffMs = now.getTime() - new Date(lastActive).getTime()
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-  if (diffDays === 0) return 1 // solid emerald
-  if (diffDays < 7) return 0.6 // active this week
-  return 0.4 // older
+  onPrimaryAction?: (uid: string, event?: React.MouseEvent) => void
 }
 
 function getInitials(name?: string): string {
@@ -30,12 +20,11 @@ function getInitials(name?: string): string {
     .slice(0, 2)
 }
 
-// ─── DiscoveryCard (Refactored) ────────────────────────────────────────────────
-export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
+export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match, onPrimaryAction }) => {
   const { profile, compatibilityScore, scoreBreakdown } = match
-
   const compatibilityPct = getCompatibilityPercentage(compatibilityScore)
-  const activityOpacity = getActivityOpacity(profile.lastActive)
+  
+  const isPerfectFit = compatibilityPct >= 90
   const lifestyleTags = scoreBreakdown.matchedFactors
     .filter(
       (factor) =>
@@ -48,96 +37,90 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match }) => {
     .slice(0, 3)
 
   return (
-    <Link
-      to={`/profile/${profile.uid}`}
-      className="group block overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm transition-all duration-200 hover:shadow-md active:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
-    >
-      {/* ── Photo area (4:3 aspect ratio maintained) ──────────────────────────── */}
-      <div className="w-full aspect-[16/9] relative flex items-center justify-center bg-slate-100 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-        {profile.photoURL ? (
-          <img
-            src={profile.photoURL}
-            alt={profile.displayName}
-            className="absolute inset-0 object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <span className="text-6xl font-syne font-bold text-slate-300 dark:text-slate-500">
-            {getInitials(profile.displayName)}
-          </span>
-        )}
+    <article className="card-surface card-surface-dingley group flex h-full flex-col overflow-hidden rounded-nest transition-all hover:-translate-y-1 hover:shadow-2xl">
+      {/* Photo Area */}
+      <div className="relative shrink-0">
+        <div className="h-56 sm:h-64 w-full bg-slate-200 dark:bg-slate-600 shrink-0 relative overflow-hidden">
+          {profile.photoURL ? (
+            <img
+              src={profile.photoURL}
+              alt={`${profile.displayName} listing`}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <div className="h-full w-full flex items-center justify-center text-4xl font-bold text-slate-400 dark:text-slate-500">
+              {getInitials(profile.displayName)}
+            </div>
+          )}
+        </div>
 
-        {/* Budget pill overlay (bottom-left) */}
-        <div className="absolute bottom-3 left-3 rounded-full bg-white/90 dark:bg-slate-900/80 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-100 backdrop-blur-sm border border-slate-200 dark:border-slate-700">
+        {/* 1. Massive Match Badge */}
+        <div className="absolute top-4 right-4 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400 text-sm font-extrabold px-3 py-1.5 rounded-full shadow-md tracking-widest border border-emerald-200 dark:border-emerald-500/30 backdrop-blur-md">
+          [ {compatibilityPct}% MATCH ]
+        </div>
+        
+        {/* Budget overlay */}
+        <div className="absolute bottom-4 left-4 rounded-full bg-white/95 dark:bg-card-thatch/35 border border-slate-200 dark:border-white/20 px-4 py-1.5 text-xs font-bold text-slate-900 dark:text-white shadow-sm backdrop-blur-sm">
           {formatBudget(profile.minBudget, profile.maxBudget)}
         </div>
-
-        {/* Compatibility badge (top-right) — REFACTORED */}
-        <div className="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-extrabold px-3 py-1.5 rounded-full shadow-md tracking-wide ring-2 ring-white">
-          {compatibilityPct}% Compatible
-        </div>
       </div>
 
-      {/* ── Content hierarchy block ─────────────────────────────────────────── */}
-      <div className="p-5 flex flex-col gap-3.5">
-        {/* Name + age + activity dot */}
-        <div className="flex items-center gap-2">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 font-syne leading-none flex items-center gap-2">
+      <div className="p-6 flex-1 flex flex-col gap-4">
+        {/* 2. The Conclusion */}
+        {isPerfectFit ? (
+          <h4 className="text-sm tracking-wider uppercase font-extrabold text-weaver-purple dark:text-weaver-orange">
+            Perfect Fit For You
+          </h4>
+        ) : (
+          <h4 className="text-sm tracking-wider uppercase font-extrabold text-slate-500 dark:text-slate-400">
+            Good Potential Match
+          </h4>
+        )}
+
+        {/* 3. The Identity */}
+        <div>
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-50 leading-none">
             {profile.displayName}, {profile.age}
           </h3>
-          <span
-            className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-500"
-            style={{ opacity: activityOpacity }}
-            aria-label="Active status"
-          />
-        </div>
-
-        <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-          Compatibility score: {compatibilityPct}%
-        </p>
-
-        {/* Budget alignment */}
-        <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-700/60 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-600">
-          <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-            Move-in: Flexible
-          </span>
-          <span className="text-xs text-slate-900 dark:text-slate-50 font-bold tabular-nums tracking-tight">
-            {formatBudget(profile.minBudget, profile.maxBudget)}
-          </span>
-        </div>
-
-        {/* Zone overlap indicator */}
-        {scoreBreakdown.zoneOverlapZones.length > 0 && (
-          <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
-            Zone overlap: {scoreBreakdown.zoneOverlapZones.join(', ')}
+          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 mt-1">
+            {profile.school} • Year {profile.courseYear}
           </p>
-        )}
+        </div>
 
-        {/* Lifestyle similarities */}
-        {lifestyleTags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5">
-            {lifestyleTags.map((pill) => (
-              <span
-                key={pill}
-                className="rounded-full bg-slate-100 dark:bg-slate-700/60 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:text-slate-200 leading-tight"
-              >
-                {pill}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* School + year */}
-        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
-          {profile.school} • Year {profile.courseYear}
-        </p>
+        {/* 4. The Traits */}
+        <div className="flex-1 mt-2">
+          {lifestyleTags.length > 0 ? (
+            <ul className="space-y-1.5">
+              {lifestyleTags.map((trait) => (
+                <li key={trait} className="text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/50" />
+                  {trait}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-slate-500 dark:text-slate-400 italic">
+              Still learning overlap preferences...
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* ── Subtle action cue (NEW) ────────────────────────────────────────── */}
-      <div className="px-5 pb-4">
-        <span className="text-xs text-blue-600 dark:text-blue-400 font-medium text-center w-full block py-2 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
-          View compatibility details →
-        </span>
+      {/* 5. Action Bar */}
+      <div className="card-surface-soft card-surface-cello mt-auto grid grid-cols-2 gap-4 border-x-0 border-b-0 border-t p-5">
+        <button
+          className="h-12 w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-transparent text-slate-700 dark:text-slate-300 font-extrabold tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-all shadow-sm"
+        >
+          PASS
+        </button>
+        <Button
+          variant="primary"
+          className="h-12 w-full rounded-xl font-extrabold tracking-widest rounded-nest"
+          onClick={(e) => onPrimaryAction?.(profile.uid, e)}
+        >
+          LIKE
+        </Button>
       </div>
-    </Link>
+    </article>
   )
 }

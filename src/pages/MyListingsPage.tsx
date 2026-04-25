@@ -113,7 +113,7 @@ const MyListingsPage: React.FC = () => {
             You haven't posted any rooms yet.
           </p>
           <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
-            Create your first listing to start finding compatible roommates.
+            Create your first listing to start finding compatible matches.
           </p>
           <Link
             to="/create-listing"
@@ -128,7 +128,7 @@ const MyListingsPage: React.FC = () => {
           {myListings.map((listing) => (
             <div
               key={listing.id}
-              className="flex flex-col sm:flex-row bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden mb-4 shadow-sm"
+              className="card-surface card-surface-dingley mb-4 flex flex-col overflow-hidden rounded-2xl sm:flex-row"
             >
               {/* Image Thumbnail */}
               {listing.photos.length > 0 ? (
@@ -154,7 +154,7 @@ const MyListingsPage: React.FC = () => {
                 <p className="text-sm text-slate-600 dark:text-slate-300">
                   KES {listing.roommateShare.toLocaleString()}
                   <span className="text-xs text-slate-400 dark:text-slate-500">
-                    {' '}/ roommate share
+                    {' '}/ match share
                   </span>
                 </p>
                 {listing.amenities.length > 0 && (

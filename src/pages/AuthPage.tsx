@@ -49,12 +49,12 @@ const AuthPage: React.FC = () => {
   const isSignUp = mode === 'signup'
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-6 sm:px-8">
-      <div className="max-w-md w-full mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8">
+    <div className="app-shell-surface min-h-screen flex flex-col justify-center py-12 px-6 sm:px-8">
+      <div className="card-surface card-surface-wine max-w-md w-full mx-auto rounded-2xl p-8">
         {/* Brand Header */}
         <div className="text-center mb-8">
           <h1 className="font-syne text-brand-600 dark:text-brand-400 text-2xl font-bold mb-2">
-            Roomie Finder
+            Colony-Roomie Finder
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             {isSignUp
@@ -127,11 +127,16 @@ const AuthPage: React.FC = () => {
             disabled={isLoading}
             className="w-full bg-brand-500 hover:bg-brand-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand-500/25 transition-all mt-6"
           >
-            {isLoading
-              ? 'Please wait...'
-              : isSignUp
-              ? 'Create Account'
-              : 'Sign In'}
+            {isLoading ? (
+              <span className="inline-flex items-center justify-center gap-2">
+                <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-weaver-orange animate-spin" />
+                Weaving your matches...
+              </span>
+            ) : isSignUp ? (
+              'Create Account'
+            ) : (
+              'Sign In'
+            )}
           </button>
         </form>
 
