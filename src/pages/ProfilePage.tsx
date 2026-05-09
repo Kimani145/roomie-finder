@@ -184,7 +184,7 @@ const ProfilePage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => Maps('/edit-profile')}
-                className="w-full bg-blue-500 text-white hover:bg-blue-600 font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                className="w-full bg-weaver-purple text-white hover:bg-weaver-purple font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
               >
                 <Edit className="h-4 w-4" />
                 Edit Profile
@@ -367,7 +367,7 @@ const ProfilePage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => Maps('/my-listings')}
-                      className="mt-3 inline-flex items-center rounded-lg bg-blue-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+                      className="mt-3 inline-flex items-center rounded-lg bg-weaver-purple px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-weaver-purple"
                     >
                       Go to Listings
                     </button>

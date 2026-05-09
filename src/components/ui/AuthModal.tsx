@@ -52,7 +52,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <button
             type="button"
             onClick={onEmailClick}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-xl transition-colors"
+            className="w-full bg-weaver-purple hover:bg-weaver-purple text-white font-medium py-3 px-4 rounded-xl transition-colors"
           >
             Continue with Email
           </button>

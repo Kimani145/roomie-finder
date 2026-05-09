@@ -185,3 +185,12 @@ export interface Message {
   createdAt: Date
   read: boolean
 }
+
+// ─── Message Status & Lifecycle ───────────────────────────────────────────────
+export type MessageStatus = 'LOCAL_PENDING' | 'SERVER_ACKNOWLEDGED' | 'FAILED'
+
+export interface LocalMessage extends Message {
+  status: MessageStatus
+  tempId?: string
+  failureReason?: string
+}

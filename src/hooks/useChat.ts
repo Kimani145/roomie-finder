@@ -13,6 +13,7 @@ import {
   where,
 } from 'firebase/firestore'
 import { db } from '@/firebase/config'
+import type { LocalMessage, MessageStatus } from '@/types'
 
 export const getChatParticipants = (chatId: string): string[] =>
   chatId.split('_').filter(Boolean)
@@ -24,6 +25,7 @@ export const getOtherParticipantUid = (
   currentUserUid: string
 ): string | undefined => getChatParticipants(chatId).find((id) => id !== currentUserUid)
 
+// Legacy sendChatMessage for backward compatibility
 export const sendChatMessage = async (params: {
   chatId: string
   currentUserUid: string
@@ -59,6 +61,81 @@ export const sendChatMessage = async (params: {
     senderUid: params.currentUserUid,
     text: trimmed,
     createdAt: serverTimestamp(),
+  })
+}
+
+// Enhanced sendChatMessageWithOptimism: returns a LocalMessage for immediate UI feedback
+export const sendChatMessageWithOptimism = async (params: {
+  chatId: string
+  currentUserUid: string
+  text: string
+  tempId: string
+  onOptimisticMessage?: (msg: LocalMessage) => void
+}): Promise<{ success: boolean; serverMessageId?: string; error?: string }> => {
+  const trimmed = params.text.trim()
+  if (!trimmed) return { success: false, error: 'Empty message' }
+
+  // Return optimistic message immediately for UI feedback
+  if (params.onOptimisticMessage) {
+    params.onOptimisticMessage({
+      id: params.tempId,
+      tempId: params.tempId,
+      matchId: params.chatId,
+      senderUid: params.currentUserUid,
+      text: trimmed,
+      createdAt: new Date(),
+      read: false,
+      status: 'LOCAL_PENDING' as MessageStatus,
+    })
+  }
+
+  try {
+    const participants = getChatParticipants(params.chatId)
+    const recipientUid = participants.find((id) => id !== params.currentUserUid)
+    const chatRef = doc(db, 'chats', params.chatId)
+    const existingChatSnap = await getDoc(chatRef)
+    const existingChat = existingChatSnap.data() as { status?: string } | undefined
+
+    if (existingChat?.status === 'unmatched') {
+      return { success: false, error: 'chat-unmatched' }
+    }
+
+    await setDoc(
+      chatRef,
+      {
+        status: existingChat?.status ?? 'matched',
+        participants,
+        lastMessage: trimmed,
+        updatedAt: serverTimestamp(),
+        lastMessageTime: serverTimestamp(),
+        unreadBy: recipientUid ? [recipientUid] : [],
+      },
+      { merge: true }
+    )
+
+    const messageRef = await addDoc(collection(db, 'chats', params.chatId, 'messages'), {
+      senderUid: params.currentUserUid,
+      text: trimmed,
+      createdAt: serverTimestamp(),
+    })
+
+    return { success: true, serverMessageId: messageRef.id }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return { success: false, error: errorMessage }
+  }
+}
+
+// Retry a failed message
+export const retryFailedMessage = async (params: {
+  chatId: string
+  currentUserUid: string
+  text: string
+  tempId: string
+}): Promise<{ success: boolean; serverMessageId?: string; error?: string }> => {
+  return sendChatMessageWithOptimism({
+    ...params,
+    onOptimisticMessage: undefined, // Don't re-show optimistic on retry
   })
 }
 

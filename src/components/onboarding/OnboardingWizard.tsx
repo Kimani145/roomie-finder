@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore'
 import { db } from '@/firebase/config'
 import { TUK_ZONES, TukZone } from '@/constants/zones'
 import type { Gender, UserRole } from '@/types'
+import { inputCls as inputClassName } from '@/utils/formStyles'
 
 const GENDERS: Gender[] = ['Male', 'Female', 'Non-binary', 'Prefer not to say']
 const NAME_REGEX = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/
@@ -278,8 +279,6 @@ export const OnboardingWizard: React.FC = () => {
     setCurrentStep((prev) => Math.max(1, prev - 1))
   }
 
-  const inputClassName =
-    'bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none'
   const inputErrorClassName = 'border-red-500 focus:border-red-600 focus:ring-red-600'
   const errorTextClassName = 'mt-1.5 text-xs font-medium text-red-600 dark:text-red-300'
 
@@ -310,9 +309,9 @@ export const OnboardingWizard: React.FC = () => {
 
                 let themeClassPattern = 'border-weaver-purple bg-weaver-purple/10 dark:bg-weaver-purple/20 text-weaver-purple dark:text-weaver-purple'
                 if (option.role === 'HOST') {
-                  themeClassPattern = 'border-card-dingley bg-card-dingley/10 dark:bg-card-dingley/20 text-card-dingley dark:text-card-dingley'
+                  themeClassPattern = 'border-card-dingley bg-card-dingley/20 dark:bg-card-dingley/20 text-card-dingley dark:text-card-dingley'
                 } else if (option.role === 'SEEKER') {
-                  themeClassPattern = 'border-card-wine bg-card-wine/10 dark:bg-card-wine/20 text-card-wine dark:text-card-wine'
+                  themeClassPattern = 'border-card-wine bg-card-wine/20 dark:bg-card-wine/20 text-card-wine dark:text-card-wine'
                 }
 
                 return (
@@ -508,10 +507,10 @@ export const OnboardingWizard: React.FC = () => {
                         className={[
                           'rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors text-left',
                           selected
-                            ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200'
+                            ? 'border-weaver-purple bg-blue-50 dark:bg-blue-900/30 text-weaver-purple/90 dark:text-blue-200'
                             : zones.length === 3
                             ? 'border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-300 dark:text-slate-500 cursor-not-allowed'
-                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-blue-300',
+                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-weaver-purple/50',
                         ].join(' ')}
                         disabled={!selected && zones.length === 3}
                       >
@@ -580,7 +579,7 @@ export const OnboardingWizard: React.FC = () => {
                       className={[
                         'flex-1 rounded-xl border px-4 py-3 text-sm font-medium cursor-pointer transition-colors',
                         sleepSchedule === option
-                          ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200'
+                          ? 'border-weaver-purple bg-blue-50 dark:bg-blue-900/30 text-weaver-purple/90 dark:text-blue-200'
                           : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200',
                       ].join(' ')}
                     >
@@ -616,7 +615,7 @@ export const OnboardingWizard: React.FC = () => {
                       className={[
                         'flex-1 rounded-xl border px-4 py-3 text-sm font-medium cursor-pointer transition-colors',
                         cleanliness === option
-                          ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200'
+                          ? 'border-weaver-purple bg-blue-50 dark:bg-blue-900/30 text-weaver-purple/90 dark:text-blue-200'
                           : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200',
                       ].join(' ')}
                     >
@@ -652,7 +651,7 @@ export const OnboardingWizard: React.FC = () => {
                       className={[
                         'flex-1 rounded-xl border px-4 py-3 text-sm font-medium cursor-pointer transition-colors',
                         noiseTolerance === option
-                          ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200'
+                          ? 'border-weaver-purple bg-blue-50 dark:bg-blue-900/30 text-weaver-purple/90 dark:text-blue-200'
                           : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200',
                       ].join(' ')}
                     >
@@ -735,7 +734,7 @@ export const OnboardingWizard: React.FC = () => {
             <button
               onClick={handleBack}
               disabled={isSaving}
-              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-600 disabled:opacity-50"
+              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-weaver-purple disabled:opacity-50"
             >
               Back
             </button>
@@ -745,7 +744,7 @@ export const OnboardingWizard: React.FC = () => {
           <button
             onClick={handleNext}
             disabled={isNextDisabled}
-            className="flex-1 py-3.5 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-600/25 hover:bg-blue-700 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 dark:disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
+            className="flex-1 py-3.5 rounded-xl bg-weaver-purple text-white font-bold shadow-lg shadow-weaver-purple/25 hover:bg-weaver-purple/90 active:scale-[0.98] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-weaver-purple focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 dark:disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
           >
             {isSaving
               ? 'Saving…'

@@ -130,7 +130,7 @@ const LoginPage: React.FC = () => {
               </button>
             </div>
             <div className="flex justify-end mt-2">
-              <Link to="/forgot-password" className="text-sm font-medium text-nest-blue hover:text-nest-accent dark:hover:text-nest-accent transition-colors">
+              <Link to="/forgot-password" className="text-sm font-medium text-weaver-purple hover:text-nest-accent dark:hover:text-nest-accent transition-colors">
                 Forgot your password?
               </Link>
             </div>
@@ -151,7 +151,7 @@ const LoginPage: React.FC = () => {
           Don&apos;t have an account?{' '}
           <Link
             to="/signup"
-            className="text-nest-blue dark:text-nest-accent font-bold hover:underline"
+            className="text-weaver-purple dark:text-nest-accent font-bold hover:underline"
           >
             Sign Up
           </Link>

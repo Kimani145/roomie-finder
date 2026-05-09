@@ -154,7 +154,7 @@ const ProfileDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen text-blue-600 dark:text-blue-400 font-syne font-bold bg-slate-50 dark:bg-slate-950">
+      <div className="flex justify-center items-center min-h-screen text-weaver-purple dark:text-blue-400 font-syne font-bold bg-slate-50 dark:bg-slate-950">
         Loading profile...
       </div>
     )
@@ -169,7 +169,7 @@ const ProfileDetailPage: React.FC = () => {
           </p>
           <button
             onClick={() => navigate('/discover')}
-            className="mt-4 text-blue-600 dark:text-blue-400 font-bold hover:text-blue-700 dark:hover:text-blue-300"
+            className="mt-4 text-weaver-purple dark:text-blue-400 font-bold hover:text-blue-700 dark:hover:text-blue-300"
           >
             Back to Discovery
           </button>
@@ -349,7 +349,7 @@ const ProfileDetailPage: React.FC = () => {
                   {hostListing.housingType}
                 </p>
               </div>
-              <span className="text-sm font-medium text-blue-600 dark:text-blue-400 inline-flex items-center gap-1">
+              <span className="text-sm font-medium text-weaver-purple dark:text-blue-400 inline-flex items-center gap-1">
                 <Home className="h-4 w-4" />
                 View Room
               </span>
@@ -520,7 +520,7 @@ const ProfileDetailPage: React.FC = () => {
               <button
                 onClick={handleMatchClick}
                 disabled={likeSent || isSubmittingLike || isSelfProfile}
-                className="flex-1 py-3 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-600 transition-colors shadow-sm disabled:bg-blue-300 disabled:cursor-not-allowed"
+                className="flex-1 py-3 rounded-xl bg-weaver-purple text-white font-bold hover:bg-weaver-purple transition-colors shadow-sm disabled:bg-blue-300 disabled:cursor-not-allowed"
               >
                 {isSelfProfile
                   ? 'This is you'

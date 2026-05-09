@@ -86,7 +86,7 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
         : 'FAIR MATCH - REVIEW PROFILE'
 
   return (
-    <article className="card-surface card-surface-wine group flex h-full flex-col overflow-hidden rounded-nest transition-all hover:-translate-y-1 hover:shadow-2xl">
+    <article className="group block overflow-hidden rounded-nest border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-card-wine/40 backdrop-blur-xl shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl">
       <div className="relative p-6 flex flex-col gap-5">
         <div className="absolute top-0 right-0 h-32 w-32 bg-brand-100/30 blur-2xl rounded-full pointer-events-none dark:hidden" />
         <div className="flex items-center justify-between gap-3 relative z-10">

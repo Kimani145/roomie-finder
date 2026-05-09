@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { MessageSquare, Send, Smile } from 'lucide-react'
+import { MessageSquare, Send, Smile, AlertCircle } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
-import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestore'
+import { collection, doc, getDoc, onSnapshot, orderBy, query, where } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import { useAuthStore } from '@/store/authStore'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -13,8 +13,13 @@ import {
   getCompatibilityPercentage,
 } from '@/engine/compatibilityEngine'
 import { formatTimeAgo, getMatchBadgeClasses } from '@/utils/formatters'
-import { markChatAsRead, sendChatMessage } from '@/hooks/useChat'
-import type { UserProfile } from '@/types'
+import { categorizeMessageDate, formatMessageTime } from '@/utils/dateUtils'
+import { 
+  markChatAsRead, 
+  sendChatMessageWithOptimism,
+  retryFailedMessage,
+} from '@/hooks/useChat'
+import type { UserProfile, MessageStatus } from '@/types'
 
 type InboxThreadRecord = {
   chatId: string
@@ -33,7 +38,10 @@ type ThreadMessage = {
   id: string
   senderUid: string
   text: string
-  createdAt: number
+  createdAt: number | Date
+  status?: MessageStatus
+  tempId?: string
+  failureReason?: string
 }
 
 const MessagesPage: React.FC = () => {
@@ -61,7 +69,9 @@ const MessagesPage: React.FC = () => {
   const [isSending, setIsSending] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [otherUserTyping, setOtherUserTyping] = useState(false)
+  const [userNearBottom, setUserNearBottom] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   
   
 
@@ -80,6 +90,107 @@ const MessagesPage: React.FC = () => {
       media.removeEventListener('change', onChange)
     }
   }, [])
+
+  // Decoupled thread initialization: independently fetch chat metadata when matchId exists
+  useEffect(() => {
+    if (!matchId || !currentUser) {
+      return
+    }
+
+    let cancelled = false
+
+    const initializeMatchIdChat = async () => {
+      try {
+        const chatRef = doc(db, 'chats', matchId)
+        const chatSnap = await getDoc(chatRef)
+        const chatData = chatSnap.data() as {
+          participants?: string[]
+          lastMessage?: string
+          updatedAt?: { toDate?: () => Date } | null
+          status?: string
+          unreadBy?: string[]
+        } | undefined
+
+        if (cancelled) return
+
+        if (!chatData || chatData.status === 'unmatched') {
+          console.warn('Chat not found or unmatched:', matchId)
+          return
+        }
+
+        const participants = chatData.participants ?? []
+        const otherUid = participants.find((id) => id !== currentUser.uid)
+
+        if (!otherUid) {
+          console.warn('Could not find other participant in chat')
+          return
+        }
+
+        let otherUser: UserProfile | null = null
+        try {
+          otherUser = await getUserProfile(otherUid)
+        } catch (profileError) {
+          console.error('Failed to load chat profile:', profileError)
+        }
+
+        if (cancelled) return
+
+        const updatedAt =
+          chatData.updatedAt && typeof chatData.updatedAt.toDate === 'function'
+            ? chatData.updatedAt.toDate().getTime()
+            : 0
+
+        const listing =
+          currentUser.role === 'SEEKER' && otherUser?.role === 'HOST'
+            ? (await fetchListingsByHostIds([otherUid]))[otherUid]
+            : undefined
+
+        const matchPercentage =
+          otherUser && currentUser
+            ? getCompatibilityPercentage(
+                calculateCompatibilityScore(
+                  currentUser,
+                  otherUser,
+                  listing
+                ).totalScore
+              )
+            : null
+
+        if (!cancelled) {
+          const matchIdThread: InboxThread = {
+            chatId: matchId,
+            otherUser,
+            lastMessage: chatData.lastMessage ?? '',
+            updatedAt,
+            status: chatData.status,
+            unreadBy: chatData.unreadBy ?? [],
+            matchPercentage,
+          }
+
+          // Add to threads if not already present
+          setInboxThreads((prevThreads) => {
+            const exists = prevThreads.some((t) => t.chatId === matchId)
+            if (exists) {
+              return prevThreads.map((t) =>
+                t.chatId === matchId ? matchIdThread : t
+              )
+            }
+            return [matchIdThread, ...prevThreads]
+          })
+
+          setSelectedChatId(matchId)
+        }
+      } catch (error) {
+        console.error('Failed to initialize matchId chat:', error)
+      }
+    }
+
+    void initializeMatchIdChat()
+
+    return () => {
+      cancelled = true
+    }
+  }, [matchId, currentUser])
 
   useEffect(() => {
     if (!currentUser) {
@@ -269,9 +380,62 @@ const MessagesPage: React.FC = () => {
     return () => unsubscribe()
   }, [currentUser, isDesktopLayout, selectedChatId])
 
+  // Auto-scroll and scroll-to-read tracking with IntersectionObserver
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [threadMessages, otherUserTyping])
+    if (!messagesEndRef.current) return
+
+    let scrollTimeout: ReturnType<typeof setTimeout>
+
+    // Only auto-scroll if user is near bottom
+    if (userNearBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+
+    // Set up IntersectionObserver for scroll-to-read
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        const [entry] = entries
+        // When messagesEndRef (bottom) becomes visible, mark as read
+        if (entry.isIntersecting && currentUser && selectedChatId) {
+          setUserNearBottom(true)
+          scrollTimeout = setTimeout(async () => {
+            try {
+              await markChatAsRead(selectedChatId, currentUser.uid)
+            } catch (error) {
+              console.error('Failed to mark chat as read:', error)
+            }
+          }, 500)
+        }
+      },
+      { threshold: 0.5 }
+    )
+
+    observer.observe(messagesEndRef.current)
+
+    return () => {
+      clearTimeout(scrollTimeout)
+      observer.disconnect()
+    }
+  }, [threadMessages, otherUserTyping, currentUser, selectedChatId, userNearBottom])
+
+  // Track scroll position to detect if user is near bottom
+  useEffect(() => {
+    const container = messagesContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      const scrollTop = container.scrollTop
+      const scrollHeight = container.scrollHeight
+      const clientHeight = container.clientHeight
+      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight)
+      
+      // User is near bottom if less than 100px from bottom
+      setUserNearBottom(distanceFromBottom < 100)
+    }
+
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // Simulating typing indicator
   useEffect(() => {
@@ -307,18 +471,96 @@ const MessagesPage: React.FC = () => {
     if (!currentUser || !selectedThread || !messageText.trim() || isSending) return
 
     setIsSending(true)
+    const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const messageToSend = messageText.trim()
+
     try {
-      await sendChatMessage({
+      // Send with optimistic UI
+      const result = await sendChatMessageWithOptimism({
         chatId: selectedThread.chatId,
         currentUserUid: currentUser.uid,
-        text: messageText.trim(),
+        text: messageToSend,
+        tempId,
+        onOptimisticMessage: (msg) => {
+          setThreadMessages((prev) => [...prev, msg])
+        },
       })
+
+      if (!result.success) {
+        // Mark as failed
+        setThreadMessages((prev) =>
+          prev.map((msg) =>
+            msg.tempId === tempId
+              ? {
+                  ...msg,
+                  status: 'FAILED' as MessageStatus,
+                  failureReason: result.error || 'Failed to send',
+                  id: msg.id || tempId,
+                }
+              : msg
+          )
+        )
+        console.error('Failed to send message:', result.error)
+      } else {
+        // Mark as acknowledged
+        setThreadMessages((prev) =>
+          prev.map((msg) =>
+            msg.tempId === tempId
+              ? {
+                  ...msg,
+                  status: 'SERVER_ACKNOWLEDGED' as MessageStatus,
+                  id: result.serverMessageId || msg.id,
+                }
+              : msg
+          )
+        )
+      }
+
       setMessageText('')
       setShowEmojiPicker(false)
     } catch (sendError) {
-      console.error('Failed to send message from split pane:', sendError)
+      console.error('Failed to send message:', sendError)
+      // Mark as failed
+      setThreadMessages((prev) =>
+        prev.map((msg) =>
+          msg.tempId === tempId
+            ? {
+                ...msg,
+                status: 'FAILED' as MessageStatus,
+                failureReason: 'Network error',
+                id: msg.id || tempId,
+              }
+            : msg
+        )
+      )
     } finally {
       setIsSending(false)
+    }
+  }
+
+  const handleRetryMessage = async (tempId: string) => {
+    const failedMsg = threadMessages.find((msg) => msg.tempId === tempId)
+    if (!failedMsg) return
+
+    const result = await retryFailedMessage({
+      chatId: selectedThread!.chatId,
+      currentUserUid: currentUser!.uid,
+      text: failedMsg.text,
+      tempId,
+    })
+
+    if (result.success) {
+      setThreadMessages((prev) =>
+        prev.map((msg) =>
+          msg.tempId === tempId
+            ? {
+                ...msg,
+                status: 'SERVER_ACKNOWLEDGED' as MessageStatus,
+                id: result.serverMessageId || msg.id,
+              }
+            : msg
+        )
+      )
     }
   }
 
@@ -346,7 +588,7 @@ const MessagesPage: React.FC = () => {
           </p>
           <button
             onClick={() => navigate('/matches')}
-            className="mt-6 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-medium"
+            className="mt-6 bg-weaver-purple hover:bg-weaver-purple text-white px-6 py-3 rounded-xl font-medium"
           >
             View Matches
           </button>
@@ -380,37 +622,40 @@ const MessagesPage: React.FC = () => {
                     <div
                       key={thread.chatId}
                       onClick={() => handleThreadClick(thread.chatId)}
-                      className={`flex items-center gap-4 p-4 border-b transition-colors cursor-pointer ${
+                      className={`flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-700/50 transition-colors cursor-pointer ${
                         isSelected
-                          ? 'bg-slate-100 dark:bg-slate-800 border-l-4 border-l-blue-500'
+                          ? 'bg-slate-100 dark:bg-slate-800 border-l-4 border-l-weaver-purple'
                           : isUnread
-                            ? 'bg-blue-50/50 dark:bg-blue-900/10 border-l-4 border-l-blue-500'
+                            ? 'bg-blue-50/80 dark:bg-blue-900/15 border-l-4 border-l-weaver-purple hover:bg-blue-50 dark:hover:bg-blue-900/20'
                             : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-700/50'
-                      } border-slate-100 dark:border-slate-700/50`}
+                      }`}
                     >
                       <Link
                         to={`/profile/${thread.otherUser?.uid}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="shrink-0"
+                        className="shrink-0 relative"
                       >
                         {thread.otherUser?.photoURL ? (
                           <img
                             src={thread.otherUser.photoURL}
                             alt={thread.otherUser.displayName}
-                            className="w-14 h-14 rounded-full object-cover"
+                            className={`w-14 h-14 rounded-full object-cover ${isUnread ? 'ring-2 ring-weaver-purple' : ''}`}
                           />
                         ) : (
-                          <div className="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 flex items-center justify-center text-slate-700 dark:text-slate-200 font-syne font-bold text-lg">
+                          <div className={`w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 flex items-center justify-center text-slate-700 dark:text-slate-200 font-syne font-bold text-lg ${isUnread ? 'ring-2 ring-weaver-purple' : ''}`}>
                             {thread.otherUser?.displayName?.charAt(0)?.toUpperCase() || '?'}
                           </div>
+                        )}
+                        {isUnread && (
+                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-weaver-purple rounded-full border-2 border-white dark:border-slate-900"></div>
                         )}
                       </Link>
                       <div className="flex-1 min-w-0 space-y-2">
                         <div className="flex items-start justify-between gap-3">
-                          <div className="space-y-2">
+                          <div className="space-y-2 flex-1">
                             <div className="flex items-center flex-wrap gap-2">
                               <h3
-                                className={`font-semibold ${
+                                className={`font-semibold truncate ${
                                   isUnread
                                     ? 'text-slate-900 dark:text-white font-bold'
                                     : 'text-slate-900 dark:text-slate-50'
@@ -429,14 +674,14 @@ const MessagesPage: React.FC = () => {
                               )}
                             </div>
                           </div>
-                          <span className="text-xs text-slate-400 dark:text-slate-500">
+                          <span className={`text-xs whitespace-nowrap ${isUnread ? 'text-amber-600 dark:text-amber-400 font-semibold' : 'text-slate-400 dark:text-slate-500'}`}>
                             {formatUpdatedAt(thread.updatedAt)}
                           </span>
                         </div>
                         <p
                           className={`text-sm truncate ${
                             isUnread
-                              ? 'text-slate-900 dark:text-white'
+                              ? 'text-slate-900 dark:text-white font-medium'
                               : 'text-slate-500 dark:text-slate-400 font-normal'
                           }`}
                         >
@@ -473,27 +718,62 @@ const MessagesPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-950">
+                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-950">
                   {threadMessages.length === 0 ? (
                     <p className="text-sm text-slate-500 dark:text-slate-400 text-center mt-12">
                       No messages yet. Start the conversation.
                     </p>
-                  ) : (
-                    threadMessages.map((message) => {
+                   ) : (
+                    threadMessages.map((message, index) => {
                       const isMine = message.senderUid === currentUser?.uid
+                      const isFailed = message.status === 'FAILED'
+                      const isPending = message.status === 'LOCAL_PENDING'
+                      const showDateLabel = 
+                        index === 0 || 
+                        categorizeMessageDate(threadMessages[index - 1]?.createdAt) !== 
+                        categorizeMessageDate(message.createdAt)
+
                       return (
-                        <div
-                          key={message.id}
-                          className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
-                        >
+                        <div key={message.id || message.tempId}>
+                          {showDateLabel && (
+                            <div className="flex justify-center my-3">
+                              <span className="text-xs text-slate-400 dark:text-slate-500">
+                                {categorizeMessageDate(message.createdAt)}
+                              </span>
+                            </div>
+                          )}
                           <div
-                            className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
-                              isMine
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-slate-200 text-slate-900 dark:bg-slate-800 dark:text-slate-100 border border-slate-700/50'
-                            }`}
+                            className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} mb-2`}
                           >
-                            <p>{message.text}</p>
+                            <div
+                              className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
+                                isMine
+                                  ? `bg-weaver-purple text-white ${isPending ? 'opacity-70' : ''} ${isFailed ? 'opacity-60 border border-red-400' : ''}`
+                                  : `bg-slate-200 text-slate-900 dark:bg-slate-800 dark:text-slate-100 border border-slate-700/50 ${isPending ? 'opacity-70' : ''}`
+                              }`}
+                            >
+                              <p>{message.text}</p>
+                            </div>
+                            <div className="flex items-center gap-2 mt-1 px-1 text-xs text-slate-500 dark:text-slate-400">
+                              <span>{formatMessageTime(message.createdAt)}</span>
+                              {isMine && (
+                                <>
+                                  {isPending && <span className="text-amber-600 dark:text-amber-400">Sending...</span>}
+                                  {isFailed && (
+                                    <>
+                                      <AlertCircle className="w-3 h-3 text-red-500" />
+                                      <span className="text-red-600 dark:text-red-400">{message.failureReason}</span>
+                                      <button
+                                        onClick={() => handleRetryMessage(message.tempId!)}
+                                        className="ml-1 text-blue-600 dark:text-blue-400 hover:underline"
+                                      >
+                                        Retry
+                                      </button>
+                                    </>
+                                  )}
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
                       )
@@ -521,7 +801,7 @@ const MessagesPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                      className="p-2 text-slate-500 hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                      className="p-2 text-slate-500 hover:text-weaver-purple hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
                     >
                       <Smile className="h-5 w-5" />
                     </button>
@@ -536,13 +816,13 @@ const MessagesPage: React.FC = () => {
                         }
                       }}
                       placeholder="Type a message"
-                      className="flex-1 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500"
+                      className="flex-1 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-weaver-purple"
                     />
                     <button
                       type="button"
                       disabled={!messageText.trim() || isSending}
                       onClick={() => void handleSendMessage()}
-                      className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center disabled:bg-blue-300"
+                      className="h-10 w-10 rounded-xl bg-weaver-purple text-white flex items-center justify-center disabled:bg-blue-300"
                     >
                       <Send className="h-4 w-4" />
                     </button>

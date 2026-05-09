@@ -57,7 +57,7 @@ export const DiscoveryHeader: React.FC<DiscoveryHeaderProps> = ({
             </span>
             <span className="flex items-center gap-1 text-sm font-semibold text-slate-200">
               <svg
-                className="h-3.5 w-3.5 text-nest-blue dark:text-nest-accent"
+                className="h-3.5 w-3.5 text-weaver-purple dark:text-nest-accent"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 aria-hidden="true"
@@ -76,7 +76,7 @@ export const DiscoveryHeader: React.FC<DiscoveryHeaderProps> = ({
         {/* ── Right: Wordmark + filter toggle ─────────────────────────── */}
         <div className="flex items-center gap-3">
           <span className="hidden text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-weaver-verte to-weaver-purple sm:block">
-            Colony<span className="text-nest-blue">.</span>
+            Colony<span className="text-weaver-purple">.</span>
           </span>
 
           <button

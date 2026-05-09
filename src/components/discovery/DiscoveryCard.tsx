@@ -37,7 +37,7 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match, onPrimaryAc
     .slice(0, 3)
 
   return (
-    <article className="card-surface card-surface-dingley group flex h-full flex-col overflow-hidden rounded-nest transition-all hover:-translate-y-1 hover:shadow-2xl">
+    <article className="group block overflow-hidden rounded-nest border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-card-cello/40 backdrop-blur-xl shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl">
       {/* Photo Area */}
       <div className="relative shrink-0">
         <div className="h-56 sm:h-64 w-full bg-slate-200 dark:bg-slate-600 shrink-0 relative overflow-hidden">

@@ -92,7 +92,7 @@ export const MatchOverlay: React.FC = () => {
               >
                 <div>
                   <h2 className="text-4xl font-syne font-bold text-nest-accent mb-2">It's a Match!</h2>
-                  <p className="text-nest-blue">You and {matchData.matchedUser.displayName} liked each other.</p>
+                  <p className="text-weaver-purple">You and {matchData.matchedUser.displayName} liked each other.</p>
                 </div>
 
                 <div className="flex flex-col w-full max-w-xs gap-3">

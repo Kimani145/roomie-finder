@@ -41,7 +41,7 @@ const variantStyles: Record<BadgeVariant, string> = {
 
   // Compatibility gradient — represents match quality.
   compatibility:
-    'bg-blue-500 text-white ring-0 shadow-sm shadow-blue-500/30',
+    'bg-weaver-purple text-white ring-0 shadow-sm shadow-weaver-purple/30',
 
   // Neutral — for generic labels, zone chips, etc.
   neutral:

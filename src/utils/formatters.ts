@@ -35,7 +35,8 @@ export function getMatchTierMeta(score: number): {
     return {
       label: 'Strong Match',
       percentage,
-      classes: 'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+      classes:
+        'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20',
     }
   }
 

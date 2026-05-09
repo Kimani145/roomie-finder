@@ -117,7 +117,7 @@ const MyListingsPage: React.FC = () => {
           </p>
           <Link
             to="/create-listing"
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 active:scale-[0.98] transition-all"
+            className="inline-flex items-center gap-2 rounded-xl bg-weaver-purple px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-weaver-purple/90 active:scale-[0.98] transition-all"
           >
             Post a Room
           </Link>
@@ -194,7 +194,7 @@ const MyListingsPage: React.FC = () => {
 
           <Link
             to="/create-listing"
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 active:scale-[0.98] transition-all mt-2"
+            className="inline-flex items-center gap-2 rounded-xl bg-weaver-purple px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-weaver-purple/90 active:scale-[0.98] transition-all mt-2"
           >
             Post Another Room
           </Link>

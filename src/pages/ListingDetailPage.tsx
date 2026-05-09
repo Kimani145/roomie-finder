@@ -101,7 +101,7 @@ const ListingDetailPage: React.FC = () => {
           <p className="text-slate-600 dark:text-slate-300">Listing not found.</p>
           <Link
             to="/discover"
-            className="inline-flex mt-4 rounded-xl bg-blue-500 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-600"
+            className="inline-flex mt-4 rounded-xl bg-weaver-purple text-white px-4 py-2 text-sm font-semibold hover:bg-weaver-purple"
           >
             Back to Discover
           </Link>
@@ -171,7 +171,7 @@ const ListingDetailPage: React.FC = () => {
         </div>
         <button
           onClick={handleMessageOwner}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-xl transition-colors shadow-sm"
+          className="bg-weaver-purple hover:bg-weaver-purple text-white font-bold py-3 px-8 rounded-xl transition-colors shadow-sm"
         >
           Message Host
         </button>

@@ -247,7 +247,7 @@ const SignUpPage: React.FC = () => {
           Already have an account?{' '}
           <Link
             to="/login"
-            className="text-nest-blue dark:text-nest-accent font-bold hover:underline"
+            className="text-weaver-purple dark:text-nest-accent font-bold hover:underline"
           >
             Sign In
           </Link>

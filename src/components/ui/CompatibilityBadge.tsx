@@ -17,9 +17,9 @@ function getBadgeMeta(pct: number): { label: string; ringClass: string; glowColo
   if (pct >= 75)
     return {
       label: 'Strong Match',
-      ringClass: 'ring-blue-400',
-      glowColor: 'shadow-blue-400/30',
-      textClass: 'text-blue-400',
+      ringClass: 'ring-indigo-400',
+      glowColor: 'shadow-indigo-400/30',
+      textClass: 'text-indigo-400',
     }
   return {
     label: 'Fair Match',

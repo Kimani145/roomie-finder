@@ -16,6 +16,7 @@ import { TUK_ZONES } from '@/constants/zones'
 import { HOUSING_TYPES } from '@/types'
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
 import type { HousingType, TukZone } from '@/types'
+import { inputCls as inputClassName } from '@/utils/formStyles'
 
 const AMENITY_OPTIONS = [
   'WiFi',
@@ -191,15 +192,14 @@ const ListingWizardPage: React.FC = () => {
     await handlePublish()
   }
 
-  const fieldClassName =
-    'w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600'
+  const fieldClassName = inputClassName;
   const errorTextClassName = 'mt-1.5 text-xs font-medium text-red-600 dark:text-red-300'
 
   return (
     <div className="min-h-full bg-transparent pb-8">
       <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800">
         <div
-          className="h-1.5 bg-blue-600 transition-all duration-300"
+          className="h-1.5 bg-weaver-purple transition-all duration-300"
           style={{ width: `${(step / 4) * 100}%` }}
         />
       </div>
@@ -310,8 +310,8 @@ const ListingWizardPage: React.FC = () => {
                     className={[
                       'rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors',
                       selected
-                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200'
-                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-blue-300',
+                        ? 'border-weaver-purple bg-weaver-purple/10 text-weaver-purple dark:text-weaver-purple'
+                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-weaver-purple/50',
                     ].join(' ')}
                   >
                     {amenity}
@@ -330,7 +330,7 @@ const ListingWizardPage: React.FC = () => {
               Upload 3 to 5 interior photos.
             </p>
 
-            <label className="block rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 px-5 py-10 text-center cursor-pointer hover:border-blue-400 transition-colors">
+            <label className="block rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 px-5 py-10 text-center cursor-pointer hover:border-weaver-purple/50 transition-colors">
               <input
                 type="file"
                 accept="image/*"
@@ -373,7 +373,7 @@ const ListingWizardPage: React.FC = () => {
                   type="checkbox"
                   checked={smokingAllowed}
                   onChange={(e) => setSmokingAllowed(e.target.checked)}
-                  className="h-4 w-4 text-blue-600"
+                  className="h-4 w-4 text-weaver-purple focus:ring-weaver-purple"
                 />
                 Smoking Allowed
               </label>
@@ -382,7 +382,7 @@ const ListingWizardPage: React.FC = () => {
                   type="checkbox"
                   checked={petsAllowed}
                   onChange={(e) => setPetsAllowed(e.target.checked)}
-                  className="h-4 w-4 text-blue-600"
+                  className="h-4 w-4 text-weaver-purple focus:ring-weaver-purple"
                 />
                 Pets Allowed
               </label>
@@ -416,7 +416,7 @@ const ListingWizardPage: React.FC = () => {
               type="button"
               onClick={() => setStep((prev) => Math.max(1, prev - 1))}
               disabled={isSubmitting}
-              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-weaver-purple disabled:opacity-50"
             >
               Back
             </button>
@@ -428,7 +428,7 @@ const ListingWizardPage: React.FC = () => {
             type="button"
             onClick={handleNext}
             disabled={isSubmitting || !isCurrentStepValid}
-            className="flex-1 py-3.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="flex-1 py-3.5 rounded-xl bg-weaver-purple text-white font-bold hover:bg-weaver-purple/90 active:scale-[0.98] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-weaver-purple focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 dark:disabled:text-slate-400 disabled:opacity-100 disabled:cursor-not-allowed"
           >
             {isSubmitting
               ? 'Creating...'

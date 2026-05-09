@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
-import { SearchX, ChevronDown } from 'lucide-react'
+import { SearchX } from 'lucide-react'
 import { useDiscovery } from '@/hooks/useDiscovery'
 import { useDiscoveryStore } from '@/store/discoveryStore'
 import { useAuthStore } from '@/store/authStore'
@@ -47,34 +48,39 @@ const DiscoveryPage: React.FC = () => {
   }, [filterMaxBudget, filters.maxBudget, updateFilter])
 
   useEffect(() => {
-    const THRESHOLD = 70
     const handleScroll = () => {
-      const current = window.scrollY
+      // Find the actual scroll container, fallback to window
+      const mainElement = document.querySelector('main')
+      const target = mainElement || window
+      const current = target instanceof Window ? target.scrollY : target.scrollTop
 
       const pill = document.getElementById('filterPill')
-      const bar = document.getElementById('filterBar')
 
-      if (!pill || !bar) return
+      if (!pill) return
 
-      if (current > THRESHOLD) {
-        bar.style.opacity = '0'
-        bar.style.maxHeight = '0px'
+      if (current > 220) {
         pill.style.opacity = '1'
         pill.style.pointerEvents = 'auto'
-        pill.style.transform = 'translate(-50%, 12px)'
+        pill.style.transform = 'translate(-50%, 0)'
       } else {
-        bar.style.opacity = '1'
-        bar.style.maxHeight = '200px'
         pill.style.opacity = '0'
         pill.style.pointerEvents = 'none'
-        pill.style.transform = 'translate(-50%, 100%)'
+        pill.style.transform = 'translate(-50%, -20px)'
       }
     }
 
-    handleScroll()
+    // Determine target on mount, but wait slightly for React to attach 'main' to the DOM
+    const timer = setTimeout(() => {
+      const targetEventElement = document.querySelector('main') || window
+      handleScroll()
+      targetEventElement.addEventListener('scroll', handleScroll, { passive: true })
+    }, 50)
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      clearTimeout(timer)
+      const targetEventElement = document.querySelector('main') || window
+      targetEventElement.removeEventListener('scroll', handleScroll)
+    }
   }, [])
 
   const handleRetry = () => {
@@ -138,23 +144,17 @@ const DiscoveryPage: React.FC = () => {
   }
 
   const handleFilterPillClick = () => {
-    const bar = document.getElementById('filterBar')
-    const pill = document.getElementById('filterPill')
-
-    if (bar && pill) {
-      bar.style.opacity = '1'
-      bar.style.maxHeight = '200px'
-      pill.style.opacity = '0'
-      pill.style.pointerEvents = 'none'
-      pill.style.transform = 'translate(-50%, 100%)'
+    const mainElement = document.querySelector('main')
+    if (mainElement) {
+      mainElement.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
     <div className="min-h-full bg-transparent">
-      <div className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/60 px-4 py-4 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-[#0f1325]/72 sm:px-6">
+      <div className="border-b border-slate-200/80 bg-nest-light px-4 py-4 shadow-sm dark:border-white/10 dark:bg-weaver-dark sm:px-6">
         <div className="max-w-6xl mx-auto flex flex-col gap-4 relative">
           {/* 1. The Toggle */}
           <div className="flex justify-center shrink-0">
@@ -189,7 +189,7 @@ const DiscoveryPage: React.FC = () => {
           {/* 2. The Full Filter Bar */}
           <div
             id="filterBar"
-            className="transition-all duration-300 origin-top overflow-hidden"
+            className="origin-top"
           >
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label className="card-surface-soft card-surface-cello flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-slate-700 dark:text-slate-200">
@@ -250,21 +250,22 @@ const DiscoveryPage: React.FC = () => {
           </div>
 
           {/* 3. The Hovering Pill (Only visible on scroll) */}
-          <div id="filterPill" className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full opacity-0 pointer-events-none transition-all duration-300 z-50">
-            <button
-              type="button"
-              onClick={handleFilterPillClick}
-              className="card-surface-soft card-surface-cello flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-slate-700 shadow-lg dark:text-slate-200"
-            >
-              <span>
-                {filters.zones?.[0] || 'All Zones'} • KES{' '}
-                {(filters.maxBudget ?? filterMaxBudget) / 1000}k ▾
-              </span>
-              <ChevronDown className="w-4 h-4 text-slate-400" />
-            </button>
-          </div>
         </div>
       </div>
+      
+      {typeof document !== 'undefined' && createPortal(
+        <div id="filterPill" className="fixed top-20 left-1/2 -translate-x-1/2 -translate-y-4 opacity-0 pointer-events-none transition-all duration-300 z-[100] bg-white/90 dark:bg-[#0f1325]/90 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.4)] rounded-full">
+          <button
+            type="button"
+            onClick={handleFilterPillClick}
+            className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-nest-accent dark:hover:text-nest-accent transition-colors"
+          >
+            <SearchX className="w-4 h-4" />
+            <span>Refine Search</span>
+          </button>
+        </div>,
+        document.body
+      )}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-4">
         {/* Relaxed filter notice */}

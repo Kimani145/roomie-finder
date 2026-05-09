@@ -55,10 +55,10 @@ export const BottomNav: React.FC = () => {
                 // Physics — doctrine requirement
                 'active:scale-[0.98]',
                 // Focus ring
-                'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
-                // Active state — Blue
+                'focus-visible:ring-2 focus-visible:ring-weaver-purple focus-visible:ring-offset-2',
+                // Active state — Weaver Purple
                 isActive
-                  ? 'text-blue-500 dark:text-blue-400'
+                  ? 'text-weaver-purple dark:text-weaver-purple'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:bg-slate-700/50',
               ].join(' ')
             }
