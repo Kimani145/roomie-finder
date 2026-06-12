@@ -22,7 +22,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   return (
     <div
-      className="app-shell-surface relative flex h-screen min-h-screen overflow-hidden text-slate-900 dark:text-slate-50"
+      className="flex h-screen min-h-screen bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-[#FFFFFF] via-[#F8FAFC] to-[#E2E8F0] dark:bg-none dark:bg-[#0B1220] text-[#0F172A] dark:text-[#F9FAFB] relative overflow-hidden"
     >
 
       {showAuthenticatedChrome && (

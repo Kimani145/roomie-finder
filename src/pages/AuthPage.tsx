@@ -129,7 +129,7 @@ const AuthPage: React.FC = () => {
           >
             {isLoading ? (
               <span className="inline-flex items-center justify-center gap-2">
-                <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-weaver-orange animate-spin" />
+                <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-accent-dark animate-spin" />
                 Weaving your matches...
               </span>
             ) : isSignUp ? (

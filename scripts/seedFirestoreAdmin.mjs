@@ -197,9 +197,65 @@ function pickUnique(arr, count) {
   return shuffled.slice(0, Math.min(count, arr.length))
 }
 
-function avatarUrl(name) {
-  const encoded = encodeURIComponent(name)
-  return `https://ui-avatars.com/api/?name=${encoded}&background=3b82f6&color=fff&size=256&bold=true`
+const MALE_PORTRAITS = [
+  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=256&h=256&q=80'
+]
+
+const FEMALE_PORTRAITS = [
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&h=256&q=80',
+  'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=256&h=256&q=80'
+]
+
+const MALE_BIOS = [
+  "Final year TUK student looking for a clean, study-focused roommate. I mostly code or play video games on weekends.",
+  "Very clean and organized. Looking for someone quiet to share a bedsitter or single room near Roysambu.",
+  "Outgoing student. Love football, music, and occasional gaming. Cleanliness is important to me.",
+  "Early bird and study-focused. Looking for a neat space with stable WiFi and water supply."
+]
+
+const FEMALE_BIOS = [
+  "TUK Information Science major. Clean, respects boundaries, and values a quiet study environment.",
+  "Looking for a friendly female roommate to share a neat 1-bedroom. I enjoy cooking and quiet evenings.",
+  "Organized and friendly. I study most of the day and prefer a clean, peaceful space to relax afterward.",
+  "Very tidy and quiet student. Searching for a roommate who respects privacy and values hygiene."
+]
+
+const OTHER_BIOS = [
+  "Looking for a roommate who is clean, respectful, and communicates well. Easygoing and focused on studies."
+]
+
+function avatarUrl(name, gender, index) {
+  if (gender === 'Male') {
+    return MALE_PORTRAITS[index % MALE_PORTRAITS.length]
+  } else if (gender === 'Female') {
+    return FEMALE_PORTRAITS[index % FEMALE_PORTRAITS.length]
+  } else {
+    const encoded = encodeURIComponent(name)
+    return `https://ui-avatars.com/api/?name=${encoded}&background=3b82f6&color=fff&size=256&bold=true`
+  }
+}
+
+function getBio(gender, index, zones) {
+  if (gender === 'Male') {
+    return MALE_BIOS[index % MALE_BIOS.length] + ` Preferred zone: ${zones[0]}.`
+  } else if (gender === 'Female') {
+    return FEMALE_BIOS[index % FEMALE_BIOS.length] + ` Preferred zone: ${zones[0]}.`
+  } else {
+    return OTHER_BIOS[0] + ` Preferred zone: ${zones[0]}.`
+  }
 }
 
 function randomMoveInMonth() {
@@ -244,7 +300,7 @@ function makeUserRecord(index) {
   const profile = {
     uid,
     displayName,
-    photoURL: avatarUrl(displayName),
+    photoURL: avatarUrl(displayName, gender, index),
     role,
     gender,
     age: randInt(18, 25),
@@ -273,7 +329,7 @@ function makeUserRecord(index) {
     status,
     lastActive: FieldValue.serverTimestamp(),
     createdAt: FieldValue.serverTimestamp(),
-    bio: `TUK student looking for a compatible roommate around ${zones[0]}.`,
+    bio: getBio(gender, index, zones),
     moveInMonth: Math.random() < 0.8 ? randomMoveInMonth() : null,
   }
 

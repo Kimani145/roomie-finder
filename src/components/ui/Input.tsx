@@ -70,7 +70,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               className={cn(
                 'absolute left-3 top-1/2 -translate-y-1/2 flex-shrink-0',
                 'pointer-events-none text-slate-400',
-                isFocused && 'text-weaver-purple',
+                isFocused && 'text-brand-600',
                 error && 'text-red-400'
               )}
               aria-hidden="true"
@@ -105,7 +105,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               // Border + transition
               'border-slate-200 transition-all duration-150',
               // Focus
-              'focus:border-weaver-purple focus:ring-2 focus:ring-weaver-purple/20',
+              'focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20',
               // Error
               error && 'border-red-400 focus:border-red-500 focus:ring-red-500/20',
               // Disabled
@@ -127,7 +127,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 isFloated
                   ? [
                       'top-2 text-[10px] uppercase tracking-wider',
-                      error ? 'text-red-500' : 'text-weaver-purple',
+                      error ? 'text-red-500' : 'text-brand-600',
                     ]
                   : // ── Resting (center of input) ──────────────────────
                     'top-1/2 -translate-y-1/2 text-sm text-slate-400'
@@ -153,7 +153,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               className={cn(
                 'absolute right-3 top-1/2 -translate-y-1/2 flex-shrink-0',
                 'pointer-events-none text-slate-400',
-                isFocused && 'text-weaver-purple'
+                isFocused && 'text-brand-600'
               )}
               aria-hidden="true"
             >
@@ -220,7 +220,7 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
             'font-sans text-sm text-slate-900',
             'outline-none transition-all duration-150',
             'border-slate-200',
-            'focus:border-weaver-purple focus:ring-2 focus:ring-weaver-purple/20',
+            'focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20',
             error && 'border-red-400 focus:border-red-500 focus:ring-red-500/20',
             'disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400'
           )}

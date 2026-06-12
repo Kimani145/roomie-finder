@@ -43,7 +43,7 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
       <div className="relative h-2 w-full rounded-full bg-slate-700/60">
         {/* Candidate range — dimmer background */}
         <div
-          className="absolute h-full rounded-full bg-weaver-purple/25"
+          className="absolute h-full rounded-full bg-brand-600/25"
           style={{
             left: `${toPercent(candidateMin)}%`,
             width: `${toPercent(candidateMax) - toPercent(candidateMin)}%`,
@@ -53,7 +53,7 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
         {/* Overlap zone — bright */}
         {hasOverlap && (
           <div
-            className="absolute h-full rounded-full bg-emerald-400"
+            className="absolute h-full rounded-full bg-accent-500"
             style={{
               left: `${toPercent(overlapStart)}%`,
               width: `${toPercent(overlapEnd) - toPercent(overlapStart)}%`,
@@ -65,11 +65,11 @@ export const BudgetBar: React.FC<BudgetBarProps> = ({
       {/* Legend */}
       <div className="flex items-center gap-3 text-[10px] text-slate-500">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-1.5 w-3 rounded-full bg-emerald-400" />
+          <span className="inline-block h-1.5 w-3 rounded-full bg-accent-500" />
           Overlap
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-1.5 w-3 rounded-full bg-weaver-purple/40" />
+          <span className="inline-block h-1.5 w-3 rounded-full bg-brand-600/40" />
           Their range
         </span>
       </div>

@@ -48,7 +48,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
     <Link
       to={`/profile/${profile.uid}`}
       onClick={(event) => onPrimaryAction?.(profile.uid, event)}
-      className="group block overflow-hidden rounded-nest border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-card-thatch/40 backdrop-blur-xl shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl focus-visible:ring-2 focus-visible:ring-weaver-purple focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+      className="group block overflow-hidden rounded-nest border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-card-thatch/40 backdrop-blur-xl shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
     >
       <div className="relative shrink-0">
         {heroPhoto ? (

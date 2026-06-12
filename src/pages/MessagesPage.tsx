@@ -569,33 +569,29 @@ const MessagesPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-      <h1 className="text-2xl font-syne font-bold text-slate-900 dark:text-slate-50 mb-6">
-        Messages
-      </h1>
-
+    <div className="flex w-full h-[calc(100vh-64px)] overflow-hidden bg-[#F8FAFC] dark:bg-[#0B1220]">
       {error && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-700 dark:text-amber-300 mb-6">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 rounded-xl border border-amber-500/30 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-700 dark:text-amber-300">
           {error}
         </div>
       )}
 
       {!isLoading && inboxThreads.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20">
+        <div className="flex flex-col items-center justify-center w-full">
           <MessageSquare className="w-16 h-16 text-slate-300 dark:text-slate-600 mb-4" />
           <p className="text-slate-600 dark:text-slate-400 text-center max-w-md">
             You haven&apos;t started any conversations yet. Message one of your matches to begin.
           </p>
           <button
             onClick={() => navigate('/matches')}
-            className="mt-6 bg-weaver-purple hover:bg-weaver-purple text-white px-6 py-3 rounded-xl font-medium"
+            className="mt-6 bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-xl font-medium"
           >
             View Matches
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <section className={`md:col-span-1 rounded-2xl border border-slate-200 bg-white overflow-hidden dark:border-slate-700/50 dark:bg-slate-900 ${selectedChatId && !isDesktopLayout ? 'hidden' : 'block'}`}>
+        <>
+          <section className={`w-full md:w-80 lg:w-96 h-full flex flex-col border-r border-[#E2E8F0] dark:border-[#334155] bg-[#FFFFFF] dark:bg-[#111827] shrink-0 ${selectedChatId && !isDesktopLayout ? 'hidden' : 'block'}`}>
             {isLoading ? (
               <div>
                 {[0, 1, 2].map((row) => (
@@ -613,7 +609,7 @@ const MessagesPage: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="max-h-[70dvh] overflow-y-auto">
+              <div className="flex-1 overflow-y-auto">
                 {inboxThreads.map((thread) => {
                   const isUnread = currentUser && thread.unreadBy?.includes(currentUser.uid)
                   const isSelected = isDesktopLayout && selectedChatId === thread.chatId
@@ -624,9 +620,9 @@ const MessagesPage: React.FC = () => {
                       onClick={() => handleThreadClick(thread.chatId)}
                       className={`flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-700/50 transition-colors cursor-pointer ${
                         isSelected
-                          ? 'bg-slate-100 dark:bg-slate-800 border-l-4 border-l-weaver-purple'
+                          ? 'bg-slate-100 dark:bg-slate-800 border-l-4 border-l-brand-600'
                           : isUnread
-                            ? 'bg-blue-50/80 dark:bg-blue-900/15 border-l-4 border-l-weaver-purple hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                            ? 'bg-blue-50/80 dark:bg-blue-900/15 border-l-4 border-l-brand-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
                             : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                       }`}
                     >
@@ -639,15 +635,15 @@ const MessagesPage: React.FC = () => {
                           <img
                             src={thread.otherUser.photoURL}
                             alt={thread.otherUser.displayName}
-                            className={`w-14 h-14 rounded-full object-cover ${isUnread ? 'ring-2 ring-weaver-purple' : ''}`}
+                            className={`w-14 h-14 rounded-full object-cover ${isUnread ? 'ring-2 ring-brand-600' : ''}`}
                           />
                         ) : (
-                          <div className={`w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 flex items-center justify-center text-slate-700 dark:text-slate-200 font-syne font-bold text-lg ${isUnread ? 'ring-2 ring-weaver-purple' : ''}`}>
+                          <div className={`w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 flex items-center justify-center text-slate-700 dark:text-slate-200 font-syne font-bold text-lg ${isUnread ? 'ring-2 ring-brand-600' : ''}`}>
                             {thread.otherUser?.displayName?.charAt(0)?.toUpperCase() || '?'}
                           </div>
                         )}
                         {isUnread && (
-                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-weaver-purple rounded-full border-2 border-white dark:border-slate-900"></div>
+                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-brand-600 rounded-full border-2 border-white dark:border-slate-900"></div>
                         )}
                       </Link>
                       <div className="flex-1 min-w-0 space-y-2">
@@ -695,30 +691,32 @@ const MessagesPage: React.FC = () => {
             )}
           </section>
 
-          <section className={`md:flex col-span-1 md:col-span-2 rounded-2xl border border-slate-200 bg-white dark:border-slate-700/50 dark:bg-slate-900 overflow-hidden flex-col min-h-[70dvh] shadow-lg shadow-black/20 ${!selectedChatId && !isDesktopLayout ? 'hidden' : 'flex'}`}>
+          <section className={`flex-1 flex-col h-full bg-[#F8FAFC] dark:bg-[#0B1220] ${!selectedChatId && !isDesktopLayout ? 'hidden' : 'flex'}`}>
             {!selectedThread ? (
               <div className="flex-1 flex items-center justify-center text-slate-500 dark:text-slate-400">
                 Select a thread to view messages.
               </div>
             ) : (
               <>
-                <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800 flex items-center gap-3">
-                  {!isDesktopLayout && (
-                    <button onClick={handleBackToInbox} className="p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                    </button>
-                  )}
-                  <div>
-                    <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                    {selectedThread.otherUser?.displayName ?? 'Unknown'}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {selectedThread.otherUser?.role ?? 'Member'}
-                  </p>
+                <div className="flex shrink-0 items-center justify-between px-6 py-4 border-b border-[#E2E8F0] dark:border-[#334155] bg-[#FFFFFF] dark:bg-[#111827]">
+                  <div className="flex items-center gap-3">
+                    {!isDesktopLayout && (
+                      <button onClick={handleBackToInbox} className="p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                      </button>
+                    )}
+                    <div>
+                      <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                        {selectedThread.otherUser?.displayName ?? 'Unknown'}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {selectedThread.otherUser?.role ?? 'Member'}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-950">
+                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4">
                   {threadMessages.length === 0 ? (
                     <p className="text-sm text-slate-500 dark:text-slate-400 text-center mt-12">
                       No messages yet. Start the conversation.
@@ -748,7 +746,7 @@ const MessagesPage: React.FC = () => {
                             <div
                               className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${
                                 isMine
-                                  ? `bg-weaver-purple text-white ${isPending ? 'opacity-70' : ''} ${isFailed ? 'opacity-60 border border-red-400' : ''}`
+                                  ? `bg-brand-600 text-white ${isPending ? 'opacity-70' : ''} ${isFailed ? 'opacity-60 border border-red-400' : ''}`
                                   : `bg-slate-200 text-slate-900 dark:bg-slate-800 dark:text-slate-100 border border-slate-700/50 ${isPending ? 'opacity-70' : ''}`
                               }`}
                             >
@@ -791,7 +789,7 @@ const MessagesPage: React.FC = () => {
                   <div ref={messagesEndRef} />
                 </div>
 
-                <div className="p-4 border-t border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 relative">
+                <div className="shrink-0 p-4 bg-[#FFFFFF] dark:bg-[#111827] border-t border-[#E2E8F0] dark:border-[#334155] relative">
                   {showEmojiPicker && (
                     <div className="absolute bottom-20 left-4 z-50 shadow-2xl rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
                       <EmojiPicker onEmojiClick={onEmojiClick} theme={'auto' as any} />
@@ -801,7 +799,7 @@ const MessagesPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                      className="p-2 text-slate-500 hover:text-weaver-purple hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                      className="p-2 text-slate-500 hover:text-brand-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
                     >
                       <Smile className="h-5 w-5" />
                     </button>
@@ -816,13 +814,13 @@ const MessagesPage: React.FC = () => {
                         }
                       }}
                       placeholder="Type a message"
-                      className="flex-1 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-weaver-purple"
+                      className="flex-1 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-brand-600"
                     />
                     <button
                       type="button"
                       disabled={!messageText.trim() || isSending}
                       onClick={() => void handleSendMessage()}
-                      className="h-10 w-10 rounded-xl bg-weaver-purple text-white flex items-center justify-center disabled:bg-blue-300"
+                      className="h-10 w-10 rounded-xl bg-brand-600 text-white flex items-center justify-center disabled:bg-blue-300"
                     >
                       <Send className="h-4 w-4" />
                     </button>
@@ -831,7 +829,7 @@ const MessagesPage: React.FC = () => {
               </>
             )}
           </section>
-        </div>
+        </>
       )}
     </div>
   )

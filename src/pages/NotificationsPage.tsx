@@ -64,7 +64,7 @@ const NotificationsPage: React.FC = () => {
           <p className="text-slate-600 dark:text-slate-300">No notifications yet.</p>
           <Link
             to="/discover"
-            className="inline-flex mt-4 rounded-xl bg-weaver-purple text-white px-4 py-2 text-sm font-semibold hover:bg-weaver-purple"
+            className="inline-flex mt-4 rounded-xl bg-brand-600 text-white px-4 py-2 text-sm font-semibold hover:bg-brand-600"
           >
             Back to Discover
           </Link>

@@ -266,7 +266,7 @@ const AdminDashboardPage: React.FC = () => {
             <div className="flex-1 overflow-y-auto">
               {recentListings.map(listing => (
                 <div key={listing.id} className="flex items-start gap-3 p-3 border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="p-1.5 bg-weaver-purple/10 text-weaver-purple rounded-md shrink-0">
+                  <div className="p-1.5 bg-brand-600/10 text-brand-600 rounded-md shrink-0">
                     <Home className="w-4 h-4" />
                   </div>
                   <div>

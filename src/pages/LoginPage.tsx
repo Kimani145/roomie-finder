@@ -45,8 +45,8 @@ const LoginPage: React.FC = () => {
       <div className="card-surface card-surface-wine max-w-md w-full mx-auto rounded-2xl p-8">
         {/* Brand Header */}
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-weaver-purple/10 dark:bg-weaver-orange/10">
-            <LogIn className="h-7 w-7 text-weaver-purple dark:text-weaver-orange" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600/10 dark:bg-accent-dark/10">
+            <LogIn className="h-7 w-7 text-brand-600 dark:text-accent-dark" />
           </div>
           <h1 className="font-syne text-2xl font-bold text-slate-900 dark:text-slate-50 mb-2">
             Welcome back
@@ -86,7 +86,7 @@ const LoginPage: React.FC = () => {
                 placeholder="joseph@students.tukenya.ac.ke"
                 required
                 autoComplete="email"
-                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-nest pl-11 pr-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-weaver-purple focus:ring-1 focus:ring-weaver-purple outline-none transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-nest pl-11 pr-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 outline-none transition-all"
               />
               <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400 dark:text-slate-500" />
             </div>
@@ -116,7 +116,7 @@ const LoginPage: React.FC = () => {
                 placeholder="Enter your password"
                 required
                 autoComplete="current-password"
-                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-nest pl-11 pr-10 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-weaver-purple focus:ring-1 focus:ring-weaver-purple outline-none transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-nest pl-11 pr-10 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 outline-none transition-all"
               />
               <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400 dark:text-slate-500" />
               <button
@@ -130,7 +130,7 @@ const LoginPage: React.FC = () => {
               </button>
             </div>
             <div className="flex justify-end mt-2">
-              <Link to="/forgot-password" className="text-sm font-medium text-weaver-purple hover:text-nest-accent dark:hover:text-nest-accent transition-colors">
+              <Link to="/forgot-password" className="text-sm font-medium text-brand-600 hover:text-accent-dark dark:hover:text-accent-dark transition-colors">
                 Forgot your password?
               </Link>
             </div>
@@ -140,7 +140,7 @@ const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-weaver-purple to-weaver-orange hover:opacity-90 disabled:bg-none disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-nest shadow-lg shadow-weaver-purple/25 transition-all mt-6 active:scale-[0.98]"
+            className="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-none disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-nest shadow-lg shadow-brand-600/25 transition-all mt-6 active:scale-[0.98]"
           >
             {isLoading ? 'Weaving your session…' : 'Sign In'}
           </button>
@@ -151,7 +151,7 @@ const LoginPage: React.FC = () => {
           Don&apos;t have an account?{' '}
           <Link
             to="/signup"
-            className="text-weaver-purple dark:text-nest-accent font-bold hover:underline"
+            className="text-brand-600 dark:text-accent-dark font-bold hover:underline"
           >
             Sign Up
           </Link>

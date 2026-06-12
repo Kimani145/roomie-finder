@@ -199,7 +199,7 @@ const ListingWizardPage: React.FC = () => {
     <div className="min-h-full bg-transparent pb-8">
       <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800">
         <div
-          className="h-1.5 bg-weaver-purple transition-all duration-300"
+          className="h-1.5 bg-brand-600 transition-all duration-300"
           style={{ width: `${(step / 4) * 100}%` }}
         />
       </div>
@@ -310,8 +310,8 @@ const ListingWizardPage: React.FC = () => {
                     className={[
                       'rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors',
                       selected
-                        ? 'border-weaver-purple bg-weaver-purple/10 text-weaver-purple dark:text-weaver-purple'
-                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-weaver-purple/50',
+                        ? 'border-brand-600 bg-brand-600/10 text-brand-600 dark:text-brand-600'
+                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-brand-600/50',
                     ].join(' ')}
                   >
                     {amenity}
@@ -330,7 +330,7 @@ const ListingWizardPage: React.FC = () => {
               Upload 3 to 5 interior photos.
             </p>
 
-            <label className="block rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 px-5 py-10 text-center cursor-pointer hover:border-weaver-purple/50 transition-colors">
+            <label className="block rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 px-5 py-10 text-center cursor-pointer hover:border-brand-600/50 transition-colors">
               <input
                 type="file"
                 accept="image/*"
@@ -373,7 +373,7 @@ const ListingWizardPage: React.FC = () => {
                   type="checkbox"
                   checked={smokingAllowed}
                   onChange={(e) => setSmokingAllowed(e.target.checked)}
-                  className="h-4 w-4 text-weaver-purple focus:ring-weaver-purple"
+                  className="h-4 w-4 text-brand-600 focus:ring-brand-600"
                 />
                 Smoking Allowed
               </label>
@@ -382,7 +382,7 @@ const ListingWizardPage: React.FC = () => {
                   type="checkbox"
                   checked={petsAllowed}
                   onChange={(e) => setPetsAllowed(e.target.checked)}
-                  className="h-4 w-4 text-weaver-purple focus:ring-weaver-purple"
+                  className="h-4 w-4 text-brand-600 focus:ring-brand-600"
                 />
                 Pets Allowed
               </label>
@@ -416,7 +416,7 @@ const ListingWizardPage: React.FC = () => {
               type="button"
               onClick={() => setStep((prev) => Math.max(1, prev - 1))}
               disabled={isSubmitting}
-              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-weaver-purple disabled:opacity-50"
+              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-600 disabled:opacity-50"
             >
               Back
             </button>
@@ -428,7 +428,7 @@ const ListingWizardPage: React.FC = () => {
             type="button"
             onClick={handleNext}
             disabled={isSubmitting || !isCurrentStepValid}
-            className="flex-1 py-3.5 rounded-xl bg-weaver-purple text-white font-bold hover:bg-weaver-purple/90 active:scale-[0.98] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-weaver-purple focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 dark:disabled:text-slate-400 disabled:opacity-100 disabled:cursor-not-allowed"
+            className="flex-1 py-3.5 rounded-xl bg-brand-600 text-white font-bold hover:bg-brand-700 active:scale-[0.98] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 dark:disabled:text-slate-400 disabled:opacity-100 disabled:cursor-not-allowed"
           >
             {isSubmitting
               ? 'Creating...'

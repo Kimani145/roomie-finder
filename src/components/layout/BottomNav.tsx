@@ -55,10 +55,10 @@ export const BottomNav: React.FC = () => {
                 // Physics — doctrine requirement
                 'active:scale-[0.98]',
                 // Focus ring
-                'focus-visible:ring-2 focus-visible:ring-weaver-purple focus-visible:ring-offset-2',
-                // Active state — Weaver Purple
+                'focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
+                // Active state — Brand Blue
                 isActive
-                  ? 'text-weaver-purple dark:text-weaver-purple'
+                  ? 'text-brand-600 dark:text-brand-400'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 dark:hover:bg-slate-700/50',
               ].join(' ')
             }
@@ -74,12 +74,12 @@ export const BottomNav: React.FC = () => {
                     aria-hidden="true"
                   />
                   {path === '/messages' && unreadMessages > 0 && (
-                    <span className="absolute -top-1 -right-2 min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+                    <span className="absolute -top-1 -right-2 min-w-4 h-4 px-1 rounded-full bg-danger-500 text-white text-[9px] font-bold flex items-center justify-center">
                       {unreadMessages > 99 ? '99+' : unreadMessages}
                     </span>
                   )}
                   {path === '/matches' && unreadMatches > 0 && (
-                    <span className="absolute -top-1 -right-2 min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+                    <span className="absolute -top-1 -right-2 min-w-4 h-4 px-1 rounded-full bg-danger-500 text-white text-[9px] font-bold flex items-center justify-center">
                       {unreadMatches > 99 ? '99+' : unreadMatches}
                     </span>
                   )}

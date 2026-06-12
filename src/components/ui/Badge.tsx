@@ -35,13 +35,13 @@ const CheckIcon: React.FC = () => (
 
 // ─── Variant map ───────────────────────────────────────────────────────────────
 const variantStyles: Record<BadgeVariant, string> = {
-  // Trust — emerald. Used for verified student status.
+  // Trust — blue. Used for verified student status.
   verified:
-    'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
+    'bg-brand-50 text-brand-700 ring-1 ring-brand-200',
 
   // Compatibility gradient — represents match quality.
   compatibility:
-    'bg-weaver-purple text-white ring-0 shadow-sm shadow-weaver-purple/30',
+    'bg-brand-600 text-white ring-0 shadow-sm shadow-brand-600/30',
 
   // Neutral — for generic labels, zone chips, etc.
   neutral:

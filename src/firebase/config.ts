@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app'
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore'
-import { getAuth } from 'firebase/auth'
-import { getStorage } from 'firebase/storage'
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator } from 'firebase/firestore'
+import { getAuth, connectAuthEmulator } from 'firebase/auth'
+import { getStorage, connectStorageEmulator } from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -19,4 +19,12 @@ export const db = initializeFirestore(app, {
 })
 export const auth = getAuth(app)
 export const storage = getStorage(app)
+
+if (import.meta.env.VITE_USE_EMULATOR === 'true') {
+  console.log('Connecting to Firebase Emulators...')
+  connectFirestoreEmulator(db, 'localhost', 8080)
+  connectAuthEmulator(auth, 'http://localhost:9099')
+  connectStorageEmulator(storage, 'localhost', 9199)
+}
+
 export default app

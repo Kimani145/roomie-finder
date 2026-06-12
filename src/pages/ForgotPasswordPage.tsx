@@ -41,7 +41,7 @@ export const ForgotPasswordPage = () => {
         {/* Brand Header */}
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/30">
-            <KeyRound className="h-7 w-7 text-weaver-purple dark:text-blue-300" />
+            <KeyRound className="h-7 w-7 text-brand-600 dark:text-blue-300" />
           </div>
           <h1 className="font-syne text-2xl font-bold text-slate-900 dark:text-slate-50 mb-2">
             Reset Password
@@ -88,7 +88,7 @@ export const ForgotPasswordPage = () => {
                 placeholder="joseph@students.tukenya.ac.ke"
                 required
                 disabled={isSubmitting}
-                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-11 pr-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-weaver-purple focus:ring-1 focus:ring-weaver-purple outline-none transition-all disabled:opacity-60"
+                className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl pl-11 pr-4 py-3 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 outline-none transition-all disabled:opacity-60"
               />
               <Mail className="absolute left-3.5 top-3.5 h-5 w-5 text-slate-400 dark:text-slate-500" />
             </div>
@@ -97,7 +97,7 @@ export const ForgotPasswordPage = () => {
           <button
             type="submit"
             disabled={isSubmitting || !email.trim()}
-            className="w-full bg-weaver-purple hover:bg-weaver-purple disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 dark:disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-weaver-purple/25 transition-all mt-6 active:scale-[0.98]"
+            className="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 dark:disabled:text-slate-400 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand-600/25 transition-all mt-6 active:scale-[0.98]"
           >
             {isSubmitting ? 'Sending Link...' : 'Send Reset Link'}
           </button>

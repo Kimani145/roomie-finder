@@ -86,7 +86,7 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
         : 'FAIR MATCH - REVIEW PROFILE'
 
   return (
-    <article className="group block overflow-hidden rounded-nest border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-card-wine/40 backdrop-blur-xl shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl">
+    <article className="group block overflow-hidden rounded-2xl border border-[#E2E8F0] dark:border-[#334155] bg-[#FFFFFF] dark:bg-[#111827] text-[#0F172A] dark:text-[#F9FAFB] shadow-lg transition-all flex flex-col hover:-translate-y-1 hover:shadow-2xl">
       <div className="relative p-6 flex flex-col gap-5">
         <div className="absolute top-0 right-0 h-32 w-32 bg-brand-100/30 blur-2xl rounded-full pointer-events-none dark:hidden" />
         <div className="flex items-center justify-between gap-3 relative z-10">
@@ -120,7 +120,7 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
           )}
         </div>
 
-        <div className="relative z-10 rounded-2xl border border-slate-200/50 bg-gradient-to-r from-amber-50 to-amber-100/50 p-4 text-sm font-black uppercase tracking-widest text-amber-700 shadow-[inset_0_2px_4px_rgba(255,255,255,1)] dark:border-amber-500/20 dark:from-amber-500/10 dark:to-amber-500/5 dark:text-amber-300 dark:shadow-none transition-transform hover:scale-[1.01]">
+        <div className="relative z-10 rounded-2xl p-4 text-sm tracking-wider uppercase bg-[#F8FAFC] dark:bg-[#1F2937] border border-[#E2E8F0] dark:border-[#334155] text-[#1E3A8A] dark:text-[#3B82F6] font-bold shadow-sm transition-transform hover:scale-[1.01]">
           {actionCallout}
         </div>
 
@@ -128,12 +128,12 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
           {formatBudget(profile.minBudget, profile.maxBudget)} • {primaryZone}
         </p>
 
-        <div className="card-surface-soft card-surface-thatch relative z-10 space-y-2 rounded-2xl p-4">
+        <div className="relative z-10 space-y-2 rounded-2xl p-4 bg-[#F8FAFC] dark:bg-[#1F2937] border border-[#E2E8F0] dark:border-[#334155] text-[#475569] dark:text-[#94A3B8]">
           {traitSignals.length > 0 ? (
             traitSignals.map((trait) => (
               <div key={trait} className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                <div className="w-1.5 h-1.5 rounded-full bg-accent-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
+                <p className="text-sm font-medium text-[#0F172A] dark:text-[#F9FAFB]">
                   {trait}
                 </p>
               </div>
@@ -141,7 +141,7 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
           ) : (
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              <p className="text-sm font-medium italic">
                 Compatibility signals are still building
               </p>
             </div>
@@ -153,18 +153,18 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
         </p>
       </div>
 
-      <div className="card-surface-soft card-surface-cello mt-auto grid grid-cols-2 gap-4 border-x-0 border-b-0 border-t p-5">
+      <div className="mt-auto p-4 border-t border-[#E2E8F0] dark:border-[#334155] bg-[#FFFFFF] dark:bg-[#111827] flex gap-3">
         <button
           type="button"
           onClick={() => setIsDismissed(true)}
-          className="h-14 rounded-2xl border-2 border-slate-200 bg-white text-slate-700 shadow-sm font-black tracking-widest hover:border-slate-300 hover:bg-slate-50 hover:shadow-md active:scale-95 transition-all duration-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+          className="h-14 flex-1 rounded-xl font-extrabold tracking-widest active:scale-95 bg-transparent border-2 border-[#E2E8F0] dark:border-[#334155] text-[#475569] dark:text-[#94A3B8] hover:bg-[#F8FAFC] dark:hover:bg-[#1F2937] hover:text-[#0F172A] dark:hover:text-[#F9FAFB] transition-all"
         >
           PASS
         </button>
         <Link
           to={`/profile/${profile.uid}`}
           onClick={(event) => onPrimaryAction?.(profile.uid, event)}
-          className="h-14 rounded-nest bg-gradient-to-r from-weaver-purple to-weaver-orange text-white shadow-[0_8px_20px_rgba(102,56,182,0.3)] font-black tracking-widest hover:opacity-90 hover:shadow-[0_12px_24px_rgba(102,56,182,0.4)] active:scale-95 transition-all duration-200 flex items-center justify-center border border-weaver-purple/50"
+          className="h-14 flex-1 rounded-xl font-extrabold tracking-widest active:scale-95 flex items-center justify-center bg-gradient-to-b from-[#3B82F6] to-[#2563EB] text-[#FFFFFF] shadow-md shadow-[#2563EB]/20 hover:from-[#2563EB] hover:to-[#1E3A8A] transition-all border-none"
         >
           LIKE
         </Link>

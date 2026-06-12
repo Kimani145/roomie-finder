@@ -62,8 +62,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 rounded-full border-2 border-weaver-purple/25 border-t-weaver-orange animate-spin" />
-          <span className="text-sm font-medium text-weaver-purple">Weaving your matches...</span>
+          <div className="h-10 w-10 rounded-full border-2 border-brand-600/25 border-t-accent-dark animate-spin" />
+          <span className="text-sm font-medium text-brand-600">Weaving your matches...</span>
         </div>
       </div>
     )

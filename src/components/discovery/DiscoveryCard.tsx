@@ -2,7 +2,6 @@ import React from 'react'
 import type { MatchResult } from '@/types'
 import { getCompatibilityPercentage } from '@/engine/compatibilityEngine'
 import { formatBudget } from '@/utils/formatters'
-import { Button } from '@/components/ui/Button'
 
 interface DiscoveryCardProps {
   match: MatchResult
@@ -37,7 +36,7 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match, onPrimaryAc
     .slice(0, 3)
 
   return (
-    <article className="group block overflow-hidden rounded-nest border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-card-cello/40 backdrop-blur-xl shadow-lg transition-all hover:-translate-y-1 hover:shadow-2xl">
+    <article className="group block overflow-hidden rounded-2xl border border-[#E2E8F0] dark:border-[#334155] bg-[#FFFFFF] dark:bg-[#111827] text-[#0F172A] dark:text-[#F9FAFB] shadow-lg transition-all flex flex-col">
       {/* Photo Area */}
       <div className="relative shrink-0">
         <div className="h-56 sm:h-64 w-full bg-slate-200 dark:bg-slate-600 shrink-0 relative overflow-hidden">
@@ -55,27 +54,21 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match, onPrimaryAc
         </div>
 
         {/* 1. Massive Match Badge */}
-        <div className="absolute top-4 right-4 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400 text-sm font-extrabold px-3 py-1.5 rounded-full shadow-md tracking-widest border border-emerald-200 dark:border-emerald-500/30 backdrop-blur-md">
+        <div className="absolute top-4 right-4 bg-accent-50 text-accent-700 dark:bg-accent-500/20 dark:text-accent-dark text-sm font-extrabold px-3 py-1.5 rounded-full shadow-md tracking-widest border border-accent-200 dark:border-accent-500/30 backdrop-blur-md">
           [ {compatibilityPct}% MATCH ]
         </div>
         
         {/* Budget overlay */}
-        <div className="absolute bottom-4 left-4 rounded-full bg-white/95 dark:bg-card-thatch/35 border border-slate-200 dark:border-white/20 px-4 py-1.5 text-xs font-bold text-slate-900 dark:text-white shadow-sm backdrop-blur-sm">
+        <div className="absolute bottom-4 left-4 rounded-full bg-white/95 dark:bg-surface-dark-elev/80 border border-slate-200 dark:border-white/20 px-4 py-1.5 text-xs font-bold text-slate-900 dark:text-white shadow-sm backdrop-blur-sm">
           {formatBudget(profile.minBudget, profile.maxBudget)}
         </div>
       </div>
 
       <div className="p-6 flex-1 flex flex-col gap-4">
         {/* 2. The Conclusion */}
-        {isPerfectFit ? (
-          <h4 className="text-sm tracking-wider uppercase font-extrabold text-weaver-purple dark:text-weaver-orange">
-            Perfect Fit For You
-          </h4>
-        ) : (
-          <h4 className="text-sm tracking-wider uppercase font-extrabold text-slate-500 dark:text-slate-400">
-            Good Potential Match
-          </h4>
-        )}
+        <div className="rounded-xl p-3 bg-[#F8FAFC] dark:bg-[#1F2937] border border-[#E2E8F0] dark:border-[#334155] text-[#1E3A8A] dark:text-[#3B82F6] font-bold text-sm tracking-wider uppercase">
+          {isPerfectFit ? 'Perfect Fit For You' : 'Good Potential Match'}
+        </div>
 
         {/* 3. The Identity */}
         <div>
@@ -88,18 +81,18 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match, onPrimaryAc
         </div>
 
         {/* 4. The Traits */}
-        <div className="flex-1 mt-2">
+        <div className="flex-1 mt-2 bg-[#F8FAFC] dark:bg-[#1F2937] border border-[#E2E8F0] dark:border-[#334155] rounded-xl p-4">
           {lifestyleTags.length > 0 ? (
             <ul className="space-y-1.5">
               {lifestyleTags.map((trait) => (
-                <li key={trait} className="text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/50" />
-                  {trait}
+                <li key={trait} className="text-sm font-medium text-[#475569] dark:text-[#94A3B8] flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-500/50" />
+                  <span className="text-[#0F172A] dark:text-[#F9FAFB]">{trait}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400 italic">
+            <p className="text-sm text-[#475569] dark:text-[#94A3B8] italic">
               Still learning overlap preferences...
             </p>
           )}
@@ -107,19 +100,18 @@ export const DiscoveryCard: React.FC<DiscoveryCardProps> = ({ match, onPrimaryAc
       </div>
 
       {/* 5. Action Bar */}
-      <div className="card-surface-soft card-surface-cello mt-auto grid grid-cols-2 gap-4 border-x-0 border-b-0 border-t p-5">
+      <div className="mt-auto p-4 border-t border-[#E2E8F0] dark:border-[#334155] bg-[#FFFFFF] dark:bg-[#111827] flex gap-3">
         <button
-          className="h-12 w-full rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-transparent text-slate-700 dark:text-slate-300 font-extrabold tracking-widest hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 transition-all shadow-sm"
+          className="h-12 flex-1 rounded-xl font-extrabold tracking-widest active:scale-95 bg-transparent border-2 border-[#E2E8F0] dark:border-[#334155] text-[#475569] dark:text-[#94A3B8] hover:bg-[#F8FAFC] dark:hover:bg-[#1F2937] hover:text-[#0F172A] dark:hover:text-[#F9FAFB] transition-all"
         >
           PASS
         </button>
-        <Button
-          variant="primary"
-          className="h-12 w-full rounded-xl font-extrabold tracking-widest rounded-nest"
+        <button
+          className="h-12 flex-1 rounded-xl font-extrabold tracking-widest active:scale-95 bg-gradient-to-b from-[#3B82F6] to-[#2563EB] text-[#FFFFFF] shadow-md shadow-[#2563EB]/20 hover:from-[#2563EB] hover:to-[#1E3A8A] transition-all border-none"
           onClick={(e) => onPrimaryAction?.(profile.uid, e)}
         >
           LIKE
-        </Button>
+        </button>
       </div>
     </article>
   )

@@ -307,11 +307,11 @@ export const OnboardingWizard: React.FC = () => {
               {ROLE_OPTIONS.map((option) => {
                 const selected = role === option.role
 
-                let themeClassPattern = 'border-weaver-purple bg-weaver-purple/10 dark:bg-weaver-purple/20 text-weaver-purple dark:text-weaver-purple'
+                let themeClassPattern = 'border-brand-600 bg-brand-600/10 dark:bg-brand-600/20 text-brand-600 dark:text-brand-600'
                 if (option.role === 'HOST') {
-                  themeClassPattern = 'border-card-dingley bg-card-dingley/20 dark:bg-card-dingley/20 text-card-dingley dark:text-card-dingley'
+                  themeClassPattern = 'border-accent-600 bg-accent-600/20 dark:bg-accent-600/20 text-accent-600 dark:text-accent-600'
                 } else if (option.role === 'SEEKER') {
-                  themeClassPattern = 'border-card-wine bg-card-wine/20 dark:bg-card-wine/20 text-card-wine dark:text-card-wine'
+                  themeClassPattern = 'border-premium-500 bg-premium-500/20 dark:bg-premium-500/20 text-premium-500 dark:text-premium-500'
                 }
 
                 return (
@@ -507,10 +507,10 @@ export const OnboardingWizard: React.FC = () => {
                         className={[
                           'rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors text-left',
                           selected
-                            ? 'border-weaver-purple bg-blue-50 dark:bg-blue-900/30 text-weaver-purple/90 dark:text-blue-200'
+                            ? 'border-brand-600 bg-blue-50 dark:bg-blue-900/30 text-brand-600/90 dark:text-blue-200'
                             : zones.length === 3
                             ? 'border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-300 dark:text-slate-500 cursor-not-allowed'
-                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-weaver-purple/50',
+                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-brand-600/50',
                         ].join(' ')}
                         disabled={!selected && zones.length === 3}
                       >
@@ -579,7 +579,7 @@ export const OnboardingWizard: React.FC = () => {
                       className={[
                         'flex-1 rounded-xl border px-4 py-3 text-sm font-medium cursor-pointer transition-colors',
                         sleepSchedule === option
-                          ? 'border-weaver-purple bg-blue-50 dark:bg-blue-900/30 text-weaver-purple/90 dark:text-blue-200'
+                          ? 'border-brand-600 bg-blue-50 dark:bg-blue-900/30 text-brand-600/90 dark:text-blue-200'
                           : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200',
                       ].join(' ')}
                     >
@@ -615,7 +615,7 @@ export const OnboardingWizard: React.FC = () => {
                       className={[
                         'flex-1 rounded-xl border px-4 py-3 text-sm font-medium cursor-pointer transition-colors',
                         cleanliness === option
-                          ? 'border-weaver-purple bg-blue-50 dark:bg-blue-900/30 text-weaver-purple/90 dark:text-blue-200'
+                          ? 'border-brand-600 bg-blue-50 dark:bg-blue-900/30 text-brand-600/90 dark:text-blue-200'
                           : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200',
                       ].join(' ')}
                     >
@@ -651,7 +651,7 @@ export const OnboardingWizard: React.FC = () => {
                       className={[
                         'flex-1 rounded-xl border px-4 py-3 text-sm font-medium cursor-pointer transition-colors',
                         noiseTolerance === option
-                          ? 'border-weaver-purple bg-blue-50 dark:bg-blue-900/30 text-weaver-purple/90 dark:text-blue-200'
+                          ? 'border-brand-600 bg-blue-50 dark:bg-blue-900/30 text-brand-600/90 dark:text-blue-200'
                           : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200',
                       ].join(' ')}
                     >
@@ -734,7 +734,7 @@ export const OnboardingWizard: React.FC = () => {
             <button
               onClick={handleBack}
               disabled={isSaving}
-              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-weaver-purple disabled:opacity-50"
+              className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-600 disabled:opacity-50"
             >
               Back
             </button>
@@ -744,7 +744,7 @@ export const OnboardingWizard: React.FC = () => {
           <button
             onClick={handleNext}
             disabled={isNextDisabled}
-            className="flex-1 py-3.5 rounded-xl bg-weaver-purple text-white font-bold shadow-lg shadow-weaver-purple/25 hover:bg-weaver-purple/90 active:scale-[0.98] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-weaver-purple focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 dark:disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
+            className="flex-1 py-3.5 rounded-xl bg-brand-600 text-white font-bold shadow-lg shadow-brand-600/25 hover:bg-brand-700 active:scale-[0.98] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:text-slate-500 dark:disabled:text-slate-400 disabled:shadow-none disabled:cursor-not-allowed"
           >
             {isSaving
               ? 'Saving…'

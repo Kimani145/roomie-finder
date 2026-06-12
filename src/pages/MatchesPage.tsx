@@ -112,7 +112,7 @@ const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
       </div>
       <button
         onClick={handleMessageClick}
-        className="bg-weaver-purple text-white font-semibold py-2 px-4 rounded-xl hover:bg-weaver-purple transition-colors flex items-center space-x-2"
+        className="bg-brand-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-brand-600 transition-colors flex items-center space-x-2"
       >
         <MessageSquare className="w-4 h-4" />
         <span>Message</span>
@@ -162,7 +162,7 @@ const MatchesPage: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/discover')}
-            className="mt-2 inline-flex items-center justify-center rounded-xl bg-weaver-purple px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-weaver-purple"
+            className="mt-2 inline-flex items-center justify-center rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-600"
           >
             Explore Discovery
           </button>

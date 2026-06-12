@@ -37,7 +37,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             </h2>
             <button
               onClick={onClose}
-              className="rounded-lg p-1 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              className="rounded-lg p-1 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
@@ -53,7 +53,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
           {onApply && (
             <button
               onClick={onApply}
-              className="w-full bg-weaver-purple hover:bg-weaver-purple text-white font-semibold rounded-lg py-3 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
+              className="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-lg py-3 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
             >
               Apply Filter
             </button>

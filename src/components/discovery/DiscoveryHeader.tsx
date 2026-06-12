@@ -34,7 +34,7 @@ export const DiscoveryHeader: React.FC<DiscoveryHeaderProps> = ({
         <div className="flex items-center gap-3">
           <Link
             to="/profile"
-            className="relative flex-shrink-0 overflow-hidden rounded-full ring-2 ring-slate-600 transition-all hover:ring-nest-blue"
+            className="relative flex-shrink-0 overflow-hidden rounded-full ring-2 ring-slate-600 transition-all hover:ring-brand-500"
             style={{ width: 38, height: 38 }}
             aria-label="My profile"
           >
@@ -45,7 +45,7 @@ export const DiscoveryHeader: React.FC<DiscoveryHeaderProps> = ({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-nest-blue text-xs font-bold text-white">
+              <div className="flex h-full w-full items-center justify-center bg-brand-600 text-xs font-bold text-white">
                 {currentUser ? getInitials(currentUser.displayName) : '?'}
               </div>
             )}
@@ -57,7 +57,7 @@ export const DiscoveryHeader: React.FC<DiscoveryHeaderProps> = ({
             </span>
             <span className="flex items-center gap-1 text-sm font-semibold text-slate-200">
               <svg
-                className="h-3.5 w-3.5 text-weaver-purple dark:text-nest-accent"
+                className="h-3.5 w-3.5 text-brand-600 dark:text-accent-dark"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 aria-hidden="true"
@@ -75,8 +75,8 @@ export const DiscoveryHeader: React.FC<DiscoveryHeaderProps> = ({
 
         {/* ── Right: Wordmark + filter toggle ─────────────────────────── */}
         <div className="flex items-center gap-3">
-          <span className="hidden text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-weaver-verte to-weaver-purple sm:block">
-            Colony<span className="text-weaver-purple">.</span>
+          <span className="hidden text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-accent-500 sm:block">
+            Colony<span className="text-brand-600">.</span>
           </span>
 
           <button

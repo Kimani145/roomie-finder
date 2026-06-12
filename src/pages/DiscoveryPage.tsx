@@ -154,7 +154,7 @@ const DiscoveryPage: React.FC = () => {
 
   return (
     <div className="min-h-full bg-transparent">
-      <div className="border-b border-slate-200/80 bg-nest-light px-4 py-4 shadow-sm dark:border-white/10 dark:bg-weaver-dark sm:px-6">
+      <div className="border-b border-[#E2E8F0] bg-[#FFFFFF] px-4 py-4 shadow-sm dark:border-[#334155] dark:bg-[#111827] sm:px-6">
         <div className="max-w-6xl mx-auto flex flex-col gap-4 relative">
           {/* 1. The Toggle */}
           <div className="flex justify-center shrink-0">
@@ -192,14 +192,14 @@ const DiscoveryPage: React.FC = () => {
             className="origin-top"
           >
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <label className="card-surface-soft card-surface-cello flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-slate-700 dark:text-slate-200">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <label className="bg-[#FFFFFF] dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] shadow-sm flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#0F172A] dark:text-[#F9FAFB]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#475569] dark:text-[#94A3B8]">
                   Zone
                 </span>
                 <select
                   value={filterZone}
                   onChange={(e) => handleZoneChange(e.target.value)}
-                  className="ml-auto w-full max-w-[170px] rounded-md border border-slate-200/80 bg-white/70 px-2 py-1 text-sm outline-none focus:border-weaver-purple dark:border-white/10 dark:bg-slate-950/40"
+                  className="ml-auto w-full max-w-[170px] rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-1 text-sm outline-none focus:border-[#3B82F6] dark:border-[#334155] dark:bg-[#1F2937] text-[#0F172A] dark:text-[#F9FAFB]"
                 >
                   <option value="All">All</option>
                   {TUK_ZONES.map((zone) => (
@@ -210,12 +210,12 @@ const DiscoveryPage: React.FC = () => {
                 </select>
               </label>
 
-              <label className="card-surface-soft card-surface-wine rounded-xl px-3 py-2 text-sm text-slate-700 dark:text-slate-200">
+              <label className="bg-[#FFFFFF] dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] shadow-sm rounded-xl px-3 py-2 text-sm text-[#0F172A] dark:text-[#F9FAFB]">
                 <div className="mb-1 flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#475569] dark:text-[#94A3B8]">
                     Max Budget
                   </span>
-                  <span className="text-xs font-semibold text-weaver-purple dark:text-nest-accent">
+                  <span className="text-xs font-semibold text-brand-600 dark:text-accent-dark">
                     KES {filterMaxBudget.toLocaleString()}
                   </span>
                 </div>
@@ -226,7 +226,7 @@ const DiscoveryPage: React.FC = () => {
                   step={500}
                   value={filterMaxBudget}
                   onChange={(e) => handleBudgetChange(Number(e.target.value))}
-                  className="w-full accent-weaver-purple"
+                  className="w-full accent-brand-600"
                 />
               </label>
             </div>
@@ -254,11 +254,11 @@ const DiscoveryPage: React.FC = () => {
       </div>
       
       {typeof document !== 'undefined' && createPortal(
-        <div id="filterPill" className="fixed top-20 left-1/2 -translate-x-1/2 -translate-y-4 opacity-0 pointer-events-none transition-all duration-300 z-[100] bg-white/90 dark:bg-[#0f1325]/90 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_10px_40px_rgba(0,0,0,0.4)] rounded-full">
+        <div id="filterPill" className="fixed top-20 left-1/2 -translate-x-1/2 -translate-y-4 opacity-0 pointer-events-none transition-all duration-300 z-[100] bg-[#FFFFFF]/90 dark:bg-[#111827]/90 backdrop-blur-xl border border-[#E2E8F0] dark:border-[#334155] shadow-sm rounded-full">
           <button
             type="button"
             onClick={handleFilterPillClick}
-            className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-nest-accent dark:hover:text-nest-accent transition-colors"
+            className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-accent-dark dark:hover:text-accent-dark transition-colors"
           >
             <SearchX className="w-4 h-4" />
             <span>Refine Search</span>
@@ -317,7 +317,7 @@ const DiscoveryPage: React.FC = () => {
               {filterZone !== 'All' && (
                 <button
                   onClick={() => handleZoneChange('All')}
-                  className="px-6 py-3 bg-gradient-to-r from-weaver-purple to-weaver-orange text-white font-bold rounded-nest transition-all hover:opacity-90 shadow-lg shadow-weaver-purple/20 active:scale-95"
+                  className="px-6 py-3 bg-brand-600 text-white font-bold rounded-nest transition-all hover:opacity-90 shadow-lg shadow-brand-600/20 active:scale-95"
                 >
                   Search All Zones
                 </button>
@@ -326,7 +326,7 @@ const DiscoveryPage: React.FC = () => {
                 onClick={() =>
                   handleBudgetChange(Math.min(filterMaxBudget + 3000, 50000))
                 }
-                className="px-6 py-3 border-2 border-slate-200 dark:border-weaver-purple/30 text-slate-700 dark:text-nest-light font-bold rounded-nest hover:bg-weaver-purple/10 dark:hover:bg-weaver-dark transition-all active:scale-95"
+                className="px-6 py-3 border-2 border-slate-200 dark:border-brand-600/30 text-slate-700 dark:text-brand-50 font-bold rounded-nest hover:bg-brand-600/10 dark:hover:bg-surface-dark-bg transition-all active:scale-95"
               >
                 Expand Budget (+KES 3,000)
               </button>
@@ -360,8 +360,8 @@ const DiscoveryPage: React.FC = () => {
 
             {/* Right Column: Context Intelligence Panel (Desktop Only) */}
             <div className="hidden lg:block space-y-4">
-              <div className="card-surface card-surface-thatch sticky top-36 rounded-nest p-6">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-50 mb-4 drop-shadow-sm">System Intelligence</h3>
+              <div className="bg-[#FFFFFF] dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] shadow-md sticky top-36 rounded-2xl p-6">
+                <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F9FAFB] mb-4 drop-shadow-sm">System Intelligence</h3>
 
                 {!(candidates?.length > 0 || matches?.length > 0) ? (
                   <div className="flex flex-col items-center justify-center py-6 text-center">
@@ -376,18 +376,18 @@ const DiscoveryPage: React.FC = () => {
                 ) : (
                   <ul className="space-y-4 text-sm font-medium">
                     {candidates?.length > 0 && (
-                      <li className="flex items-start gap-3 text-slate-700 dark:text-slate-300">
-                        <span className="text-weaver-orange mt-0.5">✦</span> 
+                      <li className="flex items-start gap-3 text-[#475569] dark:text-[#94A3B8]">
+                        <span className="text-accent-dark mt-0.5">✦</span> 
                         <div>
-                          Analyzed <span className="font-bold text-weaver-purple dark:text-white">{candidates.length}</span> profiles based on your lifestyle parameters.
+                          Analyzed <span className="font-bold text-brand-600 dark:text-white">{candidates.length}</span> profiles based on your lifestyle parameters.
                         </div>
                       </li>
                     )}
                     {matches?.length > 0 && (
-                      <li className="flex items-start gap-3 text-slate-700 dark:text-slate-300">
-                        <span className="text-weaver-verte mt-0.5">✦</span> 
+                      <li className="flex items-start gap-3 text-[#475569] dark:text-[#94A3B8]">
+                        <span className="text-accent-500 mt-0.5">✦</span> 
                         <div>
-                          You have <span className="font-bold text-weaver-verte">{matches.length}</span> active connections in the colony.
+                          You have <span className="font-bold text-accent-500">{matches.length}</span> active connections in the colony.
                         </div>
                       </li>
                     )}

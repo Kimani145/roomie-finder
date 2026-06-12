@@ -334,8 +334,8 @@ const EditProfilePage: React.FC = () => {
                     className={[
                       'rounded-xl border px-4 py-3 text-left transition-colors',
                       isSelected
-                        ? 'border-weaver-purple bg-weaver-purple/10 text-weaver-purple dark:text-weaver-purple'
-                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-weaver-purple/50',
+                        ? 'border-brand-600 bg-brand-600/10 text-brand-600 dark:text-brand-600'
+                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-brand-600/50',
                     ].join(' ')}
                   >
                     <div className="text-sm font-semibold">{option.label}</div>
@@ -480,10 +480,10 @@ const EditProfilePage: React.FC = () => {
                     className={[
                       'rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors text-left',
                       selected
-                        ? 'border-weaver-purple bg-weaver-purple/10 text-weaver-purple dark:text-weaver-purple'
+                        ? 'border-brand-600 bg-brand-600/10 text-brand-600 dark:text-brand-600'
                         : selectedZones.length === 3
                         ? 'border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-300 dark:text-slate-500 cursor-not-allowed'
-                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-weaver-purple/50',
+                        : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-brand-600/50',
                     ].join(' ')}
                   >
                     {zone}
@@ -535,7 +535,7 @@ const EditProfilePage: React.FC = () => {
             <button
               type="submit"
               disabled={isSaving || isUploading}
-              className="px-5 py-2.5 rounded-xl bg-weaver-purple text-white text-sm font-semibold hover:bg-weaver-purple/90 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+              className="px-5 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
             >
               {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
               {isUploading ? 'Uploading photo...' : isSaving ? 'Saving...' : 'Save Changes'}

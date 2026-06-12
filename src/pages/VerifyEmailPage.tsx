@@ -107,7 +107,7 @@ const VerifyEmailPage: React.FC = () => {
       <div className="card-surface card-surface-dingley max-w-md w-full rounded-2xl p-8 text-center">
         {/* Icon */}
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/30">
-          <MailCheck className="h-10 w-10 text-weaver-purple dark:text-blue-300" />
+          <MailCheck className="h-10 w-10 text-brand-600 dark:text-blue-300" />
         </div>
 
         {/* Heading */}
@@ -129,7 +129,7 @@ const VerifyEmailPage: React.FC = () => {
               await logout()
               navigate('/signup', { state: { initialEmail: currentEmail } })
             }}
-            className="text-slate-400 hover:text-weaver-purple transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="text-slate-400 hover:text-brand-600 transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
             title="Edit email address"
           >
             <Edit2 className="h-4 w-4" />
@@ -173,7 +173,7 @@ const VerifyEmailPage: React.FC = () => {
         <button
           onClick={handleCheckVerification}
           disabled={checking}
-          className="w-full bg-weaver-purple hover:bg-weaver-purple disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-weaver-purple/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+          className="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-brand-600/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
         >
           {checking ? (
             <>
@@ -190,7 +190,7 @@ const VerifyEmailPage: React.FC = () => {
           <button
             onClick={handleResend}
             disabled={resending}
-            className="w-full text-sm font-semibold text-weaver-purple dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200 disabled:text-slate-400 dark:disabled:text-slate-500 py-2 transition-colors"
+            className="w-full text-sm font-semibold text-brand-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200 disabled:text-slate-400 dark:disabled:text-slate-500 py-2 transition-colors"
           >
             {resending ? 'Resending…' : 'Resend verification email'}
           </button>

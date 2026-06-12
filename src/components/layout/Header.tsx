@@ -33,17 +33,17 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
   if (shouldHide) return null
 
   return (
-    <header className="sticky top-0 z-[100] h-16 shrink-0 bg-white/70 backdrop-blur-xl dark:bg-weaver-dark/95 border-b border-slate-200 dark:border-weaver-dark flex items-center justify-between px-4 sm:px-6 shadow-sm dark:shadow-none transition-all duration-300">
+    <header className="sticky top-0 z-[100] h-16 shrink-0 bg-[#FFFFFF]/70 backdrop-blur-xl dark:bg-[#111827]/95 border-b border-[#E2E8F0] dark:border-[#334155] flex items-center justify-between px-4 sm:px-6 shadow-sm dark:shadow-none transition-all duration-300">
       <div className="flex items-center gap-4">
         <Link
           to="/discover"
-          className="md:hidden flex flex-col outline-none transition-all duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-weaver-purple focus-visible:ring-offset-2 rounded-nest px-2 py-1"
+          className="md:hidden flex flex-col outline-none transition-all duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 rounded-nest px-2 py-1"
         >
           <div className="flex flex-col">
-            <span className="font-extrabold tracking-tight text-weaver-purple dark:text-white text-2xl leading-none drop-shadow-sm">
+            <span className="font-extrabold tracking-tight text-brand-600 dark:text-white text-2xl leading-none drop-shadow-sm">
               Colony
             </span>
-            <span className="text-[10px] font-bold text-weaver-orange uppercase tracking-widest mt-1">
+            <span className="text-[10px] font-bold text-accent-500 dark:text-accent-dark uppercase tracking-widest mt-1">
               Roomie Finder
             </span>
           </div>
@@ -54,10 +54,10 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
             to="/discover"
             className="hidden md:flex flex-col animate-fade-in"
           >
-            <span className="font-extrabold tracking-tight text-weaver-purple dark:text-white text-2xl leading-none drop-shadow-sm">
+            <span className="font-extrabold tracking-tight text-brand-600 dark:text-white text-2xl leading-none drop-shadow-sm">
               Colony
             </span>
-            <span className="text-[10px] font-bold text-weaver-orange uppercase tracking-widest mt-1">
+            <span className="text-[10px] font-bold text-accent-500 dark:text-accent-dark uppercase tracking-widest mt-1">
               Roomie Finder
             </span>
           </Link>
@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
 
         <button
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-weaver-dark transition-colors text-slate-600 dark:text-slate-300"
+          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-surface-dark-elev transition-colors text-slate-600 dark:text-slate-300"
           aria-label="Toggle Dark Mode"
           type="button"
         >
@@ -82,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
               <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
                 {currentUser.displayName}
               </p>
-              <p className="text-xs font-bold text-weaver-purple dark:text-weaver-orange uppercase tracking-wider">
+              <p className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">
                 {currentUser.role}
               </p>
             </div>
@@ -95,10 +95,10 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
                 <img
                   src={currentUser.photoURL}
                   alt={currentUser.displayName}
-                  className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-weaver-dark"
+                  className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-surface-dark-border"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-weaver-purple/10 dark:bg-weaver-dark text-weaver-purple dark:text-weaver-orange flex items-center justify-center text-sm font-bold border border-weaver-purple/20 dark:border-weaver-orange/20">
+                <div className="w-10 h-10 rounded-full bg-brand-50 dark:bg-[#1F2937] text-brand-600 dark:text-brand-400 flex items-center justify-center text-sm font-bold border border-brand-200 dark:border-brand-500/20">
                   {initials}
                 </div>
               )}
@@ -108,13 +108,13 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
           <div className="flex items-center gap-2">
             <Link
               to="/signup"
-              className="hidden sm:inline-flex items-center rounded-nest border border-slate-200 bg-white/50 backdrop-blur-sm shadow-sm dark:shadow-none dark:border-weaver-dark px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50/80 dark:hover:bg-weaver-dark transition-all hover:scale-[1.02]"
+              className="hidden sm:inline-flex items-center rounded-nest border border-slate-200 bg-white/50 backdrop-blur-sm shadow-sm dark:shadow-none dark:border-surface-dark-border px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50/80 dark:hover:bg-surface-dark-elev transition-all hover:scale-[1.02]"
             >
               Create account
             </Link>
             <Link
               to="/login"
-              className="inline-flex items-center rounded-nest bg-gradient-to-r from-weaver-purple to-weaver-orange px-4 py-2 text-sm font-semibold text-white hover:opacity-90 shadow-md shadow-weaver-purple/20 transition-all hover:scale-[1.02]"
+              className="inline-flex items-center rounded-nest bg-gradient-to-r from-brand-600 to-brand-500 px-4 py-2 text-sm font-semibold text-white hover:opacity-90 shadow-md shadow-brand-600/20 transition-all hover:scale-[1.02]"
             >
               Sign in
             </Link>

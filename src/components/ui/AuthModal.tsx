@@ -28,7 +28,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       <div
         role="dialog"
         aria-modal="true"
-        className="card-surface card-surface-wine relative z-10 w-full max-w-md rounded-2xl p-6"
+        className="card-surface card-surface-trust relative z-10 w-full max-w-md rounded-2xl p-6"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -52,7 +52,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <button
             type="button"
             onClick={onEmailClick}
-            className="w-full bg-weaver-purple hover:bg-weaver-purple text-white font-medium py-3 px-4 rounded-xl transition-colors"
+            className="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-3 px-4 rounded-xl transition-colors"
           >
             Continue with Email
           </button>
