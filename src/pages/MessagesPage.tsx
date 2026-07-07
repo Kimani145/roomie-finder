@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState, Suspense } from 'react'
-import { MessageSquare, Send, Smile, AlertCircle } from 'lucide-react'
+import { MessageSquare, Send, Smile, AlertCircle, AlertTriangle } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { ReportModal } from '@/components/ui'
 import type { EmojiClickData } from 'emoji-picker-react'
 
 const EmojiPicker = React.lazy(() => import('emoji-picker-react'))
@@ -72,6 +73,7 @@ const MessagesPage: React.FC = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [otherUserTyping, setOtherUserTyping] = useState(false)
   const [userNearBottom, setUserNearBottom] = useState(true)
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   
@@ -716,6 +718,16 @@ const MessagesPage: React.FC = () => {
                       </p>
                     </div>
                   </div>
+                  {selectedThread.otherUser && (
+                    <button
+                      onClick={() => setIsReportModalOpen(true)}
+                      className="p-2 rounded-xl border border-red-500/20 hover:border-red-500 text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors"
+                      title="Report User"
+                      aria-label="Report User"
+                    >
+                      <AlertTriangle className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
 
                 <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4">
@@ -834,6 +846,16 @@ const MessagesPage: React.FC = () => {
             )}
           </section>
         </>
+      )}
+
+      {selectedThread?.otherUser && (
+        <ReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          reportedId={selectedThread.otherUser.uid}
+          type="chat"
+          reportedName={selectedThread.otherUser.displayName}
+        />
       )}
     </div>
   )

@@ -8,7 +8,9 @@ import {
   Zap,
   Wind,
   Wine,
+  AlertTriangle,
 } from 'lucide-react'
+import { ReportModal } from '@/components/ui'
 import { collection, getDocs, limit, query, where } from 'firebase/firestore'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { formatBudget } from '@/utils/formatters'
@@ -43,6 +45,7 @@ const ProfileDetailPage: React.FC = () => {
   const [hasReverseLike, setHasReverseLike] = useState(false)
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [galleryStartIndex, setGalleryStartIndex] = useState(0)
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -520,7 +523,7 @@ const ProfileDetailPage: React.FC = () => {
               <button
                 onClick={handleMatchClick}
                 disabled={likeSent || isSubmittingLike || isSelfProfile}
-                className="flex-1 py-3 rounded-xl bg-brand-600 text-white font-bold hover:bg-brand-600 transition-colors shadow-sm disabled:bg-blue-300 disabled:cursor-not-allowed"
+                className="flex-[2] py-3 rounded-xl bg-brand-600 text-white font-bold hover:bg-brand-700 transition-colors shadow-sm disabled:bg-blue-300 disabled:cursor-not-allowed"
               >
                 {isSelfProfile
                   ? 'This is you'
@@ -530,6 +533,16 @@ const ProfileDetailPage: React.FC = () => {
                       ? 'Liked'
                       : hasReverseLike ? 'Match' : 'Like Profile'}
               </button>
+              {!isSelfProfile && (
+                <button
+                  onClick={() => setIsReportModalOpen(true)}
+                  className="p-3 rounded-xl border-2 border-red-500/20 hover:border-red-500 text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors"
+                  title="Report User"
+                  aria-label="Report User"
+                >
+                  <AlertTriangle className="w-5 h-5" />
+                </button>
+              )}
             </div>
             {actionError && (
               <p className="mt-3 text-sm text-red-600 dark:text-red-300">{actionError}</p>
@@ -543,6 +556,16 @@ const ProfileDetailPage: React.FC = () => {
           images={hostListing.photos}
           initialIndex={galleryStartIndex}
           onClose={() => setGalleryOpen(false)}
+        />
+      )}
+
+      {profile && (
+        <ReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          reportedId={profile.uid}
+          type="user"
+          reportedName={profile.displayName}
         />
       )}
     </div>

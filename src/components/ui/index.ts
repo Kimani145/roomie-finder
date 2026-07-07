@@ -32,3 +32,4 @@ export type { SkeletonProps } from './Skeleton'
 // ─── Existing components (already in scaffold) ────────────────────────────────
 export { CompatibilityBadge } from './CompatibilityBadge'
 export { BudgetBar } from './BudgetBar'
+export { ReportModal } from './ReportModal'

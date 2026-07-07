@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Home, Flame } from 'lucide-react'
+import { Home, Flame, AlertTriangle } from 'lucide-react'
+import { ReportModal } from '@/components/ui'
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { toast } from 'react-hot-toast'
 import { getListingById } from '@/firebase/listings'
@@ -17,6 +18,7 @@ const ListingDetailPage: React.FC = () => {
   const [listing, setListing] = useState<Listing | null>(null)
   const [loading, setLoading] = useState(true)
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null)
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
 
   const handleMessageOwner = async () => {
     if (!listing || !currentUser) return
@@ -169,12 +171,24 @@ const ListingDetailPage: React.FC = () => {
             <span className="text-sm font-normal text-slate-500">/mo</span>
           </p>
         </div>
-        <button
-          onClick={handleMessageOwner}
-          className="bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-xl transition-colors shadow-sm"
-        >
-          Message Host
-        </button>
+        <div className="flex gap-2">
+          {currentUser && currentUser.uid !== listing.hostId && (
+            <button
+              onClick={() => setIsReportModalOpen(true)}
+              className="p-3 border-2 border-red-500/20 hover:border-red-500 text-red-600 dark:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+              title="Report Listing"
+              aria-label="Report Listing"
+            >
+              <AlertTriangle className="w-5 h-5" />
+            </button>
+          )}
+          <button
+            onClick={handleMessageOwner}
+            className="bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-xl transition-colors shadow-sm"
+          >
+            Message Host
+          </button>
+        </div>
       </div>
 
       {galleryIndex !== null && (
@@ -182,6 +196,16 @@ const ListingDetailPage: React.FC = () => {
           images={listing.photos}
           initialIndex={galleryIndex}
           onClose={() => setGalleryIndex(null)}
+        />
+      )}
+
+      {listing && (
+        <ReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          reportedId={listing.id}
+          type="listing"
+          reportedName={`${listing.housingType} in ${listing.zone}`}
         />
       )}
     </div>

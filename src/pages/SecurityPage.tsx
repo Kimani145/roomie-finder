@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { sendPasswordResetEmail } from 'firebase/auth'
-import { doc, updateDoc } from 'firebase/firestore'
+import { doc, updateDoc, deleteDoc } from 'firebase/firestore'
 import { auth, db } from '@/firebase/config'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/authStore'
@@ -21,10 +22,16 @@ import { toast } from 'react-hot-toast'
 export default function SecurityPage() {
   const { user } = useAuth()
   const { currentUser, setCurrentUser } = useAuthStore()
+  const navigate = useNavigate()
 
   const [toggling2fa, setToggling2fa] = useState(false)
   const [resettingPassword, setResettingPassword] = useState(false)
   const [pwResetSent, setPwResetSent] = useState(false)
+
+  // Account Deletion States
+  const [deletingAccount, setDeletingAccount] = useState(false)
+  const [deleteConfirmation, setDeleteConfirmation] = useState('')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const userEmail = user?.email || ''
   const isEmailVerified = user?.emailVerified ?? false
@@ -83,6 +90,35 @@ export default function SecurityPage() {
       toast.error(err.message || 'Failed to request password reset.')
     } finally {
       setResettingPassword(false)
+    }
+  }
+
+  // Handle Account Deletion
+  const handleDeleteAccount = async () => {
+    if (!user || deleteConfirmation.toLowerCase() !== 'delete my account') {
+      toast.error("Please type 'DELETE MY ACCOUNT' to confirm.")
+      return
+    }
+    setDeletingAccount(true)
+    try {
+      // 1. Delete Firestore profile document
+      await deleteDoc(doc(db, 'profiles', user.uid))
+      // 2. Delete Auth user account
+      await user.delete()
+      
+      toast.success('Your account has been deleted successfully.')
+      // 3. Clear local state and redirect to landing
+      setCurrentUser(null)
+      navigate('/')
+    } catch (err: any) {
+      console.error('Failed to delete account:', err)
+      if (err.code === 'auth/requires-recent-login') {
+        toast.error('For security reasons, you must re-authenticate (log out and log back in) before deleting your account.')
+      } else {
+        toast.error(err.message || 'Failed to delete account.')
+      }
+    } finally {
+      setDeletingAccount(false)
     }
   }
 
@@ -335,6 +371,64 @@ export default function SecurityPage() {
               <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
                 Logged out &bull; 2 hours ago
               </span>
+            </div>
+          </div>
+        </section>
+
+        {/* Danger Zone: Account Deletion */}
+        <section className="bg-red-50 dark:bg-red-950/10 rounded-3xl border border-red-200 dark:border-red-500/20 p-6 shadow-sm">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-2xl flex items-center justify-center shrink-0">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-red-900 dark:text-red-200">
+                Danger Zone: Delete Account
+              </h3>
+              <p className="text-sm text-red-700/80 dark:text-red-400/80 mt-1 max-w-xl">
+                Permanently delete your profile, listings, matches, and chats. This action is irreversible.
+              </p>
+              
+              {!showDeleteModal ? (
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all"
+                >
+                  Delete My Account
+                </button>
+              ) : (
+                <div className="mt-4 p-4 border border-red-200 dark:border-red-500/20 rounded-2xl bg-white dark:bg-slate-900/60 max-w-md">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-3">
+                    To confirm deletion, please type <span className="font-bold text-red-600 dark:text-red-400">DELETE MY ACCOUNT</span> below:
+                  </p>
+                  <input
+                    type="text"
+                    value={deleteConfirmation}
+                    onChange={(e) => setDeleteConfirmation(e.target.value)}
+                    placeholder="DELETE MY ACCOUNT"
+                    className="w-full px-3 py-2 text-sm border border-red-300 dark:border-red-500/30 rounded-xl bg-transparent dark:text-slate-100 mb-3 focus:outline-none focus:ring-1 focus:ring-red-500"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={deletingAccount || deleteConfirmation.toLowerCase() !== 'delete my account'}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all inline-flex items-center gap-1.5"
+                    >
+                      {deletingAccount && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                      Permanently Delete
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowDeleteModal(false)
+                        setDeleteConfirmation('')
+                      }}
+                      className="px-4 py-2 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </section>

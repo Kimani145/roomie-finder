@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { doc, updateDoc } from 'firebase/firestore'
-import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth'
 import type { FirebaseError } from 'firebase/app'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
@@ -67,11 +66,7 @@ const EditProfilePage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
-  const [newPassword, setNewPassword] = useState('')
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [passwordError, setPasswordError] = useState<string | null>(null)
-  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null)
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
+  const [preferredGender, setPreferredGender] = useState<'Male' | 'Female' | 'Any'>('Any')
 
   useEffect(() => {
     if (currentUser) {
@@ -114,6 +109,17 @@ const EditProfilePage: React.FC = () => {
     setMinBudget(profile.minBudget ? String(profile.minBudget) : '')
     setMaxBudget(profile.maxBudget ? String(profile.maxBudget) : '')
     setSelectedZones(profile.zones ?? [])
+    if (profile.dealBreakers) {
+      if (profile.dealBreakers.femaleOnly) {
+        setPreferredGender('Female')
+      } else if (profile.dealBreakers.maleOnly) {
+        setPreferredGender('Male')
+      } else {
+        setPreferredGender('Any')
+      }
+    } else {
+      setPreferredGender('Any')
+    }
   }, [profile])
 
   const handleZoneToggle = (zone: TukZone) => {
@@ -191,6 +197,15 @@ const EditProfilePage: React.FC = () => {
       minBudget: resolvedMinBudget,
       maxBudget: resolvedMaxBudget,
       zones: selectedZones,
+      dealBreakers: {
+        ...(profile?.dealBreakers ?? {
+          noSmokingRequired: false,
+          noAlcoholRequired: false,
+          mustHaveWiFi: false,
+        }),
+        femaleOnly: preferredGender === 'Female',
+        maleOnly: preferredGender === 'Male',
+      },
     }
 
     try {
@@ -232,56 +247,6 @@ const EditProfilePage: React.FC = () => {
     } finally {
       setIsUploading(false)
       setIsSaving(false)
-    }
-  }
-
-  const handlePasswordUpdate = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setPasswordError(null)
-    setPasswordSuccess(null)
-
-    if (!user) {
-      setPasswordError('No authenticated user found.')
-      return
-    }
-
-    if (!currentPassword.trim()) {
-      setPasswordError('Please enter your current password.')
-      return
-    }
-
-    if (!newPassword.trim()) {
-      setPasswordError('Please enter a new password.')
-      return
-    }
-
-    if (!user.email) {
-      setPasswordError('No email found for this account.')
-      return
-    }
-
-    setIsUpdatingPassword(true)
-
-    try {
-      const credential = EmailAuthProvider.credential(user.email, currentPassword.trim())
-      await reauthenticateWithCredential(user, credential)
-      await updatePassword(user, newPassword.trim())
-      setCurrentPassword('')
-      setNewPassword('')
-      setPasswordSuccess('Password updated successfully.')
-    } catch (err) {
-      const firebaseErr = err as FirebaseError
-      if (firebaseErr?.code === 'auth/wrong-password') {
-        setPasswordError('Incorrect current password.')
-      } else if (firebaseErr?.code === 'auth/requires-recent-login') {
-        setPasswordError(
-          'For security reasons, please log out and log back in to change your password.'
-        )
-      } else {
-        setPasswordError('Failed to update password. Please try again.')
-      }
-    } finally {
-      setIsUpdatingPassword(false)
     }
   }
 
@@ -492,7 +457,7 @@ const EditProfilePage: React.FC = () => {
               })}
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="flex flex-col">
                 <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">
                   Min Budget (KES)
@@ -520,6 +485,22 @@ const EditProfilePage: React.FC = () => {
                   disabled={isSaving}
                 />
               </div>
+
+              <div className="flex flex-col">
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                  Roommate Gender Preference
+                </label>
+                <select
+                  value={preferredGender}
+                  onChange={(e) => setPreferredGender(e.target.value as 'Male' | 'Female' | 'Any')}
+                  className={inputClassName}
+                  disabled={isSaving}
+                >
+                  <option value="Any">Any Gender</option>
+                  <option value="Male">Male Only</option>
+                  <option value="Female">Female Only</option>
+                </select>
+              </div>
             </div>
           </section>
 
@@ -543,52 +524,7 @@ const EditProfilePage: React.FC = () => {
           </div>
         </form>
 
-        <section className="card-surface card-surface-cello rounded-2xl p-6">
-          <h2 className="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase mb-4">
-            Security
-          </h2>
-          <div className="card-surface-soft card-surface-wine rounded-xl p-4">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-2">
-              Change Password
-            </h3>
-            <form onSubmit={handlePasswordUpdate} className="space-y-3">
-              <input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Current password"
-                className={inputClassName}
-                disabled={isUpdatingPassword}
-              />
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="New password"
-                className={inputClassName}
-                disabled={isUpdatingPassword}
-              />
-              {passwordError && (
-                <p className="text-xs font-medium text-red-600 dark:text-red-300">
-                  {passwordError}
-                </p>
-              )}
-              {passwordSuccess && (
-                <p className="text-xs font-medium text-emerald-600 dark:text-emerald-300">
-                  {passwordSuccess}
-                </p>
-              )}
-              <button
-                type="submit"
-                disabled={isUpdatingPassword}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-2.5 text-sm font-semibold hover:bg-slate-800 dark:hover:bg-white disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {isUpdatingPassword && <Loader2 className="h-4 w-4 animate-spin" />}
-                {isUpdatingPassword ? 'Updating...' : 'Update Password'}
-              </button>
-            </form>
-          </div>
-        </section>
+
       </div>
     </div>
   )

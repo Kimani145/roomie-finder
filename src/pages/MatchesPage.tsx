@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Users, MessageSquare } from 'lucide-react'
+import { Users, MessageSquare, AlertTriangle } from 'lucide-react'
+import { ReportModal } from '@/components/ui'
 import { useMatches, HydratedMatch } from '@/hooks/useMatches'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getCompatibilityPercentage } from '@/engine/compatibilityEngine'
@@ -41,6 +42,7 @@ const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { otherUser, listing } = match
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const compatibilityPct = getCompatibilityPercentage(match.compatibilityScore)
   const primaryZone = listing?.zone ?? otherUser.zones?.[0] ?? '—'
 
@@ -110,13 +112,31 @@ const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
           </p>
         </div>
       </div>
-      <button
-        onClick={handleMessageClick}
-        className="bg-brand-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-brand-600 transition-colors flex items-center space-x-2"
-      >
-        <MessageSquare className="w-4 h-4" />
-        <span>Message</span>
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setIsReportModalOpen(true)}
+          className="p-2.5 border border-red-500/20 hover:border-red-500 text-red-600 dark:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+          title="Report Match"
+          aria-label="Report Match"
+        >
+          <AlertTriangle className="w-4 h-4" />
+        </button>
+        <button
+          onClick={handleMessageClick}
+          className="bg-brand-600 text-white font-semibold py-2 px-4 rounded-xl hover:bg-brand-700 transition-colors flex items-center space-x-2 whitespace-nowrap"
+        >
+          <MessageSquare className="w-4 h-4" />
+          <span>Message</span>
+        </button>
+
+        <ReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          reportedId={otherUser.uid}
+          type="match"
+          reportedName={otherUser.displayName}
+        />
+      </div>
     </div>
   )
 }
