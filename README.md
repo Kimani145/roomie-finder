@@ -9,6 +9,7 @@ Student roommate matching for TUK students, built around compatibility scoring i
 - Real-time chat with unread tracking (`unreadBy`)
 - Persistent notification history (Firestore-backed)
 - Role-based profiles (`HOST`, `SEEKER`, `FLEX`)
+- Email-Based Two-Step Verification (2FA) (SHA-256 OTPs, 5-minute expiry, rate-limited attempts, 60s cooldown)
 - Listing creation wizard with Cloudinary image uploads
 - Inline avatar upload from Profile page
 - Responsive app shell with collapsible desktop sidebar
@@ -47,6 +48,12 @@ src/
 │   ├── useDiscovery.ts
 │   └── useChat.ts
 ├── pages/
+│   ├── SecurityPage.tsx
+│   └── Verify2faPage.tsx
+├── services/
+│   ├── authService.ts
+│   ├── emailService.ts
+│   └── twoFactorService.ts
 ├── store/
 │   ├── authStore.ts
 │   ├── discoveryStore.ts
@@ -91,6 +98,15 @@ npm run type-check
 ```
 
 ## Architecture Notes
+
+### Two-Step Verification (2FA)
+
+- Generates secure, random 6-digit numeric OTPs.
+- Hashes codes using client-side SHA-256 (SubtleCrypto API) before storage in `/otps` collection.
+- Expiration is set to 5 minutes.
+- Multi-attempt rate-limiting limits users to 5 verification attempts.
+- Cooldown period limits resending codes to once every 60 seconds to prevent email spam.
+- Triggers structured HTML notifications to the developer console and toast popups in development mode.
 
 ### Discovery + Compatibility
 
@@ -142,10 +158,13 @@ The app includes:
 - `/listing/:listingId`
 - `/profile`
 - `/edit-profile`
+- `/security`
+- `/verify-2fa`
 
 ## Security Model (Firestore)
 
 - Authenticated, verified student gating
+- Two-Factor Authentication enforcement rules (`/otps` and `/auditLogs` owner-restricted)
 - Immutable-like behavior for likes
 - Match participant checks
 - Chat participant checks

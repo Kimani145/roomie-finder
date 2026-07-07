@@ -54,7 +54,7 @@ const AuthPage: React.FC = () => {
         {/* Brand Header */}
         <div className="text-center mb-8">
           <h1 className="font-syne text-brand-600 dark:text-brand-400 text-2xl font-bold mb-2">
-            Colony-Roomie Finder
+            Roomie Finder
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             {isSignUp

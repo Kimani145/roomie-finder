@@ -1,11 +1,31 @@
-import js from "@eslint/js";
 import globals from "globals";
-import tseslint from "typescript-eslint";
+import tsPlugin from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 import pluginReact from "eslint-plugin-react";
-import { defineConfig } from "eslint/config";
 
-export default defineConfig([
-  { files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: globals.browser } },
-  tseslint.configs.recommended,
+export default [
   pluginReact.configs.flat.recommended,
-]);
+  {
+    files: ["**/*.{ts,tsx}"],
+    plugins: {
+      "@typescript-eslint": tsPlugin,
+    },
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+      },
+      globals: globals.browser,
+    },
+    rules: {
+      // Standard typescript-eslint checks
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-explicit-any": "warn",
+    }
+  },
+  { 
+    files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"], 
+    languageOptions: { globals: globals.browser } 
+  },
+];

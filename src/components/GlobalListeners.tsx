@@ -140,20 +140,19 @@ const GlobalListeners: React.FC = () => {
             }
             const otherUid =
               matchData.userA === currentUser.uid ? matchData.userB : matchData.userA
-            let otherUserName = 'someone'
             if (otherUid) {
               const otherUser = await getUserProfile(otherUid)
-              otherUserName = otherUser?.displayName || 'someone'
+              const otherUserName = otherUser?.displayName || 'someone'
+              await createNotification({
+                recipientId: currentUser.uid,
+                type: 'match',
+                title: 'New Match!',
+                body: `You and ${otherUserName} liked each other.`,
+                link: `/matches`,
+                matchId: docChange.doc.id,
+                senderId: otherUid,
+              })
             }
-            await createNotification({
-              recipientId: currentUser.uid,
-              type: 'match',
-              title: 'New Match!',
-              body: `You and ${otherUserName} liked each other.`,
-              link: `/matches`,
-              matchId: docChange.doc.id,
-              senderId: otherUid,
-            })
           } catch (error) {
             console.error('Failed to persist match notification:', error)
           }

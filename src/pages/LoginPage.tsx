@@ -32,8 +32,10 @@ const LoginPage: React.FC = () => {
         setError('Incorrect email or password. Please try again.');
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many failed attempts. Please try again later.');
+      } else if (err.code === 'auth/network-request-failed' || err.message?.includes('network-request-failed')) {
+        setError('Unable to connect to the authentication service. Please check your connection or verify if the local Firebase Emulators are running.');
       } else {
-        setError(err.message || 'Failed to sign in. Please check your connection.');
+        setError('Failed to sign in. Please check your connection.');
       }
     } finally {
       setIsLoading(false);

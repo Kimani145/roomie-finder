@@ -11,8 +11,8 @@ service cloud.firestore {
     function hasAllowedStudentEmail() {
       return request.auth.token.email is string
         && (
-          request.auth.token.email.matches('.*@students[.]tukenya[.]ac[.]ke$')
-          || request.auth.token.email.matches('.*@tukenya[.]ac[.]ke$')
+          request.auth.token.email.lower().matches('.*@students[.]tukenya[.]ac[.]ke$')
+          || request.auth.token.email.lower().matches('.*@tukenya[.]ac[.]ke$')
         );
     }
 
@@ -38,7 +38,7 @@ service cloud.firestore {
     // Temporary dev seeder gate. Remove before production hardening.
     // Intentionally broad to verified TUK users, but constrained to seed IDs only.
     function isDevSeeder() {
-      return isVerifiedStudent();
+      return false;
     }
 
     function isSeedUserId(userId) {
@@ -58,7 +58,8 @@ service cloud.firestore {
       return data.keys().hasOnly([
           'uid', 'displayName', 'photoURL', 'role', 'gender', 'age', 'school', 'courseYear',
           'minBudget', 'maxBudget', 'zones', 'preferredRoomType', 'lifestyle', 'dealBreakers',
-          'status', 'lastActive', 'createdAt', 'bio', 'bioQuote', 'moveInMonth', 'updatedAt'
+          'status', 'lastActive', 'createdAt', 'bio', 'bioQuote', 'moveInMonth', 'updatedAt',
+          'twoFactorEnabled'
         ])
         && data.keys().hasAll([
           'displayName', 'role', 'gender', 'age', 'school', 'courseYear',
@@ -71,6 +72,10 @@ service cloud.firestore {
         && data.lifestyle.keys().hasOnly(['sleepTime', 'noiseTolerance', 'guestFrequency', 'cleanlinessLevel', 'studyStyle', 'smoking', 'alcohol'])
         && data.dealBreakers is map
         && data.dealBreakers.keys().hasOnly(['noSmokingRequired', 'noAlcoholRequired', 'mustHaveWiFi', 'femaleOnly', 'maleOnly']);
+    }
+
+    function validProfilePreviewDoc(data) {
+      return data.keys().hasOnly(['uid', 'displayName', 'photoURL', 'role', 'zones', 'bioQuote']);
     }
 
     function validListingDoc(data) {
@@ -180,9 +185,32 @@ service cloud.firestore {
     // PROFILES
     // =========================================================================
     match /profiles/{userId} {
-      allow read: if true; // Public can see profiles
+      allow read: if isVerifiedStudent();
       allow create: if isOwner(userId) && isVerifiedStudent() && validProfileDoc(request.resource.data);
       allow update: if (isOwner(userId) && isVerifiedStudent() && validProfileDoc(request.resource.data)) || isAdmin();
+    }
+
+    // =========================================================================
+    // TWO-FACTOR AUTHENTICATION (OTP)
+    // =========================================================================
+    match /otps/{email} {
+      allow read, write: if isSignedIn() && request.auth.token.email == email;
+    }
+
+    // =========================================================================
+    // AUDIT LOGS
+    // =========================================================================
+    match /auditLogs/{logId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    match /profilePreviews/{userId} {
+      allow read: if true;
+      allow create, update: if isOwner(userId) && isVerifiedStudent()
+        && validProfilePreviewDoc(request.resource.data)
+        && request.resource.data.uid == userId;
+      allow delete: if false;
     }
 
    	// =========================================================================
@@ -208,6 +236,8 @@ service cloud.firestore {
           (
             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['interestCount', 'viewCount'])
             && request.resource.data.hostId == resource.data.hostId
+            && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['interestCount']) || request.resource.data.interestCount == resource.data.get('interestCount', 0) + 1)
+            && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['viewCount']) || request.resource.data.viewCount == resource.data.get('viewCount', 0) + 1)
             && validListingDoc(request.resource.data)
           )
         );
@@ -244,6 +274,8 @@ service cloud.firestore {
     // =========================================================================
     match /matches/{matchId} {
       // Canonical deterministic ID + participant checks.
+      // Note: Any future backend integration (e.g. Cloud Functions, backend server) MUST maintain the
+      // invariant where the Match document ID matches canonicalMatchId(userA, userB) to prevent duplicate matches.
       allow read: if isParticipant(resource.data.participants) || isAdmin();
 
       allow create: if isVerifiedStudent()
@@ -314,8 +346,14 @@ service cloud.firestore {
       // (Using recipientId as it matches the frontend's Firestore type structure)
       allow read, delete: if isVerifiedStudent() && resource.data.recipientId == request.auth.uid;
       
-      // Any verified student can create or update a notification (e.g., when they 'Like' someone)
-      allow create, update: if isVerifiedStudent();
+      // A verified student can create a notification only if they are the sender
+      allow create: if isVerifiedStudent()
+        && request.resource.data.senderId == request.auth.uid;
+
+      // Only allow updating isRead field by the recipient
+      allow update: if isVerifiedStudent()
+        && resource.data.recipientId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
     }
 
     // Catch-all deny

@@ -138,14 +138,14 @@ html.dark ::-webkit-scrollbar-thumb {
   }
 
   html.dark .card-surface {
-    border-color: rgba(255, 255, 255, 0.08);
-    background-color: rgba(17, 24, 39, 0.84);
+    border-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(30, 41, 59, 0.95);
     background-image:
-      linear-gradient(180deg, rgba(17, 24, 39, 0.8), rgba(11, 18, 32, 0.94)),
+      linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(21, 29, 43, 0.98)),
       linear-gradient(135deg, var(--card-surface-1-dark), transparent 52%),
       radial-gradient(circle at top left, var(--card-surface-1-dark), transparent 56%),
       radial-gradient(circle at bottom right, var(--card-surface-2-dark), transparent 60%);
-    box-shadow: 0 24px 60px rgba(2, 6, 23, 0.58);
+    box-shadow: 0 24px 60px rgba(2, 6, 23, 0.65);
   }
 
   .card-surface-soft {
@@ -162,14 +162,14 @@ html.dark ::-webkit-scrollbar-thumb {
   }
 
   html.dark .card-surface-soft {
-    border-color: rgba(255, 255, 255, 0.10);
-    background-color: rgba(15, 23, 42, 0.42);
+    border-color: rgba(255, 255, 255, 0.14);
+    background-color: rgba(30, 41, 59, 0.7);
     background-image:
-      linear-gradient(180deg, rgba(17, 24, 39, 0.56), rgba(11, 18, 32, 0.66)),
+      linear-gradient(180deg, rgba(30, 41, 59, 0.75), rgba(21, 29, 43, 0.85)),
       linear-gradient(140deg, var(--card-surface-1-dark), transparent 54%),
       radial-gradient(circle at top right, var(--card-surface-1-dark), transparent 62%),
       radial-gradient(circle at bottom left, var(--card-surface-2-dark), transparent 68%);
-    box-shadow: 0 14px 32px rgba(2, 6, 23, 0.28);
+    box-shadow: 0 14px 32px rgba(2, 6, 23, 0.35);
   }
 
   /* ── Semantic Card Variants ────────────────────────────────────── */

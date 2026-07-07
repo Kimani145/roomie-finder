@@ -82,7 +82,7 @@ export async function likeProfile(
       await setDoc(notifRef, {
         recipientId: toUid,
         type: 'like',
-        actorId: fromUid,
+        senderId: fromUid,
         latestActorName: actorName,
         title: 'New Like!',
         body: `${actorName} liked your profile. Tap to view and match!`,

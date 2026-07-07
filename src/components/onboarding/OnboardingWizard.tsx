@@ -31,7 +31,7 @@ const ROLE_OPTIONS: Array<{
   {
     role: 'HOST',
     title: 'I have a place',
-    subtitle: 'I have a room or house and need a colonymate to split costs.',
+    subtitle: 'I have a room or house and need a roommate to split costs.',
   },
   {
     role: 'SEEKER',
@@ -300,7 +300,7 @@ export const OnboardingWizard: React.FC = () => {
               Role Selection
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
-              Choose how you want to use Colony-Roomie Finder.
+              Choose how you want to use Roomie Finder.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -458,7 +458,7 @@ export const OnboardingWizard: React.FC = () => {
                   value={bioQuote}
                   onChange={(e) => setBioQuote(e.target.value.slice(0, 100))}
                   maxLength={100}
-                  placeholder="Looking for a respectful colonymate with a similar routine."
+                  placeholder="Looking for a respectful roommate with a similar routine."
                   className={inputClassName}
                 />
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">

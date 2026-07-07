@@ -7,6 +7,8 @@ interface AuthState {
   isAuthenticated: boolean
   needsOnboarding: boolean
   pendingAction: (() => void) | null
+  is2faPending: boolean
+  set2faPending: (value: boolean) => void
   setCurrentUser: (user: UserProfile | null) => void
   setNeedsOnboarding: (value: boolean) => void
   setLoading: (loading: boolean) => void
@@ -21,6 +23,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   needsOnboarding: false,
   pendingAction: null,
+  is2faPending: false,
 
   setCurrentUser: (user) =>
     set({
@@ -35,6 +38,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setLoading: (loading) => set({ isLoading: loading }),
 
+  set2faPending: (value) => set({ is2faPending: value }),
+
   setPendingAction: (action) => set({ pendingAction: action }),
 
   clearPendingAction: () => set({ pendingAction: null }),
@@ -45,6 +50,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       isAuthenticated: false,
       needsOnboarding: false,
       pendingAction: null,
+      is2faPending: false,
       isLoading: false,
     }),
 }))

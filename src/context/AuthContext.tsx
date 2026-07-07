@@ -44,6 +44,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           const profile = await getUserProfile(firebaseUser.uid)
           if (profile) {
             setHasProfile(true)
+            if (profile.twoFactorEnabled) {
+              const sessionVerified = sessionStorage.getItem(`rf_2fa_verified_${firebaseUser.uid}`) === 'true'
+              if (!sessionVerified) {
+                useAuthStore.getState().set2faPending(true)
+              }
+            }
             setCurrentUser(profile)
           } else {
             setHasProfile(false)

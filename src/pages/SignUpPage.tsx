@@ -62,15 +62,14 @@ const SignUpPage: React.FC = () => {
       navigate('/verify-email', { replace: true })
     } catch (err) {
       const authErr = err as AuthServiceError
-      switch (authErr.code) {
-        case 'auth/email-already-in-use':
-          setError('An account with this email already exists. Try signing in.')
-          break
-        case 'auth/weak-password':
-          setError('Password is too weak. Use at least 6 characters.')
-          break
-        default:
-          setError(authErr.message || 'Something went wrong. Please try again.')
+      if (authErr.code === 'auth/email-already-in-use') {
+        setError('An account with this email already exists. Try signing in.')
+      } else if (authErr.code === 'auth/weak-password') {
+        setError('Password is too weak. Use at least 6 characters.')
+      } else if (authErr.code === 'auth/network-request-failed' || authErr.message?.includes('network-request-failed')) {
+        setError('Unable to connect to the authentication service. Please check your connection or verify if the local Firebase Emulators are running.')
+      } else {
+        setError('Something went wrong. Please check your connection and try again.')
       }
     } finally {
       setIsLoading(false)

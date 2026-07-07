@@ -21,7 +21,7 @@ type FirestoreNotification = {
   body: string
   link: string
   matchId?: string
-  senderId?: string
+  senderId: string
   isRead: boolean
   createdAt?: { toDate?: () => Date } | null
 }
@@ -33,7 +33,7 @@ export const createNotification = async (params: {
   body: string
   link: string
   matchId?: string
-  senderId?: string
+  senderId: string
 }) => {
   await setDoc(doc(collection(db, 'notifications')), {
     recipientId: params.recipientId,
@@ -41,8 +41,8 @@ export const createNotification = async (params: {
     title: params.title,
     body: params.body,
     link: params.link,
+    senderId: params.senderId,
     ...(params.matchId ? { matchId: params.matchId } : {}),
-    ...(params.senderId ? { senderId: params.senderId } : {}),
     isRead: false,
     createdAt: serverTimestamp(),
   })

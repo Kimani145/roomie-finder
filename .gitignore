@@ -9,7 +9,7 @@ coverage
 logs
 *.log
 firebase-debug.log*
-firestore.indexes.json
+screenshots
 
 # Temporary scripts and reports
 *.patch
@@ -21,6 +21,7 @@ test-*.mjs
 check_ts.txt
 result.txt
 snap.json
+*.md.resolved
 LINUX_ALIGNMENT_REPORT.md
 REFACTOR_COMPLETE.md
 TAILWIND_FIX.md

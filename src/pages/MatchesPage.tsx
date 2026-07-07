@@ -154,10 +154,10 @@ const MatchesPage: React.FC = () => {
         <div className="flex flex-col items-center justify-center py-20">
           <Users className="w-16 h-16 text-slate-300 dark:text-slate-600 mb-4" />
           <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">
-            Your colony is quiet right now.
+            Your match board is quiet right now.
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-center max-w-md mb-6">
-            Adjust your filters or check back later as more people join the nest.
+            Check back later as more students join the platform.
           </p>
           <button
             type="button"

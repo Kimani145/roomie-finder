@@ -5,13 +5,13 @@ import {
   getDocs,
   query,
   where,
-  setDoc,
   updateDoc,
   serverTimestamp,
   QueryConstraint,
   limit,
+  writeBatch,
 } from 'firebase/firestore'
-import { db } from './config'
+import { db, auth } from './config'
 import type { DiscoveryFilters, UserProfile, Zone } from '@/types'
 
 const PROFILES_COLLECTION = 'profiles'
@@ -213,16 +213,30 @@ export function getDeterministicSeedProfiles(): UserProfile[] {
   return list
 }
 
+function isUserVerifiedStudent(): boolean {
+  const user = auth.currentUser
+  if (!user) return false
+  if (!user.emailVerified) return false
+  const email = (user.email || '').toLowerCase()
+  return email.endsWith('@students.tukenya.ac.ke') || email.endsWith('@tukenya.ac.ke')
+}
+
 export async function fetchDiscoveryCandidates({
   viewerUid,
   viewerZones = [],
   filters,
   limitCount = 200,
 }: DiscoveryQueryParams): Promise<UserProfile[]> {
+  const isVerified = viewerUid !== '' && isUserVerifiedStudent()
+  const collectionName = isVerified ? PROFILES_COLLECTION : 'profilePreviews'
+
   const constraints: QueryConstraint[] = [
-    where('status', '==', 'active'),
     limit(limitCount),
   ]
+
+  if (isVerified) {
+    constraints.push(where('status', '==', 'active'))
+  }
 
   const effectiveZones = filters.zones?.length ? filters.zones : viewerZones
   if (effectiveZones.length === 1) {
@@ -231,32 +245,24 @@ export async function fetchDiscoveryCandidates({
     constraints.push(where('zones', 'array-contains-any', effectiveZones.slice(0, 10)))
   }
 
-  if (filters.gender) {
-    constraints.push(where('gender', '==', filters.gender))
-  }
-
-  if (filters.minBudget !== null) {
-    constraints.push(where('maxBudget', '>=', filters.minBudget))
-  }
-
-  if (filters.maxBudget !== null) {
-    constraints.push(where('minBudget', '<=', filters.maxBudget))
-  }
-
-  if (filters.courseYear !== null) {
-    constraints.push(where('courseYear', '==', filters.courseYear))
-  }
-
-  if (filters.moveInMonth) {
-    constraints.push(where('moveInMonth', '==', filters.moveInMonth))
-  }
-
-  const q = query(collection(db, PROFILES_COLLECTION), ...constraints)
+  const q = query(collection(db, collectionName), ...constraints)
   const snapshot = await getDocs(q)
 
   const dbCandidates = snapshot.docs
     .map((docRef) => toUserProfile(docRef.data(), docRef.id))
-    .filter((candidate) => candidate.uid !== viewerUid)
+    .filter((candidate) => {
+      if (candidate.uid === viewerUid) return false
+
+      if (isVerified) {
+        if (filters.gender && candidate.gender !== filters.gender) return false
+        if (filters.minBudget !== null && candidate.maxBudget < filters.minBudget) return false
+        if (filters.maxBudget !== null && candidate.minBudget > filters.maxBudget) return false
+        if (filters.courseYear !== null && candidate.courseYear !== filters.courseYear) return false
+        if (filters.moveInMonth && candidate.moveInMonth !== filters.moveInMonth) return false
+      }
+
+      return true
+    })
 
   const dbUids = new Set(dbCandidates.map(c => c.uid))
   
@@ -337,7 +343,10 @@ export async function saveUserProfile(
   uid: string,
   profile: Omit<UserProfile, 'uid' | 'createdAt' | 'lastActive'>
 ): Promise<void> {
+  const batch = writeBatch(db)
+
   const profileRef = doc(db, PROFILES_COLLECTION, uid)
+  const previewRef = doc(db, 'profilePreviews', uid)
   const userRef = doc(db, USERS_COLLECTION, uid)
 
   const payload = {
@@ -346,9 +355,18 @@ export async function saveUserProfile(
     createdAt: serverTimestamp(),
   }
 
-  await setDoc(profileRef, payload, { merge: true })
+  const previewPayload = {
+    uid,
+    displayName: profile.displayName || '',
+    photoURL: profile.photoURL || '',
+    role: profile.role,
+    zones: profile.zones || [],
+    ...(profile.bioQuote ? { bioQuote: profile.bioQuote } : {}),
+  }
 
-  await setDoc(
+  batch.set(profileRef, payload, { merge: true })
+  batch.set(previewRef, previewPayload, { merge: true })
+  batch.set(
     userRef,
     {
       role: profile.role,
@@ -357,6 +375,8 @@ export async function saveUserProfile(
     },
     { merge: true }
   )
+
+  await batch.commit()
 }
 
 // ─── Update last active ───────────────────────────────────────────────────────

@@ -11,23 +11,28 @@ interface ProtectedRouteProps {
   allowWithoutProfile?: boolean
   /** If true, unauthenticated users can pass this route. */
   allowGuest?: boolean
+  /** If true, this is the 2FA verification route. */
+  is2faPage?: boolean
 }
 
 /**
- * Three-tier route guard:
+ * Four-tier route guard:
  *   Tier 1: !user                         → Redirect to /login
- *   Tier 2: user AND !user.emailVerified  → Redirect to /verify-email
- *   Tier 3: user AND verified AND !profile → Redirect to /onboarding
+ *   Tier 2: user AND 2FA pending          → Redirect to /verify-2fa
+ *   Tier 3: user AND !user.emailVerified  → Redirect to /verify-email
+ *   Tier 4: user AND verified AND !profile → Redirect to /onboarding
  *   Pass:   user AND verified AND profile  → Allow access
  */
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   allowWithoutProfile = false,
   allowGuest = false,
+  is2faPage = false,
 }) => {
   const location = useLocation()
   const { user, loading, emailVerified, hasProfile, reloadUser } = useAuth()
   const currentUser = useAuthStore(state => state.currentUser)
+  const is2faPending = useAuthStore(state => state.is2faPending)
   const [checkingClaims, setCheckingClaims] = useState(false)
   const [tokenEmailVerified, setTokenEmailVerified] = useState<boolean | null>(null)
 
@@ -75,6 +80,19 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" replace />
   }
 
+  // Two-Factor Authentication Check
+  if (user && !loading) {
+    if (is2faPending) {
+      if (!is2faPage) {
+        return <Navigate to="/verify-2fa" replace />
+      }
+    } else {
+      if (is2faPage) {
+        return <Navigate to="/discover" replace />
+      }
+    }
+  }
+
   // Tier 2: Signed in but email not verified
   if (!resolvedEmailVerified) {
     return <Navigate to="/verify-email" replace />
@@ -89,7 +107,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         </div>
         <h1 className="text-2xl font-syne font-bold text-white mb-2">Account Suspended</h1>
         <p className="text-slate-400 max-w-md mb-8">
-          Your access to Colony-Roomie Finder has been revoked due to a violation of our community guidelines.
+          Your access to Roomie Finder has been revoked due to a violation of our community guidelines.
         </p>
         <button onClick={() => auth.signOut()} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors">
           Sign Out

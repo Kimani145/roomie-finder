@@ -1,6 +1,4 @@
-import ModerationPage from '@/pages/admin/ModerationPage'
-import UserManagementPage from '@/pages/admin/UserManagementPage'
-import React, { useEffect } from 'react'
+import React, { useEffect, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AppLayout, AdminLayout } from '@/components/layout'
@@ -13,24 +11,31 @@ import { useAuth } from '@/hooks/useAuth'
 import { ProtectedRoute } from '@/routes/ProtectedRoute'
 import { AdminRoute } from '@/routes/AdminRoute'
 import { useAuthStore } from '@/store/authStore'
-import AdminDashboardPage from '@/pages/AdminDashboardPage'
-import {
-  SignUpPage,
-  LoginPage,
-  VerifyEmailPage,
-  OnboardingPage,
-  DiscoveryPage,
-  ProfilePage,
-  EditProfilePage,
-  ProfileDetailPage,
-  MatchesPage,
-  MessagesPage,
-  NotificationsPage,
-  ListingWizardPage,
-  MyListingsPage,
-  ListingDetailPage,
-  ForgotPasswordPage,
-} from '@/pages'
+import ErrorBoundary from '@/components/ErrorBoundary'
+
+// Eagerly loaded auth/landing routes to keep first-paint latency low
+import SignUpPage from '@/pages/SignUpPage'
+import LoginPage from '@/pages/LoginPage'
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
+import VerifyEmailPage from '@/pages/VerifyEmailPage'
+import OnboardingPage from '@/pages/OnboardingPage'
+import DiscoveryPage from '@/pages/DiscoveryPage'
+
+// Lazily loaded heavier/dashboard pages, directly imported to bypass index.ts barrel footgun
+const AdminDashboardPage = React.lazy(() => import('@/pages/AdminDashboardPage'))
+const UserManagementPage = React.lazy(() => import('@/pages/admin/UserManagementPage'))
+const ModerationPage = React.lazy(() => import('@/pages/admin/ModerationPage'))
+const MessagesPage = React.lazy(() => import('@/pages/MessagesPage'))
+const ListingWizardPage = React.lazy(() => import('@/pages/ListingWizardPage'))
+const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'))
+const EditProfilePage = React.lazy(() => import('@/pages/EditProfilePage'))
+const ProfileDetailPage = React.lazy(() => import('@/pages/ProfileDetailPage'))
+const MatchesPage = React.lazy(() => import('@/pages/MatchesPage'))
+const NotificationsPage = React.lazy(() => import('@/pages/NotificationsPage'))
+const MyListingsPage = React.lazy(() => import('@/pages/MyListingsPage'))
+const ListingDetailPage = React.lazy(() => import('@/pages/ListingDetailPage'))
+const SecurityPage = React.lazy(() => import('@/pages/SecurityPage'))
+const Verify2faPage = React.lazy(() => import('@/pages/Verify2faPage'))
 
 const AppRoutes: React.FC = () => {
   const { loading } = useAuth()
@@ -59,7 +64,8 @@ const AppRoutes: React.FC = () => {
           }}
         />
         <GlobalListeners />
-        <Routes>
+        <Suspense fallback={<SplashScreen />}>
+          <Routes>
           {/* Public routes */}
           <Route path="/" element={<Navigate to="/discover" replace />} />
           <Route path="/signup" element={<SignUpPage />} />
@@ -231,9 +237,30 @@ const AppRoutes: React.FC = () => {
             }
           />
 
+          {/* Security & 2FA Routes */}
+          <Route
+            path="/security"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <SecurityPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/verify-2fa"
+            element={
+              <ProtectedRoute is2faPage>
+                <Verify2faPage />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/discover" replace />} />
-        </Routes>
+          </Routes>
+        </Suspense>
         <MatchOverlay />
       </BrowserRouter>
     </div>
@@ -242,11 +269,13 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <AppRoutes />
-      </ThemeProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ThemeProvider>
+          <AppRoutes />
+        </ThemeProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

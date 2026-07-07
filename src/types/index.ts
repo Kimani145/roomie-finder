@@ -91,6 +91,7 @@ export interface UserProfile {
   bio: string
   bioQuote?: string
   moveInMonth?: string | null
+  twoFactorEnabled?: boolean
 }
 
 // ─── Listings ─────────────────────────────────────────────────────────────────

@@ -76,7 +76,7 @@ export const DiscoveryHeader: React.FC<DiscoveryHeaderProps> = ({
         {/* ── Right: Wordmark + filter toggle ─────────────────────────── */}
         <div className="flex items-center gap-3">
           <span className="hidden text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-accent-500 sm:block">
-            Colony<span className="text-brand-600">.</span>
+            Roomie Finder<span className="text-brand-600">.</span>
           </span>
 
           <button

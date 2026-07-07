@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
 import { db } from './config'
 import type { Listing } from '@/types'
 import { generateDeterministicProfile } from './profiles'
@@ -149,23 +149,39 @@ export async function fetchListingsByHostIds(
 ): Promise<Record<string, Listing>> {
   if (!hostIds.length) return {}
 
-  const hostIdSet = new Set(hostIds)
-  const snapshot = await getDocs(collection(db, LISTINGS_COLLECTION))
   const listingsByHostId: Record<string, Listing> = {}
 
-  snapshot.forEach((listingDoc) => {
-    const listing = toListing(listingDoc.data(), listingDoc.id)
-    if (!listing) return
-    if (!hostIdSet.has(listing.hostId)) return
-    if (listing.status !== 'active') return
+  // Chunk hostIds into sizes of 10
+  const chunks: string[][] = []
+  for (let i = 0; i < hostIds.length; i += 10) {
+    chunks.push(hostIds.slice(i, i + 10))
+  }
 
-    const existingListing = listingsByHostId[listing.hostId]
-    if (
-      !existingListing ||
-      new Date(listing.createdAt).getTime() >= new Date(existingListing.createdAt).getTime()
-    ) {
-      listingsByHostId[listing.hostId] = listing
-    }
+  // Query each chunk in parallel
+  const queryPromises = chunks.map(async (chunk) => {
+    const q = query(
+      collection(db, LISTINGS_COLLECTION),
+      where('hostId', 'in', chunk),
+      where('status', '==', 'active')
+    )
+    return getDocs(q)
+  })
+
+  const snapshots = await Promise.all(queryPromises)
+
+  snapshots.forEach((snapshot) => {
+    snapshot.forEach((listingDoc) => {
+      const listing = toListing(listingDoc.data(), listingDoc.id)
+      if (!listing) return
+
+      const existingListing = listingsByHostId[listing.hostId]
+      if (
+        !existingListing ||
+        new Date(listing.createdAt).getTime() >= new Date(existingListing.createdAt).getTime()
+      ) {
+        listingsByHostId[listing.hostId] = listing
+      }
+    })
   })
 
   // Inject deterministic listings for mock seed hosts

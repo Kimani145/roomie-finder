@@ -39,11 +39,8 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
           to="/discover"
           className="md:hidden flex flex-col outline-none transition-all duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 rounded-nest px-2 py-1"
         >
-          <div className="flex flex-col">
+          <div className="flex items-center">
             <span className="font-extrabold tracking-tight text-brand-600 dark:text-white text-2xl leading-none drop-shadow-sm">
-              Colony
-            </span>
-            <span className="text-[10px] font-bold text-accent-500 dark:text-accent-dark uppercase tracking-widest mt-1">
               Roomie Finder
             </span>
           </div>
@@ -52,12 +49,9 @@ export const Header: React.FC<HeaderProps> = ({ isCollapsed }) => {
         {showDesktopBrand && (
           <Link
             to="/discover"
-            className="hidden md:flex flex-col animate-fade-in"
+            className="hidden md:flex items-center animate-fade-in"
           >
             <span className="font-extrabold tracking-tight text-brand-600 dark:text-white text-2xl leading-none drop-shadow-sm">
-              Colony
-            </span>
-            <span className="text-[10px] font-bold text-accent-500 dark:text-accent-dark uppercase tracking-widest mt-1">
               Roomie Finder
             </span>
           </Link>

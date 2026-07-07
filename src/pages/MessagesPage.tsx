@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState, Suspense } from 'react'
 import { MessageSquare, Send, Smile, AlertCircle } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
+import type { EmojiClickData } from 'emoji-picker-react'
+
+const EmojiPicker = React.lazy(() => import('emoji-picker-react'))
 import { collection, doc, getDoc, onSnapshot, orderBy, query, where } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import { useAuthStore } from '@/store/authStore'
@@ -792,7 +794,9 @@ const MessagesPage: React.FC = () => {
                 <div className="shrink-0 p-4 bg-[#FFFFFF] dark:bg-[#111827] border-t border-[#E2E8F0] dark:border-[#334155] relative">
                   {showEmojiPicker && (
                     <div className="absolute bottom-20 left-4 z-50 shadow-2xl rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                      <EmojiPicker onEmojiClick={onEmojiClick} theme={'auto' as any} />
+                      <Suspense fallback={<div className="p-4 bg-[#FFFFFF] dark:bg-[#111827] text-xs text-slate-500">Loading picker...</div>}>
+                        <EmojiPicker onEmojiClick={onEmojiClick} theme={'auto' as any} />
+                      </Suspense>
                     </div>
                   )}
                   <div className="flex items-center gap-3">

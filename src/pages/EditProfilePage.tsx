@@ -450,7 +450,7 @@ const EditProfilePage: React.FC = () => {
                   value={bioQuote}
                   onChange={(e) => setBioQuote(e.target.value.slice(0, 100))}
                   maxLength={100}
-                  placeholder="Looking for a calm, tidy colonymate near campus."
+                  placeholder="Looking for a calm, tidy roommate near campus."
                   className={inputClassName}
                   disabled={isSaving}
                 />

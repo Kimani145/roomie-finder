@@ -8,6 +8,7 @@ import {
   Building,
   ChevronLeft,
   ChevronRight,
+  Shield,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useNotificationStore } from '@/store/notificationStore'
@@ -44,6 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ? [{ path: '/my-listings', label: 'My Listings', icon: Building }]
       : []),
     { path: '/profile', label: 'Profile', icon: User },
+    { path: '/security', label: 'Security', icon: Shield },
   ]
 
   return (
@@ -59,9 +61,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {!isCollapsed && (
           <div className="ml-3 flex flex-col truncate">
             <span className="font-extrabold tracking-tight text-white text-2xl leading-none drop-shadow-sm">
-              Colony
-            </span>
-            <span className="text-[10px] font-bold text-accent-dark uppercase tracking-widest mt-1">
               Roomie Finder
             </span>
           </div>

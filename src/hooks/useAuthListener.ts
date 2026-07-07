@@ -30,6 +30,12 @@ export function useAuthListener() {
         const profile = await getUserProfile(firebaseUser.uid)
 
         if (profile) {
+          if (profile.twoFactorEnabled) {
+            const sessionVerified = sessionStorage.getItem(`rf_2fa_verified_${firebaseUser.uid}`) === 'true'
+            if (!sessionVerified) {
+              useAuthStore.getState().set2faPending(true)
+            }
+          }
           // Full profile exists — user is ready for discovery
           setCurrentUser(profile)
         } else {

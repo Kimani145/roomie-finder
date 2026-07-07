@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
-import { SearchX } from 'lucide-react'
+import { SearchX, Compass, MessageSquare, Heart } from 'lucide-react'
 import { useDiscovery } from '@/hooks/useDiscovery'
 import { useDiscoveryStore } from '@/store/discoveryStore'
 import { useAuthStore } from '@/store/authStore'
@@ -12,10 +12,6 @@ import { FeedSkeleton } from '@/components/ui/Skeleton'
 import { AuthModal } from '@/components/ui/AuthModal'
 import { TUK_ZONES } from '@/constants/zones'
 import type { TukZone } from '@/types'
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DiscoveryPage - Desktop Containerization and Layering
-// ─────────────────────────────────────────────────────────────────────────────
 
 const DiscoveryPage: React.FC = () => {
   const navigate = useNavigate()
@@ -37,6 +33,8 @@ const DiscoveryPage: React.FC = () => {
   )
   const [isAuthModalOpen, setAuthModalOpen] = useState(false)
 
+  const isGuest = !currentUser
+
   useEffect(() => {
     runDiscovery()
   }, [currentUser, filters, runDiscovery])
@@ -49,7 +47,6 @@ const DiscoveryPage: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Find the actual scroll container, fallback to window
       const mainElement = document.querySelector('main')
       const target = mainElement || window
       const current = target instanceof Window ? target.scrollY : target.scrollTop
@@ -69,7 +66,6 @@ const DiscoveryPage: React.FC = () => {
       }
     }
 
-    // Determine target on mount, but wait slightly for React to attach 'main' to the DOM
     const timer = setTimeout(() => {
       const targetEventElement = document.querySelector('main') || window
       handleScroll()
@@ -93,7 +89,7 @@ const DiscoveryPage: React.FC = () => {
   ) => {
     if (!targetId) return
 
-    if (!currentUser) {
+    if (isGuest) {
       event?.preventDefault()
       event?.stopPropagation()
       setPendingAction(() => () => navigate(`/profile/${targetId}`))
@@ -103,7 +99,7 @@ const DiscoveryPage: React.FC = () => {
   }
 
   const role = currentUser?.role
-  const canToggleView = !currentUser || role === 'FLEX'
+  const canToggleView = isGuest || role === 'FLEX'
   const activeViewMode: 'rooms' | 'roommates' = canToggleView
     ? viewMode
     : role === 'HOST'
@@ -119,19 +115,20 @@ const DiscoveryPage: React.FC = () => {
   const rawResults = activeViewMode === 'rooms' ? listingMatches : roommateMatches
 
   const displayedResults = rawResults.filter((item) => {
-    // If it's a Listing (Seeker looking at Hosts)
     if (item.listing?.rentTotal) {
       const matchZone = filterZone === 'All' || item.listing?.zone === filterZone
       const matchBudget = (item.listing?.roommateShare || 0) <= filterMaxBudget
       return matchZone && matchBudget
     }
 
-    // If it's a Profile (Host looking at Seekers)
     const matchZone =
       filterZone === 'All' || (item.profile?.zones || []).includes(filterZone as TukZone)
     const matchBudget = (item.profile?.maxBudget || 0) <= filterMaxBudget
     return matchZone && matchBudget
   })
+
+  // Truncate to maximum 4 listings/roommates for Guest users
+  const resultsToRender = isGuest ? displayedResults.slice(0, 4) : displayedResults
 
   const handleZoneChange = (value: string) => {
     setFilterZone(value)
@@ -236,20 +233,18 @@ const DiscoveryPage: React.FC = () => {
                 Showing highest compatibility first
               </p>
               <span className="text-xs text-slate-400 dark:text-slate-500">
-                {!isLoading ? displayedResults.length : 0}{' '}
+                {!isLoading ? resultsToRender.length : 0}{' '}
                 {activeViewMode === 'rooms'
-                  ? displayedResults.length === 1
+                  ? resultsToRender.length === 1
                     ? 'listing'
                     : 'listings'
-                  : displayedResults.length === 1
+                  : resultsToRender.length === 1
                     ? 'match'
                     : 'matches'}{' '}
                 found
               </span>
             </div>
           </div>
-
-          {/* 3. The Hovering Pill (Only visible on scroll) */}
         </div>
       </div>
       
@@ -267,9 +262,166 @@ const DiscoveryPage: React.FC = () => {
         document.body
       )}
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-4">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4">
+        {/* ─── Guest Onboarding & Trust Sections ────────────────────────── */}
+        {isGuest && (
+          <div className="mb-12 space-y-12">
+            {/* 1. Hero Section */}
+            <section className="relative overflow-hidden bg-slate-900 dark:bg-[#182033] text-white rounded-3xl p-8 md:p-12 border border-slate-800 shadow-2xl">
+              <div className="absolute top-0 right-0 h-96 w-96 bg-brand-500/10 blur-[100px] rounded-full pointer-events-none" />
+              <div className="absolute bottom-0 left-0 h-80 w-80 bg-accent-500/5 blur-[80px] rounded-full pointer-events-none" />
+              
+              <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-brand-500/10 text-brand-400 border border-brand-500/20 uppercase tracking-wider">
+                  🎓 Technical University of Kenya (TUK)
+                </span>
+                
+                <h1 className="text-4xl md:text-5xl font-syne font-black tracking-tight leading-tight">
+                  Find Your Ideal <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-accent-400">TUK Roommate</span>
+                </h1>
+                
+                <p className="text-slate-300 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+                  Stop scrolling random property sites. Match with compatible peers based on study habits, cleanliness lifestyle choices, budget, and shared values. Secure, private, and TUK-exclusive.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                  <button
+                    onClick={() => setAuthModalOpen(true)}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-brand-600/25 active:scale-[0.98] transition-all"
+                  >
+                    Create Account
+                  </button>
+                  <button
+                    onClick={() => {
+                      const el = document.getElementById('how-matching-works')
+                      el?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-bold rounded-xl border border-slate-700 active:scale-[0.98] transition-all"
+                  >
+                    How it Works
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            {/* 2. Trust Indicators */}
+            <section className="space-y-6">
+              <div className="max-w-4xl mx-auto text-center">
+                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                  Our Security Pillars
+                </h2>
+                <h3 className="text-2xl font-syne font-bold text-slate-800 dark:text-slate-100 mt-1">
+                  Built for Safety & Accountability
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="card-surface p-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center text-lg font-bold">
+                    🛡️
+                  </div>
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                    Verified Student Profiles
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
+                    Every user must verify their student status, ensuring you only interact with real, authenticated TUK peers.
+                  </p>
+                </div>
+                
+                <div className="card-surface p-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center text-lg font-bold">
+                    💬
+                  </div>
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                    Secure, Spam-Free Messaging
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
+                    Coordinate safely. Built-in messenger shields your personal email and phone number until you share them.
+                  </p>
+                </div>
+                
+                <div className="card-surface p-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center text-lg font-bold">
+                    ⚖️
+                  </div>
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                    Student Community Moderation
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
+                    Strict community guidelines and active moderation keep the platform safe, respectful, and fully transparent.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* 3. How Matching Works */}
+            <section id="how-matching-works" className="space-y-6 scroll-mt-24">
+              <div className="max-w-4xl mx-auto text-center">
+                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                  Step-by-Step Guide
+                </h2>
+                <h3 className="text-2xl font-syne font-bold text-slate-800 dark:text-slate-100 mt-1">
+                  How Matching Works
+                </h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+                {/* Step 1 */}
+                <div className="card-surface p-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col gap-4 relative overflow-hidden">
+                  <div className="absolute top-2 right-4 text-4xl font-black text-slate-100 dark:text-slate-800/50 select-none">
+                    01
+                  </div>
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white relative z-10 pt-2 flex items-center gap-2">
+                    <Compass className="w-5 h-5 text-brand-500" />
+                    Compatibility Profile
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold relative z-10">
+                    Share your budget range, preferred zones around campus, and your study/cleanliness lifestyle habits.
+                  </p>
+                </div>
+                
+                {/* Step 2 */}
+                <div className="card-surface p-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col gap-4 relative overflow-hidden">
+                  <div className="absolute top-2 right-4 text-4xl font-black text-slate-100 dark:text-slate-800/50 select-none">
+                    02
+                  </div>
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white relative z-10 pt-2 flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-brand-500" />
+                    Meet Compatible Peers
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold relative z-10">
+                    Our smart compatibility engine evaluates and ranks potential roommates based on shared living values.
+                  </p>
+                </div>
+                
+                {/* Step 3 */}
+                <div className="card-surface p-6 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col gap-4 relative overflow-hidden">
+                  <div className="absolute top-2 right-4 text-4xl font-black text-slate-100 dark:text-slate-800/50 select-none">
+                    03
+                  </div>
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white relative z-10 pt-2 flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-brand-500" />
+                    Chat Safely
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold relative z-10">
+                    Connect via our built-in, secure messenger. Coordinate viewings and move-in logistics completely risk-free.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <div className="border-t border-slate-200 dark:border-slate-800/80 my-8 pt-8">
+              <h3 className="text-xl font-syne font-extrabold text-slate-950 dark:text-white">
+                Explore Active Rooms & roommates
+              </h3>
+              <p className="text-slate-500 text-xs mt-1">
+                Preview active community listings below. Create an account to unlock complete profiles.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Relaxed filter notice */}
-        {hasRelaxedFilters && displayedResults.length > 0 && (
+        {hasRelaxedFilters && resultsToRender.length > 0 && (
           <div className="mb-5 rounded-xl border border-amber-500/30 dark:border-amber-400/40 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-700 dark:text-amber-200">
             <span className="font-semibold">No perfect matches found.</span>{' '}
             Showing closest compatible {activeViewMode === 'rooms' ? 'listings' : 'matches'}.
@@ -301,16 +453,16 @@ const DiscoveryPage: React.FC = () => {
         )}
 
         {/* Zero state */}
-        {!isLoading && !error && displayedResults.length === 0 && (
+        {!isLoading && !error && resultsToRender.length === 0 && (
           <div className="flex flex-col items-center justify-center text-center py-20 px-4">
             <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
               <SearchX className="w-10 h-10 text-slate-400" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-              Your colony is quiet right now.
+              Your match board is quiet right now.
             </h3>
             <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-8">
-              Adjust your filters or check back later as more people join the nest.
+              Adjust your filters or check back later as more students join the platform.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -335,66 +487,99 @@ const DiscoveryPage: React.FC = () => {
         )}
 
         {/* Ranked feed - Split Pane Desktop Layout */}
-        {!isLoading && displayedResults.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-            {/* Left Column: Active Grid / Swipes */}
-            <div className="col-span-1 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {activeViewMode === 'rooms'
-                ? displayedResults.map((match) => (
-                    <ListingCard
-                      key={`${match.profile?.uid}-${match.listing?.id ?? 'listing'}`}
-                      match={match}
-                      onPrimaryAction={handlePrimaryAction}
-                      showMatchBadge={Boolean(currentUser)}
-                    />
-                  ))
-                : displayedResults.map((match) => (
-                    <SeekerCard
-                      key={match.profile?.uid}
-                      match={match}
-                      onPrimaryAction={handlePrimaryAction}
-                      showMatchBadge={Boolean(currentUser)}
-                    />
-                  ))}
-            </div>
+        {!isLoading && resultsToRender.length > 0 && (
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+              {/* Left Column: Active Grid / Swipes */}
+              <div className="col-span-1 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {activeViewMode === 'rooms'
+                  ? resultsToRender.map((match) => (
+                      <ListingCard
+                        key={`${match.profile?.uid}-${match.listing?.id ?? 'listing'}`}
+                        match={match}
+                        onPrimaryAction={handlePrimaryAction}
+                        showMatchBadge={Boolean(currentUser)}
+                      />
+                    ))
+                  : resultsToRender.map((match) => (
+                      <SeekerCard
+                        key={match.profile?.uid}
+                        match={match}
+                        onPrimaryAction={handlePrimaryAction}
+                        showMatchBadge={Boolean(currentUser)}
+                      />
+                    ))}
+              </div>
 
-            {/* Right Column: Context Intelligence Panel (Desktop Only) */}
-            <div className="hidden lg:block space-y-4">
-              <div className="bg-[#FFFFFF] dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] shadow-md sticky top-36 rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F9FAFB] mb-4 drop-shadow-sm">System Intelligence</h3>
+              {/* Right Column: Context Intelligence Panel (Desktop Only) */}
+              <div className="hidden lg:block space-y-4">
+                <div className="bg-[#FFFFFF] dark:bg-[#111827] border border-[#E2E8F0] dark:border-[#334155] shadow-md sticky top-36 rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-[#0F172A] dark:text-[#F9FAFB] mb-4 drop-shadow-sm">System Intelligence</h3>
 
-                {!(candidates?.length > 0 || matches?.length > 0) ? (
-                  <div className="flex flex-col items-center justify-center py-6 text-center">
-                    <div className="w-10 h-10 rounded-full bg-white/50 dark:bg-slate-800 flex items-center justify-center mb-3 shadow-inner">
-                      <span className="text-xl animate-pulse">📡</span>
+                  {isGuest ? (
+                    <div className="flex flex-col items-center justify-center py-6 text-center">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3 shadow-inner">
+                        <span className="text-xl">🔒</span>
+                      </div>
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Analysis Locked</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
+                        Create an account to see matching analytics and compatibility factors.
+                      </p>
                     </div>
-                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Calibrating Engine...</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
-                      Start swiping to generate your personalized ecosystem report.
-                    </p>
-                  </div>
-                ) : (
-                  <ul className="space-y-4 text-sm font-medium">
-                    {candidates?.length > 0 && (
-                      <li className="flex items-start gap-3 text-[#475569] dark:text-[#94A3B8]">
-                        <span className="text-accent-dark mt-0.5">✦</span> 
-                        <div>
-                          Analyzed <span className="font-bold text-brand-600 dark:text-white">{candidates.length}</span> profiles based on your lifestyle parameters.
-                        </div>
-                      </li>
-                    )}
-                    {matches?.length > 0 && (
-                      <li className="flex items-start gap-3 text-[#475569] dark:text-[#94A3B8]">
-                        <span className="text-accent-500 mt-0.5">✦</span> 
-                        <div>
-                          You have <span className="font-bold text-accent-500">{matches.length}</span> active connections in the colony.
-                        </div>
-                      </li>
-                    )}
-                  </ul>
-                )}
+                  ) : !(candidates?.length > 0 || matches?.length > 0) ? (
+                    <div className="flex flex-col items-center justify-center py-6 text-center">
+                      <div className="w-10 h-10 rounded-full bg-white/50 dark:bg-slate-800 flex items-center justify-center mb-3 shadow-inner">
+                        <span className="text-xl animate-pulse">📡</span>
+                      </div>
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Calibrating Engine...</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
+                        Start swiping to generate your personalized ecosystem report.
+                      </p>
+                    </div>
+                  ) : (
+                    <ul className="space-y-4 text-sm font-medium">
+                      {candidates?.length > 0 && (
+                        <li className="flex items-start gap-3 text-[#475569] dark:text-[#94A3B8]">
+                          <span className="text-brand-600 dark:text-white mt-0.5">✦</span> 
+                          <div>
+                            Analyzed <span className="font-bold text-brand-600 dark:text-white">{candidates.length}</span> profiles based on your lifestyle parameters.
+                          </div>
+                        </li>
+                      )}
+                      {matches?.length > 0 && (
+                        <li className="flex items-start gap-3 text-[#475569] dark:text-[#94A3B8]">
+                          <span className="text-accent-500 mt-0.5">✦</span> 
+                          <div>
+                            You have <span className="font-bold text-accent-500">{matches.length}</span> active matches.
+                          </div>
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                </div>
               </div>
             </div>
+
+            {/* Signup Banner for Guests */}
+            {isGuest && (
+              <div className="p-8 text-center bg-gradient-to-r from-brand-900 to-slate-900 text-white rounded-3xl border border-brand-800 shadow-xl relative overflow-hidden max-w-7xl mx-auto">
+                <div className="absolute top-0 right-0 h-40 w-40 bg-brand-500/10 blur-[60px] rounded-full pointer-events-none" />
+                <div className="relative z-10 space-y-4">
+                  <h3 className="text-2xl font-syne font-black">
+                    Want to see all matches?
+                  </h3>
+                  <p className="text-slate-300 text-sm max-w-xl mx-auto leading-relaxed">
+                    Sign up to view all matches, send secure messages, filter by study habits, and connect directly with verified student hosts.
+                  </p>
+                  <button
+                    onClick={() => setAuthModalOpen(true)}
+                    className="px-8 py-3.5 bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-brand-600/25 active:scale-[0.98] transition-all"
+                  >
+                    Sign Up Now
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

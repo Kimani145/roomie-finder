@@ -32,10 +32,10 @@ export const ZeroState: React.FC<ZeroStateProps> = ({
       {isRelaxed ? (
         <>
           <h2 className="font-syne text-xl font-bold text-slate-900 dark:text-slate-50">
-            Your colony is quiet right now.
+            Your match board is quiet right now.
           </h2>
           <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-            Adjust your filters or check back later as more people join the nest.
+            Adjust your filters or check back later as more students join the platform.
           </p>
           {humanKeys && (
             <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
@@ -50,10 +50,10 @@ export const ZeroState: React.FC<ZeroStateProps> = ({
       ) : (
         <>
           <h2 className="font-syne text-xl font-bold text-slate-900 dark:text-slate-50">
-            Your colony is quiet right now.
+            Your match board is quiet right now.
           </h2>
           <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-            Adjust your filters or check back later as more people join the nest.
+            Adjust your filters or check back later as more students join the platform.
           </p>
         </>
       )}

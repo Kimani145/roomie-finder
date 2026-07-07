@@ -25,9 +25,13 @@ export const ForgotPasswordPage = () => {
       setEmail('');
     } catch (error: any) {
       console.error("Reset failed:", error);
+      let errorText = 'Failed to send reset email. Please ensure the email is correct.';
+      if (error.code === 'auth/network-request-failed' || error.message?.includes('network-request-failed')) {
+        errorText = 'Unable to connect to the authentication service. Please check your connection or verify if the local Firebase Emulators are running.';
+      }
       setMessage({ 
         type: 'error', 
-        text: 'Failed to send reset email. Please ensure the email is correct.' 
+        text: errorText
       });
     } finally {
       setIsSubmitting(false);
@@ -47,7 +51,7 @@ export const ForgotPasswordPage = () => {
             Reset Password
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Enter your student email and we'll send you a link to reset your password.
+            Enter your student email and we&apos;ll send you a link to reset your password.
           </p>
         </div>
 
