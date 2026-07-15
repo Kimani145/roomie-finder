@@ -7,6 +7,7 @@ import { generateAndSendOtp, verifyOtpCode } from '@/services/twoFactorService'
 import { toast } from 'react-hot-toast'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/firebase/config'
+import { logger } from '@/utils/logger'
 
 export default function Verify2faPage() {
   const navigate = useNavigate()
@@ -71,7 +72,7 @@ export default function Verify2faPage() {
           toast.success('A valid code is already in your inbox. Please enter it below.')
         }
       } catch (err: any) {
-        console.error('2FA Init failed:', err)
+        logger.error('2FA initialization failed.')
         if (isMounted) setError(err.message || 'Failed to initialize verification code.')
       } finally {
         if (isMounted) setResending(false)
@@ -164,7 +165,7 @@ export default function Verify2faPage() {
         inputRefs.current[0]?.focus()
       }
     } catch (err: any) {
-      console.error('Verification error:', err)
+      logger.error('Verification error occurred.')
       setError(err.message || 'An error occurred during verification. Please try again.')
     } finally {
       setLoading(false)
@@ -184,7 +185,7 @@ export default function Verify2faPage() {
       setOtp(new Array(6).fill(''))
       inputRefs.current[0]?.focus()
     } catch (err: any) {
-      console.error('Resend failed:', err)
+      logger.error('Failed to resend verification code.')
       setError(err.message || 'Failed to resend code. Please try again.')
     } finally {
       setResending(false)
@@ -196,7 +197,7 @@ export default function Verify2faPage() {
       await logout()
       navigate('/login')
     } catch (err) {
-      console.error('Logout failed:', err)
+      logger.error('Logout failed.')
     }
   }
 

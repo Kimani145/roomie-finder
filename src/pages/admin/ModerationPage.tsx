@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { formatTimeAgo } from '@/utils/formatters'
+import { logger } from '@/utils/logger'
 
 interface ReportDoc {
   id: string
@@ -74,7 +75,7 @@ export default function ModerationPage() {
         })
       )
     } catch (err: any) {
-      console.error('Failed to fetch reports:', err)
+      logger.error('Failed to fetch reports:', err)
       setError('Could not load moderation queue. Verify permissions.')
     } finally {
       setLoading(false)
@@ -93,7 +94,7 @@ export default function ModerationPage() {
       toast.success(`Report marked as ${newStatus.replace('_', ' ')}`)
       await fetchReports()
     } catch (err) {
-      console.error(err)
+      logger.error('Error:', err)
       toast.error('Failed to update report status')
     } finally {
       setActionLoading(null)
@@ -140,7 +141,7 @@ export default function ModerationPage() {
       )
       await fetchReports()
     } catch (err) {
-      console.error(err)
+      logger.error('Error:', err)
       toast.error('Failed to execute moderation action.')
     } finally {
       setActionLoading(null)

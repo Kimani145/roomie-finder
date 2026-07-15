@@ -4,6 +4,7 @@ import { db } from '@/firebase/config'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { useAuthStore } from '@/store/authStore'
 import { toast } from 'react-hot-toast'
+import { logger } from '@/utils/logger'
 
 interface ReportModalProps {
   isOpen: boolean
@@ -73,7 +74,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       setScreenshotName(null)
       onClose()
     } catch (error: any) {
-      console.error('Failed to submit report:', error)
+      logger.error('Failed to submit report:', error)
       toast.error(error.message || 'Failed to submit report. Please try again.')
     } finally {
       setSubmitting(false)

@@ -3,6 +3,7 @@ import { Bell, CheckCheck, Heart } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useNotificationStore } from '@/store/notificationStore'
 import { markAllNotificationsRead, markNotificationRead } from '@/firebase/notifications'
+import { logger } from '@/utils/logger'
 
 const NotificationsPage: React.FC = () => {
   const navigate = useNavigate()
@@ -23,7 +24,7 @@ const NotificationsPage: React.FC = () => {
         markNotificationReadLocal(notification.id)
       }
     } catch (error) {
-      console.error('Failed to mark notification as read:', error)
+      logger.error('Failed to mark notification as read:', error)
     } finally {
       navigate(notification.link)
     }
@@ -36,7 +37,7 @@ const NotificationsPage: React.FC = () => {
       )
       markAllNotificationsReadLocal()
     } catch (error) {
-      console.error('Failed to mark all notifications as read:', error)
+      logger.error('Failed to mark all notifications as read:', error)
     }
   }
 

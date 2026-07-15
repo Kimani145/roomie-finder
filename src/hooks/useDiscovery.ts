@@ -8,6 +8,7 @@ import {
 import { useAuthStore } from '@/store/authStore'
 import { useDiscoveryStore } from '@/store/discoveryStore'
 import type { MatchResult, ScoreBreakdown } from '@/types'
+import { logger } from '@/utils/logger'
 
 /**
  * Drives the discovery feed.
@@ -102,7 +103,7 @@ export function useDiscovery() {
           }
         }
       } catch (err) {
-        console.error('Discovery failed:', err)
+        logger.error('Discovery failed:', err)
         setError('Failed to load matches. Please try again.')
       } finally {
         setLoading(false)

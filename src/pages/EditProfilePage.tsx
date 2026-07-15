@@ -13,6 +13,7 @@ import type { UserProfile, UserRole } from '@/types'
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
 import FullScreenLoader from '@/components/ui/FullScreenLoader'
 import { inputCls as inputClassName } from '@/utils/formStyles'
+import { logger } from '@/utils/logger'
 
 const TUK_COURSES = [
   'BSc Information Science',
@@ -87,7 +88,7 @@ const EditProfilePage: React.FC = () => {
           setProfile(null)
         }
       } catch (err) {
-        console.error('Failed to fetch profile:', err)
+        logger.error('Failed to fetch profile:', err)
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -238,7 +239,7 @@ const EditProfilePage: React.FC = () => {
       Maps('/profile')
     } catch (err) {
       const firebaseErr = err as FirebaseError
-      console.error('Failed to update profile:', err)
+      logger.error('Failed to update profile:', err)
       if (firebaseErr?.code === 'permission-denied') {
         setSaveError("You don't have permission to perform this action.")
       } else {

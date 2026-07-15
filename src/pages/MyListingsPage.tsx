@@ -7,6 +7,7 @@ import { db } from '@/firebase/config'
 import { useAuthStore } from '@/store/authStore'
 import { useMyListings } from '@/hooks/useMyListings'
 import type { Listing } from '@/types'
+import { logger } from '@/utils/logger'
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: Listing['status'] }) {
@@ -54,7 +55,7 @@ const MyListingsPage: React.FC = () => {
       await deleteDoc(doc(db, 'listings', listingId))
       toast.success('Listing deleted')
     } catch (err) {
-      console.error('Delete listing error:', err)
+      logger.error('Delete listing error:', err)
       toast.error('Failed to delete listing')
     }
   }
@@ -77,7 +78,7 @@ const MyListingsPage: React.FC = () => {
       
       await updatePromise
     } catch (error) {
-      console.error('Toggle pause error:', error)
+      logger.error('Toggle pause error:', error)
     }
   }
 

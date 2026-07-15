@@ -9,7 +9,8 @@ import {
   collection,
   Timestamp,
 } from 'firebase/firestore'
-import { sendOtpEmail } from './emailService'
+import { CommunicationService } from './communications/CommunicationService'
+import { logger } from '@/utils/logger'
 
 const OTPS_COLLECTION = 'otps'
 const AUDIT_LOGS_COLLECTION = 'auditLogs'
@@ -62,7 +63,7 @@ export async function log2faAuditEvent(
       ...metadata,
     })
   } catch (error) {
-    console.error('[twoFactorService] Audit logging failed:', error)
+    logger.error('[twoFactorService] Audit logging failed.')
   }
 }
 
@@ -108,8 +109,11 @@ export async function generateAndSendOtp(
   // Log the event
   await log2faAuditEvent(userId, email, '2fa_generated')
 
-  // Send the email (simulated delivery)
-  await sendOtpEmail(email, plainOtp)
+  // Send the email (unified communication system)
+  await CommunicationService.sendLogin2fa(email, plainOtp, {
+    browser: navigator.userAgent,
+    device: navigator.platform || 'Web App',
+  })
 }
 
 /**

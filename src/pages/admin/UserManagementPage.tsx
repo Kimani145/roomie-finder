@@ -4,6 +4,7 @@ import { db } from '../../firebase/config'
 import { Ban, AlertCircle, RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { formatDistanceToNow } from 'date-fns'
+import { logger } from '@/utils/logger'
 
 interface ProfileDoc {
   uid: string
@@ -28,7 +29,7 @@ const UserManagementPage: React.FC = () => {
       const snap = await getDocs(q)
       setUsers(snap.docs.map(d => ({ uid: d.id, ...d.data() } as ProfileDoc)))
     } catch (err: any) {
-      console.error('Failed to fetch users:', err)
+      logger.error('Failed to fetch users:', err)
       setError('Could not load user data. Verify permissions.')
     } finally {
       setLoading(false)
@@ -48,7 +49,7 @@ const UserManagementPage: React.FC = () => {
       toast.success('User banned successfully')
       await fetchUsers()
     } catch (err) {
-      console.error(err)
+      logger.error('Error:', err)
       toast.error('Failed to ban user')
     } finally {
       setActionLoading(null)
@@ -64,7 +65,7 @@ const UserManagementPage: React.FC = () => {
       toast.success('User unbanned successfully')
       await fetchUsers()
     } catch (err) {
-      console.error(err)
+      logger.error('Error:', err)
       toast.error('Failed to unban user')
     } finally {
       setActionLoading(null)

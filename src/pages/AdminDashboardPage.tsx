@@ -4,6 +4,7 @@ import { db } from '@/firebase/config'
 import { CheckCircle2, Ban, ShieldAlert, Users, Home, HeartHandshake, Loader2, AlertCircle} from 'lucide-react'
 import toast from 'react-hot-toast'
 import { formatTimeAgo } from '@/utils/formatters'
+import { logger } from '@/utils/logger'
 
 interface TelemetryStats {
   activeUsers: number
@@ -88,7 +89,7 @@ const AdminDashboardPage: React.FC = () => {
       setRecentListings(rlSnap.docs.map(d => ({ id: d.id, ...d.data() })))
 
     } catch (err: any) {
-      console.error('Admin telemetry failed:', err)
+      logger.error('Admin telemetry failed:', err)
       setError('Failed to fetch system telemetry. Ensure Firestore rules permit admin access.')
     } finally {
       setLoading(false)
@@ -108,7 +109,7 @@ const AdminDashboardPage: React.FC = () => {
       toast.success('Report dismissed')
       await fetchDashboardData()
     } catch (err) {
-      console.error(err)
+      logger.error('Error:', err)
       toast.error('Failed to dismiss report')
     } finally {
       setActionLoading(null)
@@ -139,7 +140,7 @@ const AdminDashboardPage: React.FC = () => {
       toast.success('User banned and associated listings paused.')
       await fetchDashboardData()
     } catch (err) {
-      console.error(err)
+      logger.error('Error:', err)
       toast.error('Failed to ban user.')
     } finally {
       setActionLoading(null)

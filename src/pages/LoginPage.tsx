@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock, AlertCircle, LogIn, Eye, EyeOff, Info } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { logger } from '@/utils/logger'
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate()
@@ -23,7 +24,7 @@ const LoginPage: React.FC = () => {
       // Wait for AuthContext to populate currentUser, but also trigger manual navigation
       navigate('/discover');
     } catch (err: any) {
-      console.error("Login failed:", err);
+      logger.error('Login failed.');
       // STRICT: We ONLY clear the password. DO NOT clear the email.
       setPassword(''); 
       

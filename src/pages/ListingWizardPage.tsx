@@ -17,6 +17,7 @@ import { HOUSING_TYPES } from '@/types'
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
 import type { HousingType, TukZone } from '@/types'
 import { inputCls as inputClassName } from '@/utils/formStyles'
+import { logger } from '@/utils/logger'
 
 const AMENITY_OPTIONS = [
   'WiFi',
@@ -174,7 +175,7 @@ const ListingWizardPage: React.FC = () => {
       toast.success('Listing published successfully!')
       navigate('/my-listings')
     } catch (error) {
-      console.error('Publishing error:', error)
+      logger.error('Publishing error:', error)
       setSubmitError('Failed to publish listing. Please try again.')
       toast.error('Failed to publish listing. Please try again.')
     } finally {

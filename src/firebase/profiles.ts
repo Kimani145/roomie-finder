@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore'
 import { db, auth } from './config'
 import type { DiscoveryFilters, UserProfile, Zone } from '@/types'
+import { logger } from '@/utils/logger'
 
 const PROFILES_COLLECTION = 'profiles'
 const USERS_COLLECTION = 'users'
@@ -329,7 +330,7 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   } catch (error: any) {
     const code = error?.code as string | undefined
     if (code === 'permission-denied' || code === 'failed-precondition') {
-      console.warn('[getUserProfile] Profile read blocked by rules:', uid)
+      logger.warn('[getUserProfile] Profile read blocked by rules:', uid)
       return null
     }
     throw error

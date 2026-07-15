@@ -11,6 +11,7 @@ import { toast } from 'react-hot-toast'
 import { db } from './config'
 import type { Like, Match } from '@/types'
 import { getUserProfile } from '@/firebase/profiles'
+import { logger } from '@/utils/logger'
 
 const LIKES_COLLECTION = 'likes'
 const MATCHES_COLLECTION = 'matches'
@@ -43,7 +44,7 @@ export async function likeProfile(
       const existingLike = await getDoc(likeRef)
       if (!existingLike.exists()) throw error
     } catch (readError) {
-      console.error('Fallback getDoc likeRef failed:', readError);
+      logger.error('Fallback getDoc likeRef failed:', readError);
       throw error; // Throw original
     }
   }
@@ -54,7 +55,7 @@ export async function likeProfile(
         interestCount: increment(1),
       })
     } catch (error) {
-      console.error('Failed to update listing interest count:', error)
+      logger.error('Failed to update listing interest count:', error)
     }
   }
 
@@ -92,7 +93,7 @@ export async function likeProfile(
         priority: 'high'
       })
     } catch (err) {
-      console.error('Failed to send like notification:', err)
+      logger.error('Failed to send like notification:', err)
     }
   }
 
@@ -136,7 +137,7 @@ export async function likeProfile(
         { merge: true }
       )
     } catch (error) {
-      console.error('Failed to initialize chat thread for match:', error)
+      logger.error('Failed to initialize chat thread for match:', error)
     }
 
     toast.success('🎉 You have a new match!')

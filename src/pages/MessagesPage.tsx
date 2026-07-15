@@ -23,6 +23,7 @@ import {
   retryFailedMessage,
 } from '@/hooks/useChat'
 import type { UserProfile, MessageStatus } from '@/types'
+import { logger } from '@/utils/logger'
 
 type InboxThreadRecord = {
   chatId: string
@@ -118,7 +119,7 @@ const MessagesPage: React.FC = () => {
         if (cancelled) return
 
         if (!chatData || chatData.status === 'unmatched') {
-          console.warn('Chat not found or unmatched:', matchId)
+          logger.warn('Chat not found or unmatched:', matchId)
           return
         }
 
@@ -126,7 +127,7 @@ const MessagesPage: React.FC = () => {
         const otherUid = participants.find((id) => id !== currentUser.uid)
 
         if (!otherUid) {
-          console.warn('Could not find other participant in chat')
+          logger.warn('Could not find other participant in chat')
           return
         }
 
@@ -134,7 +135,7 @@ const MessagesPage: React.FC = () => {
         try {
           otherUser = await getUserProfile(otherUid)
         } catch (profileError) {
-          console.error('Failed to load chat profile:', profileError)
+          logger.error('Failed to load chat profile:', profileError)
         }
 
         if (cancelled) return
@@ -185,7 +186,7 @@ const MessagesPage: React.FC = () => {
           setSelectedChatId(matchId)
         }
       } catch (error) {
-        console.error('Failed to initialize matchId chat:', error)
+        logger.error('Failed to initialize matchId chat:', error)
       }
     }
 
@@ -238,7 +239,7 @@ const MessagesPage: React.FC = () => {
                 try {
                   otherUser = await getUserProfile(otherUid)
                 } catch (profileError) {
-                  console.error('Failed to load thread profile:', profileError)
+                  logger.error('Failed to load thread profile:', profileError)
                 }
               }
 
@@ -317,7 +318,7 @@ const MessagesPage: React.FC = () => {
             }
           }
         } catch (snapshotError) {
-          console.error('Failed to load chats:', snapshotError)
+          logger.error('Failed to load chats:', snapshotError)
           if (!cancelled) {
             setError('Sorry, we could not load your chats right now.')
             setIsLoading(false)
@@ -325,7 +326,7 @@ const MessagesPage: React.FC = () => {
         }
       },
       (snapshotError) => {
-        console.error('Failed to load chats:', snapshotError)
+        logger.error('Failed to load chats:', snapshotError)
         if (!cancelled) {
           setError('Sorry, we could not load your chats right now.')
           setIsLoading(false)
@@ -377,7 +378,7 @@ const MessagesPage: React.FC = () => {
       try {
         await markChatAsRead(selectedChatId, currentUser.uid)
       } catch (readError) {
-        console.error('Failed to mark selected chat as read:', readError)
+        logger.error('Failed to mark selected chat as read:', readError)
       }
     })
 
@@ -406,7 +407,7 @@ const MessagesPage: React.FC = () => {
             try {
               await markChatAsRead(selectedChatId, currentUser.uid)
             } catch (error) {
-              console.error('Failed to mark chat as read:', error)
+              logger.error('Failed to mark chat as read:', error)
             }
           }, 500)
         }
@@ -504,7 +505,7 @@ const MessagesPage: React.FC = () => {
               : msg
           )
         )
-        console.error('Failed to send message:', result.error)
+        logger.error('Failed to send message:', result.error)
       } else {
         // Mark as acknowledged
         setThreadMessages((prev) =>
@@ -523,7 +524,7 @@ const MessagesPage: React.FC = () => {
       setMessageText('')
       setShowEmojiPicker(false)
     } catch (sendError) {
-      console.error('Failed to send message:', sendError)
+      logger.error('Failed to send message:', sendError)
       // Mark as failed
       setThreadMessages((prev) =>
         prev.map((msg) =>

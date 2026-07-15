@@ -9,6 +9,7 @@ import { db } from '@/firebase/config'
 import { TUK_ZONES, TukZone } from '@/constants/zones'
 import type { Gender, UserRole } from '@/types'
 import { inputCls as inputClassName } from '@/utils/formStyles'
+import { logger } from '@/utils/logger'
 
 const GENDERS: Gender[] = ['Male', 'Female', 'Non-binary', 'Prefer not to say']
 const NAME_REGEX = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/
@@ -264,7 +265,7 @@ export const OnboardingWizard: React.FC = () => {
       Maps('/discover', { replace: true })
     } catch (err) {
       const firebaseErr = err as FirebaseError
-      console.error('Failed to save profile:', err)
+      logger.error('Failed to save profile:', err)
       if (firebaseErr?.code === 'permission-denied') {
         setSaveError("You don't have permission to perform this action.")
       } else {

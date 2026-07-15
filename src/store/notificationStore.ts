@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type AppNotificationType = 'message' | 'match' | 'like_summary' | 'like_summary'
+export type AppNotificationType = 'message' | 'match' | 'like_summary' | 'moderation' | 'appeal'
 
 export interface AppNotification {
   id: string

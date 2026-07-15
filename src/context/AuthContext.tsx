@@ -10,6 +10,7 @@ import {
 } from '@/services/authService'
 import { getUserProfile } from '@/firebase/profiles'
 import { useAuthStore } from '@/store/authStore'
+import { logger } from '@/utils/logger'
 
 export type AuthContextValue = {
   user: User | null
@@ -62,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             setHasProfile(false)
             setNeedsOnboarding(true)
           } else {
-            console.error('Failed to load user profile:', err)
+            logger.error('Failed to load user profile:', err)
             setHasProfile(false)
             setNeedsOnboarding(true)
           }
@@ -118,17 +119,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
    * Force-fetch latest token claims + reload the Firebase user.
    * Returns token-claim email verification status.
    */
-  const reloadUser = useCallback(async (source = 'AUTH'): Promise<boolean> => {
+  const reloadUser = useCallback(async (_source = 'AUTH'): Promise<boolean> => {
     if (!user) return false
 
     const tokenResult = await user.getIdTokenResult(true)
     await user.reload()
-
-    console.warn(`=== SECURITY GATE CHECK (${source}) ===`)
-    console.log('1. Raw Email:', user.email)
-    console.log('2. Is Verified (User Object):', user.emailVerified)
-    console.log('3. Is Verified (Token Claim):', tokenResult.claims.email_verified)
-    console.warn('=================================')
 
     setUser(user)
     return Boolean(tokenResult.claims.email_verified)

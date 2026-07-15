@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast'
 import { getUserProfile } from '@/firebase/profiles'
 import { useNotificationStore } from '@/store/notificationStore'
 import { createNotification, subscribeToNotifications } from '@/firebase/notifications'
+import { logger } from '@/utils/logger'
 
 const isActiveChat = (data: { status?: string }) => data.status !== 'unmatched'
 
@@ -87,7 +88,7 @@ const GlobalListeners: React.FC = () => {
                   senderId: otherUid,
                 })
               } catch (error) {
-                console.error('Failed to get sender info:', error)
+                logger.error('Failed to get sender info:', error)
                 // Only trigger active screen popups for Medium and High priority events.
                 // Only trigger active screen popups for Medium and High priority events.
                 toast('New message received', { icon: '💬' })
@@ -99,7 +100,7 @@ const GlobalListeners: React.FC = () => {
         }
       }
     }, (error) => {
-      console.error('Listener permission error:', error)
+      logger.error('Listener permission error:', error)
     })
 
     return () => unsubscribe()
@@ -154,7 +155,7 @@ const GlobalListeners: React.FC = () => {
               })
             }
           } catch (error) {
-            console.error('Failed to persist match notification:', error)
+            logger.error('Failed to persist match notification:', error)
           }
         }
       }
@@ -163,7 +164,7 @@ const GlobalListeners: React.FC = () => {
         setUnreadMatches(useNotificationStore.getState().unreadMatches + newMatchCount)
       }
     }, (error) => {
-      console.error('Listener permission error:', error)
+      logger.error('Listener permission error:', error)
     })
 
     return () => unsubscribe()
@@ -181,7 +182,7 @@ const GlobalListeners: React.FC = () => {
         setNotifications(notifications)
       },
       (error) => {
-        console.error('Listener permission error:', error)
+        logger.error('Listener permission error:', error)
       }
     )
 

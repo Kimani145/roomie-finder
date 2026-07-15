@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Mail, Lock, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { logger } from '@/utils/logger'
 
 type AuthMode = 'signin' | 'signup'
 
@@ -36,14 +37,14 @@ const AuthPage: React.FC = () => {
         navigate('/discover')
       }
     } catch (error) {
-      console.error('Authentication failed:', error)
+      logger.error('Authentication failed.')
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleGoogleAuth = () => {
-    console.log('Google Auth clicked')
+    // TODO: Implement Google OAuth flow
   }
 
   const isSignUp = mode === 'signup'

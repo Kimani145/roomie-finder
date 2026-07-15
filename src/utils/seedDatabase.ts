@@ -2,6 +2,7 @@ import { writeBatch, doc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import { TUK_ZONES } from '@/constants/zones'
 import { HOUSING_TYPES } from '@/types'
+import { logger } from '@/utils/logger'
 import type {
   Gender,
   SleepTime,
@@ -299,7 +300,7 @@ export async function seedMockUsers(maxUsers = 100): Promise<void> {
   }
 
   await batch.commit()
-  console.info(
+  logger.info(
     `✓ Seeded ${profileCount} profiles and ${listingCount} listings using client seeder.`
   )
 }

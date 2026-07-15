@@ -5,6 +5,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/config';
 import FullScreenLoader from '@/components/ui/FullScreenLoader';
 
+import { logger } from '@/utils/logger'
 export const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -22,7 +23,7 @@ export const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }
     setIsAdmin(null);
     getDoc(doc(db, 'admins', user.uid)).then(docSnap => {
       setIsAdmin(docSnap.exists());
-    }).catch((err) => { console.error("Admin check failed:", err); setIsAdmin(false); });
+    }).catch((err) => { logger.error("Admin check failed:", err); setIsAdmin(false); });
   }, [user, loading]);
 
   if (loading || isAdmin === null) return <FullScreenLoader />;

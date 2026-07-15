@@ -6,6 +6,9 @@ import { auth, db } from '@/firebase/config'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/authStore'
 import { log2faAuditEvent } from '@/services/twoFactorService'
+import { CommunicationService } from '@/services/communications/CommunicationService'
+import { logger } from '@/utils/logger'
+
 import {
   Shield,
   Mail,
@@ -63,14 +66,25 @@ export default function SecurityPage() {
         newValue ? '2fa_enabled' : '2fa_disabled'
       )
 
+      // Send Security Alert Email
+      await CommunicationService.sendSecurityAlert(
+        userEmail,
+        `Two-Step Verification (2FA) has been successfully ${newValue ? 'enabled' : 'disabled'} on your Roomie Finder account.`,
+        {
+          browser: navigator.userAgent,
+          device: navigator.platform || 'Web App',
+        },
+        currentUser.displayName?.split(' ')[0]
+      )
+
       toast.success(
         newValue
           ? 'Two-factor authentication enabled successfully!'
           : 'Two-factor authentication disabled.'
       )
     } catch (err: any) {
-      console.error('Failed to toggle 2FA:', err)
-      toast.error(err.message || 'Failed to update two-factor setting.')
+      logger.error('Failed to toggle 2FA.')
+      toast.error('Failed to update two-factor setting. Please try again.')
     } finally {
       setToggling2fa(false)
     }
@@ -83,11 +97,56 @@ export default function SecurityPage() {
 
     try {
       await sendPasswordResetEmail(auth, userEmail)
+
+      const isEmulator = import.meta.env.VITE_USE_EMULATOR === 'true'
+      const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID
+
+      if (isEmulator && projectId) {
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 800))
+          const response = await fetch(`http://127.0.0.1:9099/emulator/v1/projects/${projectId}/oobCodes`)
+          if (response.ok) {
+            const data = await response.json()
+            const latestCode = data.oobCodes
+              ?.filter((c: any) => c.email === userEmail && c.requestType === 'PASSWORD_RESET')
+              ?.sort((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0))[0]
+
+            if (latestCode?.oobLink) {
+              const res = await CommunicationService.sendPasswordReset(
+                userEmail,
+                undefined,
+                latestCode.oobLink,
+                currentUser?.displayName?.split(' ')[0]
+              )
+              if (!res.success) {
+                throw new Error(res.error)
+              }
+              setPwResetSent(true)
+              toast.success('Password reset email sent (Resend Delivery)!')
+              return
+            }
+          }
+        } catch (err: any) {
+          logger.warn('Failed to intercept reset link from emulator.')
+        }
+      }
+
+      // Production / Fallback: trigger custom log / security alert
+      await CommunicationService.sendSecurityAlert(
+        userEmail,
+        'A password reset request was initiated for your Roomie Finder account. If you did not request this, please secure your account credentials immediately.',
+        {
+          browser: navigator.userAgent,
+          device: navigator.platform || 'Web App',
+        },
+        currentUser?.displayName?.split(' ')[0]
+      )
+
       setPwResetSent(true)
       toast.success('Password reset email sent!')
     } catch (err: any) {
-      console.error('Failed to send password reset email:', err)
-      toast.error(err.message || 'Failed to request password reset.')
+      logger.error('Failed to send password reset email.')
+      toast.error('Unable to send password reset email. Please try again shortly.')
     } finally {
       setResettingPassword(false)
     }
@@ -111,11 +170,11 @@ export default function SecurityPage() {
       setCurrentUser(null)
       navigate('/')
     } catch (err: any) {
-      console.error('Failed to delete account:', err)
+      logger.error('Failed to delete account.')
       if (err.code === 'auth/requires-recent-login') {
         toast.error('For security reasons, you must re-authenticate (log out and log back in) before deleting your account.')
       } else {
-        toast.error(err.message || 'Failed to delete account.')
+        toast.error('Failed to delete account. Please try again.')
       }
     } finally {
       setDeletingAccount(false)

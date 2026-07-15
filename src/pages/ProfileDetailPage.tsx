@@ -23,6 +23,7 @@ import { calculateCompatibilityScore, getCompatibilityPercentage } from '@/engin
 import { ImageGalleryModal } from '@/components/ui/ImageGalleryModal'
 import { CompatibilityInsights } from '@/components/ui/CompatibilityInsights'
 import type { Listing, UserProfile, ScoreBreakdown } from '@/types'
+import { logger } from '@/utils/logger'
 
 const DEFAULT_GRADIENT =
   'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%231d4ed8"/><stop offset="100%" stop-color="%230f172a"/></linearGradient></defs><rect width="800" height="600" fill="url(%23g)"/></svg>'
@@ -86,7 +87,7 @@ const ProfileDetailPage: React.FC = () => {
                     likeErr?.code !== 'permission-denied' &&
                     likeErr?.code !== 'not-found'
                   ) {
-                    console.warn('Failed to check existing like state', likeErr)
+                    logger.warn('Failed to check existing like state', likeErr)
                   }
                 }
               }
@@ -97,7 +98,7 @@ const ProfileDetailPage: React.FC = () => {
         }
       } catch (err) {
         if (isMounted) {
-          console.error('Failed to fetch profile', err)
+          logger.error('Failed to fetch profile', err)
           setError('Failed to fetch profile data.')
         }
       } finally {
@@ -143,7 +144,7 @@ const ProfileDetailPage: React.FC = () => {
         const firstListing = snapshot.docs[0]
         setHostListing({ id: firstListing.id, ...(firstListing.data() as Omit<Listing, 'id'>) })
       } catch (err) {
-        console.error('Failed to fetch host listing', err)
+        logger.error('Failed to fetch host listing', err)
         if (isMounted) setHostListing(null)
       }
     }
@@ -235,7 +236,7 @@ const ProfileDetailPage: React.FC = () => {
 
       setLikeSent(true)
     } catch (err: any) {
-      console.error('Failed to like profile', err)
+      logger.error('Failed to like profile', err)
       if (err?.code === 'permission-denied') {
         setActionError("You don't have permission to perform this action.")
       } else {

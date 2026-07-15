@@ -18,6 +18,7 @@ import { db } from '@/firebase/config'
 import { markAllNotificationsReadForMatch } from '@/firebase/notifications'
 import { useAuthStore } from '@/store/authStore'
 import { useNotificationStore } from '@/store/notificationStore'
+import { logger } from '@/utils/logger'
 import {
   getChatParticipants,
   getOtherParticipantUid,
@@ -146,7 +147,7 @@ const ChatPage: React.FC = () => {
           setChatReady(true)
         }
       } catch (error) {
-        console.error('Failed to initialize chat thread:', error)
+        logger.error('Failed to initialize chat thread:', error)
         if (!cancelled) {
           setChatLoadError('This conversation is not available right now.')
         }
@@ -235,7 +236,7 @@ const ChatPage: React.FC = () => {
           })
         }
       } catch (error) {
-        console.error('Failed to load chat profile:', error)
+        logger.error('Failed to load chat profile:', error)
       }
     })()
 
@@ -258,7 +259,7 @@ const ChatPage: React.FC = () => {
         })
         markNotificationsReadForMatchLocal(chatId)
       } catch (error) {
-        console.error('Failed to mark chat as read:', error)
+        logger.error('Failed to mark chat as read:', error)
       }
     }
 
@@ -342,7 +343,7 @@ const ChatPage: React.FC = () => {
 
       return true
     } catch (error) {
-      console.error('Failed to unmatch user:', error)
+      logger.error('Failed to unmatch user:', error)
       toast.error('We could not unmatch this conversation right now.')
       return false
     } finally {
@@ -385,7 +386,7 @@ const ChatPage: React.FC = () => {
       toast.success('User reported. Our safety team will review this shortly.')
       navigate('/matches')
     } catch (error) {
-      console.error('Failed to report user:', error)
+      logger.error('Failed to report user:', error)
       toast.error('We could not submit your report right now.')
     } finally {
       setIsSafetyActionPending(false)
@@ -409,7 +410,7 @@ const ChatPage: React.FC = () => {
         text: trimmed,
       })
     } catch (error) {
-      console.error('Failed to send message:', error)
+      logger.error('Failed to send message:', error)
       toast.error(
         error instanceof Error && error.message === 'chat-unmatched'
           ? 'This conversation is no longer available.'

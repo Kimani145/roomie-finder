@@ -3,6 +3,7 @@ import { Bell } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useNotificationStore } from '@/store/notificationStore'
 import { markNotificationRead } from '@/firebase/notifications'
+import { logger } from '@/utils/logger'
 
 export const NotificationBell: React.FC = () => {
   const [open, setOpen] = useState(false)
@@ -53,7 +54,7 @@ export const NotificationBell: React.FC = () => {
                         await markNotificationRead(notification.id)
                         markNotificationReadLocal(notification.id)
                       } catch (error) {
-                        console.error('Failed to mark notification as read:', error)
+                        logger.error('Failed to mark notification as read:', error)
                       }
                     }
                     setOpen(false)

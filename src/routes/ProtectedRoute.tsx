@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/authStore'
 import { AlertTriangle } from 'lucide-react'
 import { auth } from '@/firebase/config'
+import { logger } from '@/utils/logger'
+import { shouldRedirectToSuspension, isTerminalStatus } from '@/services/accountLifecycle'
 
 interface ProtectedRouteProps {
   children: React.ReactElement
@@ -51,7 +53,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         const verified = await reloadUser('ROUTE')
         setTokenEmailVerified(verified)
       } catch (error) {
-        console.error('ProtectedRoute token refresh failed:', error)
+        logger.error('ProtectedRoute token refresh failed.')
         setTokenEmailVerified(currentUser.emailVerified)
       } finally {
         setCheckingClaims(false)
@@ -98,22 +100,30 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/verify-email" replace />
   }
 
-  // Anti-Banned User Interceptor (Must run regardless of allowWithoutProfile)
-  if (currentUser?.status === ('banned' as any)) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mb-6">
-          <AlertTriangle className="w-8 h-8" />
+  // Anti-Suspended/Banned User Interceptor
+  if (currentUser?.status && shouldRedirectToSuspension(currentUser.status)) {
+    // If they are banned, show the terminal state
+    if (isTerminalStatus(currentUser.status)) {
+      return (
+        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mb-6">
+            <AlertTriangle className="w-8 h-8" />
+          </div>
+          <h1 className="text-2xl font-syne font-bold text-white mb-2">Account Banned</h1>
+          <p className="text-slate-400 max-w-md mb-8">
+            Your access to Roomie Finder has been permanently revoked due to a severe violation of our community guidelines.
+          </p>
+          <button onClick={() => auth.signOut()} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors">
+            Sign Out
+          </button>
         </div>
-        <h1 className="text-2xl font-syne font-bold text-white mb-2">Account Suspended</h1>
-        <p className="text-slate-400 max-w-md mb-8">
-          Your access to Roomie Finder has been revoked due to a violation of our community guidelines.
-        </p>
-        <button onClick={() => auth.signOut()} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors">
-          Sign Out
-        </button>
-      </div>
-    );
+      )
+    }
+
+    // Otherwise they are suspended/under_appeal, redirect to the suspension page
+    if (location.pathname !== '/suspension' && location.pathname !== '/appeal') {
+      return <Navigate to="/suspension" replace />
+    }
   }
 
   // Prevent users with an existing profile from re-entering onboarding.

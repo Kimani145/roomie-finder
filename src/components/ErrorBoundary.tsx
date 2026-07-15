@@ -1,4 +1,5 @@
 import React, { ErrorInfo, ReactNode } from 'react'
+import { logger } from '@/utils/logger'
 
 interface Props {
   children: ReactNode
@@ -20,7 +21,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('[ErrorBoundary] Uncaught rendering error:', error, errorInfo)
+    logger.error('[ErrorBoundary] Uncaught rendering error:', error, errorInfo)
   }
 
   private handleReload = () => {

@@ -3,6 +3,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/firebase/config'
 import { getUserProfile } from '@/firebase/profiles'
 import { useAuthStore } from '@/store/authStore'
+import { logger } from '@/utils/logger'
 
 /**
  * Listens to Firebase Auth state changes.
@@ -44,7 +45,7 @@ export function useAuthListener() {
           setNeedsOnboarding(true)
         }
       } catch (err) {
-        console.error('Failed to load user profile:', err)
+        logger.error('Failed to load user profile:', err)
         clearAuth()
       } finally {
         setLoading(false)

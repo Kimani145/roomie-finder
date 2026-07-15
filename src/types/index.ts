@@ -37,7 +37,33 @@ export type CleanlinessLevel = 'Relaxed' | 'Moderate' | 'Strict'
 export type StudyStyle = 'Silent' | 'Background noise ok'
 export type RoomType = HousingType
 export type Gender = 'Male' | 'Female' | 'Non-binary' | 'Prefer not to say'
-export type ProfileStatus = 'active' | 'inactive' | 'paused'
+
+// ─── Account Lifecycle Status ─────────────────────────────────────────────────
+// Single source of truth for account state. Replaces scattered boolean flags.
+//
+// Valid transitions:
+//   email_unverified → active
+//   active → warning → suspended → under_appeal → reinstated | banned
+//   active → inactive | paused (legacy self-service states)
+//   suspended → under_appeal → reinstated → active
+//   suspended → banned (terminal for severe violations)
+// ───────────────────────────────────────────────────────────────────────────────
+export type AccountStatus =
+  | 'email_unverified'
+  | 'active'
+  | 'inactive'          // legacy — kept for backward compat (user chose to deactivate)
+  | 'paused'            // legacy — kept for backward compat (user chose to pause)
+  | 'warning'
+  | 'suspended'
+  | 'under_appeal'
+  | 'reinstated'
+  | 'banned'
+
+/**
+ * @deprecated Use `AccountStatus` instead. Kept for backward compatibility
+ * with existing code that references ProfileStatus.
+ */
+export type ProfileStatus = AccountStatus
 
 // ─── Lifestyle Profile ────────────────────────────────────────────────────────
 export interface LifestyleProfile {
@@ -92,6 +118,11 @@ export interface UserProfile {
   bioQuote?: string
   moveInMonth?: string | null
   twoFactorEnabled?: boolean
+
+  // Trust & Safety
+  email?: string
+  suspensionReason?: string
+  suspensionDate?: string
 }
 
 // ─── Listings ─────────────────────────────────────────────────────────────────

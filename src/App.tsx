@@ -20,6 +20,7 @@ import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import VerifyEmailPage from '@/pages/VerifyEmailPage'
 import OnboardingPage from '@/pages/OnboardingPage'
 import DiscoveryPage from '@/pages/DiscoveryPage'
+import { logger } from '@/utils/logger'
 
 // Lazily loaded heavier/dashboard pages, directly imported to bypass index.ts barrel footgun
 const AdminDashboardPage = React.lazy(() => import('@/pages/AdminDashboardPage'))
@@ -52,7 +53,7 @@ const AppRoutes: React.FC = () => {
     return <SplashScreen />
   }
 
-  console.info('[App.tsx] Routing initialized')
+  logger.info('[App.tsx] Routing initialized')
   return (
     <div className="app-shell-surface min-h-screen dark:text-slate-50">
       <BrowserRouter>

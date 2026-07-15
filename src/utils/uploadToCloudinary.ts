@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger'
 const CLOUDINARY_CLOUD_NAME =
   import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dhdh8lq9'
 const CLOUDINARY_UPLOAD_PRESET =
@@ -27,7 +28,7 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
 
   if (!response.ok) {
     const errorData = await response.json()
-    console.error('Cloudinary upload failed:', errorData)
+    logger.error('Cloudinary upload failed:', errorData)
     throw new Error('Failed to upload image')
   }
 

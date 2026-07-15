@@ -10,6 +10,7 @@ import { useAuthStore } from '@/store/authStore'
 import { db } from '@/firebase/config'
 import type { Listing } from '@/types'
 import { timeAgo } from '@/utils/dateUtils'
+import { logger } from '@/utils/logger'
 
 const ListingDetailPage: React.FC = () => {
   const { listingId } = useParams<{ listingId: string }>()
@@ -53,7 +54,7 @@ const ListingDetailPage: React.FC = () => {
         return
       }
       toast.error('Could not start conversation. Please try again.')
-      console.error(error)
+      logger.error(error)
     }
   }
 
@@ -72,7 +73,7 @@ const ListingDetailPage: React.FC = () => {
           setListing(data)
         }
       } catch (error) {
-        console.error('Failed to load listing detail:', error)
+        logger.error('Failed to load listing detail:', error)
         if (!cancelled) {
           setListing(null)
         }

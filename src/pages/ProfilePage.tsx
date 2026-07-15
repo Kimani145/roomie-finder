@@ -24,6 +24,7 @@ import { db } from '@/firebase/config';
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
 import FullScreenLoader from '@/components/ui/FullScreenLoader';
 
+import { logger } from '@/utils/logger'
 const ProfilePage: React.FC = () => {
   const { user, logout } = useAuth();
   const { currentUser, setCurrentUser } = useAuthStore();
@@ -52,7 +53,7 @@ const ProfilePage: React.FC = () => {
         const fetched = await getUserProfile(user.uid);
         if (!cancelled) setProfile(fetched);
       } catch (err) {
-        console.error('Failed to fetch profile:', err);
+        logger.error('Failed to fetch profile:', err);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -94,7 +95,7 @@ const ProfilePage: React.FC = () => {
       if (profile) setProfile({ ...profile, status: newStatus });
       
     } catch (error) {
-      console.error('Failed to update profile status:', error);
+      logger.error('Failed to update profile status:', error);
       // Revert optimistic update on error
       setProfileStatus(profileStatus);
     }
@@ -115,7 +116,7 @@ const ProfilePage: React.FC = () => {
       setProfile(nextUser);
       toast.success('Profile photo updated.');
     } catch (error: any) {
-      console.error('Failed to upload avatar:', error);
+      logger.error('Failed to upload avatar:', error);
       toast.error('Could not upload profile photo. Please try again.');
     } finally {
       setIsUploading(false);

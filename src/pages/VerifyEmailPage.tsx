@@ -4,6 +4,7 @@ import { MailCheck, RefreshCw, LogOut, AlertCircle, CheckCircle2, Edit2 } from '
 import { useAuth } from '@/hooks/useAuth'
 import { auth } from '@/firebase/config'
 import { toast as hotToast } from 'react-hot-toast'
+import { logger } from '@/utils/logger'
 
 const VerifyEmailPage: React.FC = () => {
   const navigate = useNavigate()
@@ -29,7 +30,7 @@ const VerifyEmailPage: React.FC = () => {
           }
         }
       } catch (error) {
-        console.error('Email verification polling failed:', error)
+        logger.error('Email verification polling failed:', error)
       }
     }, 3000)
 
@@ -65,7 +66,7 @@ const VerifyEmailPage: React.FC = () => {
         })
       }
     } catch (err: any) {
-      console.error("Verification check failed:", err)
+      logger.error("Verification check failed:", err)
       setToast({
         type: 'error',
         message: "An error occurred while checking. Please try refreshing the page.",
