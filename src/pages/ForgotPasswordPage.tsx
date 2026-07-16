@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '@/firebase/config';
+import { fetchApi } from '@/services/apiClient';
 import { AlertCircle, CheckCircle2, Mail, KeyRound, ArrowLeft } from 'lucide-react';
-import { CommunicationService } from '@/services/communications/CommunicationService';
 import { logger } from '@/utils/logger';
 
 
@@ -20,63 +18,25 @@ export const ForgotPasswordPage = () => {
     setMessage(null);
 
     try {
-      await sendPasswordResetEmail(auth, email);
-
-      const isEmulator = import.meta.env.VITE_USE_EMULATOR === 'true';
-      const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
-
-      if (isEmulator && projectId) {
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 800));
-          const response = await fetch(`http://127.0.0.1:9099/emulator/v1/projects/${projectId}/oobCodes`);
-          if (response.ok) {
-            const data = await response.json();
-            const latestCode = data.oobCodes
-              ?.filter((c: any) => c.email === email && c.requestType === 'PASSWORD_RESET')
-              ?.sort((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0))[0];
-
-            if (latestCode?.oobLink) {
-              const res = await CommunicationService.sendPasswordReset(email, undefined, latestCode.oobLink);
-              if (!res.success) {
-                throw new Error(res.error);
-              }
-              setMessage({
-                type: 'success',
-                text: 'Password reset link sent! Check your student email (Resend Delivery).'
-              });
-              setEmail('');
-              return;
-            }
-          }
-        } catch (err: any) {
-          logger.warn('Failed to intercept reset link from emulator.');
-        }
-      }
-
-      // Production / Fallback: trigger custom log / security alert
-      await CommunicationService.sendSecurityAlert(
-        email,
-        'A password reset request was initiated for your Roomie Finder account. If you did not request this, please secure your account credentials immediately.',
-        {
-          browser: navigator.userAgent,
-          device: navigator.platform || 'Web App',
-        }
-      );
-
-      setMessage({ 
-        type: 'success', 
-        text: 'Password reset link sent! Check your student email.' 
+      const response = await fetchApi('/auth/password-reset', {
+        method: 'POST',
+        body: JSON.stringify({ email })
       });
-      setEmail('');
+
+      if (response.success) {
+        setMessage({ 
+          type: 'success', 
+          text: 'Password reset link sent! Check your student email.' 
+        });
+        setEmail('');
+      } else {
+        throw new Error(response.message || 'Unknown error');
+      }
     } catch (error: any) {
       logger.error('Password reset request failed.');
-      let errorText = 'Failed to send reset email. Please ensure the email is correct.';
-      if (error.code === 'auth/network-request-failed' || error.message?.includes('network-request-failed')) {
-        errorText = 'Unable to connect to the authentication service. Please check your connection or verify if the local Firebase Emulators are running.';
-      }
       setMessage({ 
         type: 'error', 
-        text: errorText
+        text: 'Failed to send reset email. Please ensure the email is correct and try again.'
       });
     } finally {
       setIsSubmitting(false);

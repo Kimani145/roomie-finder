@@ -35,6 +35,10 @@ service cloud.firestore {
       return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
+    function isSuperAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)) && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.systemRole == 'SUPER_ADMIN';
+    }
+
     // Temporary dev seeder gate. Remove before production hardening.
     // Intentionally broad to verified TUK users, but constrained to seed IDs only.
     function isDevSeeder() {
@@ -161,8 +165,19 @@ service cloud.firestore {
     // USERS
     // =========================================================================
     match /admins/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if false;
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow update: if isSuperAdmin() || (request.auth.uid == userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['twoFactorEnabled', 'lastActive', 'status']));
+      allow create: if request.auth.uid == userId 
+        && request.resource.data.keys().hasAll(['systemRole', 'email', 'status', 'token']) 
+        && exists(/databases/$(database)/documents/admin_invitations/$(request.resource.data.token)) 
+        && get(/databases/$(database)/documents/admin_invitations/$(request.resource.data.token)).data.email == request.auth.token.email
+        && request.resource.data.systemRole == get(/databases/$(database)/documents/admin_invitations/$(request.resource.data.token)).data.role;
+    }
+
+    match /admin_invitations/{token} {
+      allow read: if true;
+      allow create, delete: if isSuperAdmin();
+      allow update: if request.resource.data.status == 'accepted' && resource.data.status == 'pending';
     }
 
     match /users/{userId} {
@@ -201,8 +216,9 @@ service cloud.firestore {
     // AUDIT LOGS
     // =========================================================================
     match /auditLogs/{logId} {
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAdmin() && request.resource.data.actorUid == request.auth.uid;
+      allow read: if isAdmin();
+      allow update, delete: if false;
     }
 
     match /profilePreviews/{userId} {

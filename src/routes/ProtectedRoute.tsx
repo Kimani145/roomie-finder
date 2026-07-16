@@ -3,7 +3,8 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/authStore'
 import { AlertTriangle } from 'lucide-react'
-import { auth } from '@/firebase/config'
+import { auth, db } from '@/firebase/config'
+import { doc, getDoc } from 'firebase/firestore'
 import { logger } from '@/utils/logger'
 import { shouldRedirectToSuspension, isTerminalStatus } from '@/services/accountLifecycle'
 
@@ -37,6 +38,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const is2faPending = useAuthStore(state => state.is2faPending)
   const [checkingClaims, setCheckingClaims] = useState(false)
   const [tokenEmailVerified, setTokenEmailVerified] = useState<boolean | null>(null)
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
 
   useEffect(() => {
     const forceCheck = async () => {
@@ -44,6 +46,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
       if (!currentUser) {
         setTokenEmailVerified(null)
+        setIsAdmin(false)
         return
       }
 
@@ -52,9 +55,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       try {
         const verified = await reloadUser('ROUTE')
         setTokenEmailVerified(verified)
+
+        const adminSnap = await getDoc(doc(db, 'admins', currentUser.uid))
+        setIsAdmin(adminSnap.exists())
       } catch (error) {
-        logger.error('ProtectedRoute token refresh failed.')
+        logger.error('ProtectedRoute token/admin refresh failed.')
         setTokenEmailVerified(currentUser.emailVerified)
+        setIsAdmin(false)
       } finally {
         setCheckingClaims(false)
       }
@@ -65,7 +72,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   const resolvedEmailVerified = tokenEmailVerified ?? emailVerified
 
-  if (loading || checkingClaims) {
+  if (loading || checkingClaims || isAdmin === null) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -98,6 +105,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Tier 2: Signed in but email not verified
   if (!resolvedEmailVerified) {
     return <Navigate to="/verify-email" replace />
+  }
+
+  // Tier 2.5: Administrators are not allowed on student routes
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />
   }
 
   // Anti-Suspended/Banned User Interceptor

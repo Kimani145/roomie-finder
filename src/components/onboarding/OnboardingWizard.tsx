@@ -7,7 +7,7 @@ import { saveUserProfile, getUserProfile } from '@/firebase/profiles'
 import { useAuthStore } from '@/store/authStore'
 import { db } from '@/firebase/config'
 import { TUK_ZONES, TukZone } from '@/constants/zones'
-import type { Gender, UserRole } from '@/types'
+import type { Gender, HousingRole } from '@/types'
 import { inputCls as inputClassName } from '@/utils/formStyles'
 import { logger } from '@/utils/logger'
 
@@ -25,7 +25,7 @@ const TUK_COURSES = [
 ]
 
 const ROLE_OPTIONS: Array<{
-  role: UserRole
+  role: HousingRole
   title: string
   subtitle: string
 }> = [
@@ -54,7 +54,7 @@ export const OnboardingWizard: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1)
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
-  const [role, setRole] = useState<UserRole | null>(null)
+  const [role, setRole] = useState<HousingRole | null>(null)
 
   const [firstName, setFirstName] = useState('')
   const [age, setAge] = useState('')

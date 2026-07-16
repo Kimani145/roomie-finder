@@ -5,7 +5,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { useAuthStore } from '@/store/authStore'
 import { ShieldAlert, ArrowLeft, Send, Upload, HelpCircle, Loader2 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
-import { CommunicationService } from '@/services/communications/CommunicationService'
+
 import { createNotification } from '@/firebase/notifications'
 import { logger } from '@/utils/logger'
 
@@ -57,7 +57,7 @@ export const AppealSubmissionPage: React.FC = () => {
     setSubmitting(true)
     try {
       // 1. Write appeal document to Firestore
-      const appealRef = await addDoc(collection(db, 'appeals'), {
+      await addDoc(collection(db, 'appeals'), {
         userId: currentUser.uid,
         userName: currentUser.displayName || 'TUK Student',
         userEmail: currentUser.email || '',
@@ -81,14 +81,8 @@ export const AppealSubmissionPage: React.FC = () => {
         senderId: 'system_trust_and_safety',
       })
 
-      // 3. Send confirmation email using Unified Email System
-      const submissionTime = new Date().toLocaleString()
-      await CommunicationService.sendAppealReceived(
-        currentUser.email || '',
-        appealRef.id,
-        submissionTime,
-        currentUser.displayName?.split(' ')[0]
-      )
+      // 3. Email sending logic has been moved to the trusted backend.
+      // A backend trigger or dedicated endpoint should handle the 'appeal_received' email.
 
       toast.success('Appeal submitted successfully!')
       navigate('/appeal-status')

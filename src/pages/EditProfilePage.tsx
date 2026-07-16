@@ -9,7 +9,7 @@ import { useAuthStore } from '@/store/authStore'
 import { getUserProfile } from '@/firebase/profiles'
 import { db } from '@/firebase/config'
 import { TUK_ZONES, TukZone } from '@/constants/zones'
-import type { UserProfile, UserRole } from '@/types'
+import type { UserProfile, HousingRole } from '@/types'
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
 import FullScreenLoader from '@/components/ui/FullScreenLoader'
 import { inputCls as inputClassName } from '@/utils/formStyles'
@@ -26,7 +26,7 @@ const TUK_COURSES = [
   'Diploma in ICT',
 ]
 
-const ROLE_OPTIONS: Array<{ value: UserRole; label: string; description: string }> = [
+const ROLE_OPTIONS: Array<{ value: HousingRole; label: string; description: string }> = [
   {
     value: 'HOST',
     label: 'Host',
@@ -52,7 +52,7 @@ const EditProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(currentUser)
   const [loading, setLoading] = useState(!currentUser)
 
-  const [role, setRole] = useState<UserRole>('FLEX')
+  const [role, setRole] = useState<HousingRole>('FLEX')
   const [displayName, setDisplayName] = useState('')
   const [age, setAge] = useState('')
   const [course, setCourse] = useState('')

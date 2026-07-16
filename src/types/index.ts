@@ -16,7 +16,7 @@ export type Zone =
 export type TukZone = Zone
 
 // ─── Marketplace Role Types ─────────────────────────────────────────────────
-export type UserRole = 'HOST' | 'SEEKER' | 'FLEX'
+export type HousingRole = 'HOST' | 'SEEKER' | 'FLEX'
 
 export const HOUSING_TYPES = [
   'Single Room',
@@ -59,6 +59,25 @@ export type AccountStatus =
   | 'reinstated'
   | 'banned'
 
+// ─── Administrator & System Identity ──────────────────────────────────────────
+export enum UserRole {
+  STUDENT = 'STUDENT',
+  ADMIN = 'ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN'
+}
+
+export interface AdminProfile {
+  uid: string
+  email: string
+  systemRole: UserRole
+  status: 'active' | 'disabled'
+  invitedBy?: string
+  invitedAt?: Date
+  activatedAt?: Date
+  twoFactorEnabled?: boolean
+  lastActive?: Date
+}
+
 /**
  * @deprecated Use `AccountStatus` instead. Kept for backward compatibility
  * with existing code that references ProfileStatus.
@@ -90,7 +109,7 @@ export interface UserProfile {
   uid: string
   displayName: string
   photoURL: string | null
-  role: UserRole
+  role: HousingRole
   gender: Gender
   age: number
   school: string

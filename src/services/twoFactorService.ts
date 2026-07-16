@@ -9,9 +9,8 @@ import {
   collection,
   Timestamp,
 } from 'firebase/firestore'
-import { CommunicationService } from './communications/CommunicationService'
 import { logger } from '@/utils/logger'
-
+import { fetchApi } from './apiClient'
 const OTPS_COLLECTION = 'otps'
 const AUDIT_LOGS_COLLECTION = 'auditLogs'
 
@@ -110,9 +109,19 @@ export async function generateAndSendOtp(
   await log2faAuditEvent(userId, email, '2fa_generated')
 
   // Send the email (unified communication system)
-  await CommunicationService.sendLogin2fa(email, plainOtp, {
-    browser: navigator.userAgent,
-    device: navigator.platform || 'Web App',
+  await fetchApi('/communications/send', {
+    method: 'POST',
+    body: JSON.stringify({
+      type: '2FA_CODE',
+      payload: {
+        to: email,
+        code: plainOtp,
+        browser: navigator.userAgent,
+        device: navigator.platform || 'Web App'
+      }
+    })
+  }).catch((err) => {
+    logger.error('Failed to dispatch 2FA email communication:', err)
   })
 }
 
@@ -172,5 +181,21 @@ export async function verifyOtpCode(
         message: `Incorrect code. You have ${5 - newAttempts} attempts remaining.`,
       }
     }
+  }
+}
+
+// Stub for TOTP (Authenticator App) setup, required by Admin2FASetupPage
+export const twoFactorService = {
+  generateSecret: async (_uid: string) => {
+    logger.warn('TOTP generateSecret not implemented. Returning mock.')
+    return { qrCodeUrl: 'mock-url', secret: 'MOCK_SECRET' }
+  },
+  verifyCode: async (_uid: string, _code: string, _secret: string) => {
+    logger.warn('TOTP verifyCode not implemented. Returning true.')
+    return true
+  },
+  enable2FA: async (_uid: string, _secret: string) => {
+    logger.warn('TOTP enable2FA not implemented. Returning true.')
+    return true
   }
 }

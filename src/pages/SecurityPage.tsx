@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { sendPasswordResetEmail } from 'firebase/auth'
 import { doc, updateDoc, deleteDoc } from 'firebase/firestore'
-import { auth, db } from '@/firebase/config'
+
+import { db } from '@/firebase/config'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/authStore'
 import { log2faAuditEvent } from '@/services/twoFactorService'
-import { CommunicationService } from '@/services/communications/CommunicationService'
+import { fetchApi } from '@/services/apiClient'
 import { logger } from '@/utils/logger'
 
 import {
@@ -66,16 +66,8 @@ export default function SecurityPage() {
         newValue ? '2fa_enabled' : '2fa_disabled'
       )
 
-      // Send Security Alert Email
-      await CommunicationService.sendSecurityAlert(
-        userEmail,
-        `Two-Step Verification (2FA) has been successfully ${newValue ? 'enabled' : 'disabled'} on your Roomie Finder account.`,
-        {
-          browser: navigator.userAgent,
-          device: navigator.platform || 'Web App',
-        },
-        currentUser.displayName?.split(' ')[0]
-      )
+      // Skip security alert email for now since we removed CommunicationService
+      // A dedicated backend endpoint can be added later if needed.
 
       toast.success(
         newValue
@@ -96,51 +88,14 @@ export default function SecurityPage() {
     setResettingPassword(true)
 
     try {
-      await sendPasswordResetEmail(auth, userEmail)
+      const response = await fetchApi('/auth/password-reset', {
+        method: 'POST',
+        body: JSON.stringify({ email: userEmail })
+      })
 
-      const isEmulator = import.meta.env.VITE_USE_EMULATOR === 'true'
-      const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID
-
-      if (isEmulator && projectId) {
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 800))
-          const response = await fetch(`http://127.0.0.1:9099/emulator/v1/projects/${projectId}/oobCodes`)
-          if (response.ok) {
-            const data = await response.json()
-            const latestCode = data.oobCodes
-              ?.filter((c: any) => c.email === userEmail && c.requestType === 'PASSWORD_RESET')
-              ?.sort((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0))[0]
-
-            if (latestCode?.oobLink) {
-              const res = await CommunicationService.sendPasswordReset(
-                userEmail,
-                undefined,
-                latestCode.oobLink,
-                currentUser?.displayName?.split(' ')[0]
-              )
-              if (!res.success) {
-                throw new Error(res.error)
-              }
-              setPwResetSent(true)
-              toast.success('Password reset email sent (Resend Delivery)!')
-              return
-            }
-          }
-        } catch (err: any) {
-          logger.warn('Failed to intercept reset link from emulator.')
-        }
+      if (!response.success) {
+        throw new Error(response.message || 'Unknown error')
       }
-
-      // Production / Fallback: trigger custom log / security alert
-      await CommunicationService.sendSecurityAlert(
-        userEmail,
-        'A password reset request was initiated for your Roomie Finder account. If you did not request this, please secure your account credentials immediately.',
-        {
-          browser: navigator.userAgent,
-          device: navigator.platform || 'Web App',
-        },
-        currentUser?.displayName?.split(' ')[0]
-      )
 
       setPwResetSent(true)
       toast.success('Password reset email sent!')

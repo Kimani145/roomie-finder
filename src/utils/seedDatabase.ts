@@ -13,7 +13,7 @@ import type {
   HousingType,
   ProfileStatus,
   TukZone,
-  UserRole,
+  HousingRole,
   Listing,
 } from '@/types'
 
@@ -101,7 +101,7 @@ const LAST_NAMES = [
 ]
 
 const GENDERS: Gender[] = ['Male', 'Female', 'Non-binary']
-const USER_ROLES: UserRole[] = ['HOST', 'SEEKER', 'FLEX']
+const USER_ROLES: HousingRole[] = ['HOST', 'SEEKER', 'FLEX']
 const PROFILE_STATUSES: ProfileStatus[] = ['active', 'active', 'active', 'paused', 'inactive']
 const SLEEP_TIMES: SleepTime[] = ['Early', 'Late', 'Flexible']
 const NOISE_LEVELS: NoiseTolerance[] = ['Low', 'Medium', 'High']

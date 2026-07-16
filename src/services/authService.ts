@@ -12,8 +12,8 @@ import {
   type AuthError as FirebaseAuthError,
 } from 'firebase/auth'
 import { auth } from './firebase'
-import { CommunicationService } from './communications/CommunicationService'
 import { logger } from '@/utils/logger'
+import { fetchApi } from '@/services/apiClient'
 
 
 // ─── Allowed TUK Domains ──────────────────────────────────────────────────────
@@ -50,52 +50,22 @@ async function ensurePersistence() {
 }
 
 async function triggerVerificationEmail(user: User): Promise<void> {
-  const isEmulator = import.meta.env.VITE_USE_EMULATOR === 'true'
-  const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID
+  try {
+    const response = await fetchApi('/auth/email-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email: user.email }),
+    })
 
-  // Always invoke Firebase client method so that backend registers the verification intention
-  await sendEmailVerification(user)
-
-  if (isEmulator && projectId) {
-    try {
-      // Delay slightly for the emulator db to populate
-      await new Promise((resolve) => setTimeout(resolve, 800))
-      
-      const response = await fetch(`http://127.0.0.1:9099/emulator/v1/projects/${projectId}/oobCodes`)
-      if (response.ok) {
-        const data = await response.json()
-        const latestCode = data.oobCodes
-          ?.filter((c: any) => c.email === user.email && c.requestType === 'VERIFY_EMAIL')
-          ?.sort((a: any, b: any) => (b.timestamp || 0) - (a.timestamp || 0))[0]
-
-        if (latestCode?.oobLink) {
-          const res = await CommunicationService.sendVerification(
-            user.email!,
-            undefined, // Verification uses direct link/OTP option
-            latestCode.oobLink,
-            user.displayName || undefined
-          )
-          if (!res.success) {
-            logger.error('Failed to send verification email.')
-          }
-          return
-        }
-      }
-    } catch (err) {
-      logger.warn('Failed to intercept verification code from Firebase Auth Emulator.')
+    if (!response.success) {
+      throw new Error(response.message || 'Unknown error')
     }
+  } catch (err) {
+    logger.error('Failed to trigger verification email via backend', err)
+    // Fallback to client-side verification if backend fails
+    await sendEmailVerification(user).catch((e) => {
+      logger.error('Client-side fallback verification also failed', e)
+    })
   }
-
-  // Production or fallback warning/audit
-  await CommunicationService.sendSecurityAlert(
-    user.email!,
-    'A verification link has been sent to your institutional email to verify your Roomie Finder account. Please click the link to verify.',
-    {
-      browser: navigator.userAgent,
-      device: navigator.platform || 'Web App',
-    },
-    user.displayName || undefined
-  )
 }
 
 // ─── Register (with email verification) ───────────────────────────────────────

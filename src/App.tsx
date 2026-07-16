@@ -12,6 +12,7 @@ import { ProtectedRoute } from '@/routes/ProtectedRoute'
 import { AdminRoute } from '@/routes/AdminRoute'
 import { useAuthStore } from '@/store/authStore'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { UserRole } from '@/types'
 
 // Eagerly loaded auth/landing routes to keep first-paint latency low
 import SignUpPage from '@/pages/SignUpPage'
@@ -22,7 +23,12 @@ import OnboardingPage from '@/pages/OnboardingPage'
 import DiscoveryPage from '@/pages/DiscoveryPage'
 import { logger } from '@/utils/logger'
 
-// Lazily loaded heavier/dashboard pages, directly imported to bypass index.ts barrel footgun
+// Lazily loaded Admin auth pages
+const AdminLoginPage = React.lazy(() => import('@/pages/admin/AdminLoginPage'))
+const AcceptInvitationPage = React.lazy(() => import('@/pages/admin/AcceptInvitationPage'))
+const AccessDeniedPage = React.lazy(() => import('@/pages/AccessDeniedPage'))
+const Admin2FASetupPage = React.lazy(() => import('@/pages/admin/Admin2FASetupPage'))
+const AdministratorsPage = React.lazy(() => import('@/pages/admin/AdministratorsPage'))
 const AdminDashboardPage = React.lazy(() => import('@/pages/AdminDashboardPage'))
 const UserManagementPage = React.lazy(() => import('@/pages/admin/UserManagementPage'))
 const ModerationPage = React.lazy(() => import('@/pages/admin/ModerationPage'))
@@ -193,6 +199,27 @@ const AppRoutes: React.FC = () => {
               <AdminRoute>
                 <AdminLayout>
                   <AdminDashboardPage />
+                </AdminLayout>
+              </AdminRoute>
+            }
+          />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin/accept-invitation" element={<AcceptInvitationPage />} />
+          <Route path="/admin/access-denied" element={<AccessDeniedPage />} />
+          <Route
+            path="/admin/setup-2fa"
+            element={
+              <AdminRoute>
+                <Admin2FASetupPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/administrators"
+            element={
+              <AdminRoute requireRole={UserRole.SUPER_ADMIN}>
+                <AdminLayout>
+                  <AdministratorsPage />
                 </AdminLayout>
               </AdminRoute>
             }
