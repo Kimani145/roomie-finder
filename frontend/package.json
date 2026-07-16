@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
@@ -48,31 +47,5 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.58.0",
     "vite": "^5.3.4"
-=======
-  "name": "roomie_finder",
-  "version": "1.0.0",
-  "description": "Roomie Finder Workspace",
-  "main": "patchWizard.js",
-  "workspaces": [
-    "frontend",
-    "backend",
-    "shared"
-  ],
-  "scripts": {
-    "dev": "concurrently \"npm run dev --workspace frontend\" \"npm run dev --workspace backend\"",
-    "build": "npm run build --workspaces",
-    "lint": "npm run lint --workspaces",
-    "type-check": "npm run type-check --workspaces",
-    "doctor": "node doctor.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "devDependencies": {
-    "@playwright/test": "^1.59.1",
-    "@types/node": "^25.6.2",
-    "concurrently": "^8.2.2"
->>>>>>> backend
   }
 }

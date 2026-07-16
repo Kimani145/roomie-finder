@@ -1,0 +1,402 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - generic:
+      - link "Nenda kwenye maudhui makuu" [ref=e2] [cursor=pointer]
+      - link "Usaidizi wa zana za walio na matatizo ya kuona au kusikia" [ref=e3] [cursor=pointer]:
+        - /url: https://support.google.com/websearch/answer/181196?hl=sw-KE
+      - link "Maoni kuhusu ufikivu" [ref=e4] [cursor=pointer]
+  - generic [ref=e9]:
+    - search [ref=e10]:
+      - generic [ref=e12]:
+        - link "Nenda kwenye Ukurasa wa Kwanza wa Google" [ref=e14] [cursor=pointer]:
+          - /url: https://www.google.com/webhp?hl=sw&sa=X&ved=0ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQPAgJ
+          - img [ref=e15]
+        - generic [ref=e22]:
+          - generic [ref=e23]:
+            - combobox "Tafuta" [ref=e26]: Browser MCP Browser MCP
+            - generic [ref=e27]:
+              - button "Futa" [ref=e29] [cursor=pointer]:
+                - img [ref=e31]
+              - generic [ref=e34]:
+                - button "Zana za kuingiza" [ref=e35] [cursor=pointer]:
+                  - img [ref=e37]
+                - button "Tafuta kwa kutamka" [ref=e39] [cursor=pointer]:
+                  - img [ref=e40]
+                - button "Tafuta kwa picha" [ref=e42] [cursor=pointer]:
+                  - img [ref=e43]
+          - button "Tafuta" [ref=e45] [cursor=pointer]:
+            - img [ref=e48]
+    - generic [ref=e50]:
+      - button "Mipangilio" [ref=e52] [cursor=pointer]:
+        - img [ref=e55]
+      - button "Tuma" [ref=e58] [cursor=pointer]:
+        - img [ref=e62]
+      - generic [ref=e64]:
+        - button "Programu za Google" [ref=e66] [cursor=pointer]:
+          - img [ref=e67]
+        - link "Ingia" [ref=e71] [cursor=pointer]:
+          - /url: https://accounts.google.com/ServiceLogin?hl=sw&passive=true&continue=https://www.google.com/search%3Fq%3DBrowser%2BMCP%26sca_esv%3D8d67f07cd29c129e%26source%3Dhp%26ei%3Dq9DLab_9LLCv1sQPgd_UuQQ%26iflsig%3DAFdpzrgAAAAAacveuzutCnIf3I2krscRi6YZoearlnaK%26ved%3D0ahUKEwj__sHGo8qTAxWwl5UCHYEvNUcQ4dUDCA4%26uact%3D5%26oq%3DBrowser%2BMCP%26gs_lp%3DEgdnd3Mtd2l6IgtCcm93c2VyIE1DUEg9UABYAHAAeACQAQCYAQCgAQCqAQC4AQPIAQD4AQGYAgCgAgCYAwCSBwCgBwCyBwC4BwDCBwDIBwCACAA%26sclient%3Dgws-wiz%26sei%3D1dDLaa6vDZykkdUPjJHQqQ0&ec=futura_srp_og_si_72236_p
+  - generic [ref=e73]:
+    - navigation [ref=e79]:
+      - generic [ref=e83]:
+        - list [ref=e84]:
+          - listitem [ref=e85]:
+            - link "Matumizi ya AI" [ref=e88] [cursor=pointer]:
+              - /url: /search?q=Browser+MCP&sca_esv=8d67f07cd29c129e&udm=50&source=hp&fbs=ADc_l-bWMklbPI68dI9kMP7N-Y1P99BqXKJrnO50U0XmsYpUTnhPDL0oLO7sFEwlW3iGpfBOwViWzoA7PhRPtSO3_VRjhVNtLCeLnUEA-iPiNdYlgpTjJ9JG5z-gf3vAylivzpkZ_iMU_09D2tNG4-dZQGKLFGpswiyeXgGNt2TXEGt97ydnGVA&aep=1&ntc=1&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ2J8OegQIDhAE
+              - generic [ref=e91]: Matumizi ya AI
+          - listitem [ref=e92]:
+            - link "Zote" [disabled] [ref=e93]:
+              - generic [ref=e95]: Zote
+          - listitem [ref=e96]:
+            - link "Picha" [ref=e97] [cursor=pointer]:
+              - /url: /search?sca_esv=8d67f07cd29c129e&udm=2&fbs=ADc_l-bWMklbPI68dI9kMP7N-Y1P99BqXKJrnO50U0XmsYpUTnhPDL0oLO7sFEwlW3iGpfBOwViWzoA7PhRPtSO3_VRjhVNtLCeLnUEA-iPiNdYlgpTjJ9JG5z-gf3vAylivzpkZ_iMU_09D2tNG4-dZQGKLFGpswiyeXgGNt2TXEGt97ydnGVA&q=Browser+MCP&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQtKgLegQIExAB
+              - generic [ref=e99]: Picha
+          - listitem [ref=e100]:
+            - link "Video" [ref=e101] [cursor=pointer]:
+              - /url: /search?sca_esv=8d67f07cd29c129e&udm=7&fbs=ADc_l-bWMklbPI68dI9kMP7N-Y1P99BqXKJrnO50U0XmsYpUTnhPDL0oLO7sFEwlW3iGpfBOwViWzoA7PhRPtSO3_VRjhVNtLCeLnUEA-iPiNdYlgpTjJ9JG5z-gf3vAylivzpkZ_iMU_09D2tNG4-dZQGKLFGpswiyeXgGNt2TXEGt97ydnGVA&q=Browser+MCP&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQtKgLegQIFBAB
+              - generic [ref=e103]: Video
+          - listitem [ref=e104]:
+            - link "Video fupi" [ref=e105] [cursor=pointer]:
+              - /url: /search?sca_esv=8d67f07cd29c129e&udm=39&fbs=ADc_l-bWMklbPI68dI9kMP7N-Y1P99BqXKJrnO50U0XmsYpUTnhPDL0oLO7sFEwlW3iGpfBOwViWzoA7PhRPtSO3_VRjhVNtLCeLnUEA-iPiNdYlgpTjJ9JG5z-gf3vAylivzpkZ_iMU_09D2tNG4-dZQGKLFGpswiyeXgGNt2TXEGt97ydnGVA&q=Browser+MCP&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQs6gLegQIEhAB
+              - generic [ref=e107]: Video fupi
+          - listitem [ref=e108]:
+            - link "Ramani" [ref=e109] [cursor=pointer]:
+              - /url: https://maps.google.com/maps?sca_esv=8d67f07cd29c129e&output=search&q=Browser+MCP&source=lnms&fbs=ADc_l-bWMklbPI68dI9kMP7N-Y1P99BqXKJrnO50U0XmsYpUTnhPDL0oLO7sFEwlW3iGpfBOwViWzoA7PhRPtSO3_VRjhVNtLCeLnUEA-iPiNdYlgpTjJ9JG5z-gf3vAylivzpkZ_iMU_09D2tNG4-dZQGKLFGpswiyeXgGNt2TXEGt97ydnGVA&entry=mc&ved=1t:200715&ictx=111
+              - generic [ref=e111]: Ramani
+          - listitem [ref=e112]:
+            - link "Wavuti" [ref=e113] [cursor=pointer]:
+              - /url: /search?sca_esv=8d67f07cd29c129e&udm=web&fbs=ADc_l-bWMklbPI68dI9kMP7N-Y1P99BqXKJrnO50U0XmsYpUTnhPDL0oLO7sFEwlW3iGpfBOwViWzoA7PhRPtSO3_VRjhVNtLCeLnUEA-iPiNdYlgpTjJ9JG5z-gf3vAylivzpkZ_iMU_09D2tNG4-dZQGKLFGpswiyeXgGNt2TXEGt97ydnGVA&q=Browser+MCP&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQs6gLegQIEBAB
+              - generic [ref=e115]: Wavuti
+          - listitem [ref=e116]:
+            - button "Vichujio zaidi" [ref=e117] [cursor=pointer]:
+              - generic "Vichujio zaidi" [ref=e118]:
+                - generic [ref=e119]:
+                  - generic [ref=e120]: Mengineyo
+                  - img [ref=e122]
+        - button "Zana" [ref=e125] [cursor=pointer]:
+          - generic [ref=e127]:
+            - generic [ref=e128]: Zana
+            - img [ref=e130]
+    - heading "Matokeo ya Utafutaji" [level=1] [ref=e132]
+    - generic [ref=e138]:
+      - generic [ref=e139]: Looking for results in English?
+      - link [ref=e140] [cursor=pointer]:
+        - /url: "#"
+        - img [ref=e142]
+      - link "Change to English" [ref=e144] [cursor=pointer]:
+        - /url: /setprefs?sig=0_sOp8gVolYLEKogubITLHVjDehiI%3D&source=en_ignored_notification&prev=https://www.google.com/search?q%3DBrowser%2BMCP%26sca_esv%3D8d67f07cd29c129e%26source%3Dhp%26ei%3Dq9DLab_9LLCv1sQPgd_UuQQ%26iflsig%3DAFdpzrgAAAAAacveuzutCnIf3I2krscRi6YZoearlnaK%26ved%3D0ahUKEwj__sHGo8qTAxWwl5UCHYEvNUcQ4dUDCA4%26uact%3D5%26oq%3DBrowser%2BMCP%26gs_lp%3DEgdnd3Mtd2l6IgtCcm93c2VyIE1DUEg9UABYAHAAeACQAQCYAQCgAQCqAQC4AQPIAQD4AQGYAgCgAgCYAwCSBwCgBwCyBwC4BwDCBwDIBwCACAA%26sclient%3Dgws-wiz%26sei%3D1dDLaa6vDZykkdUPjJHQqQ0&hl=en&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQhoQCKAF6BAgMEAQ
+      - link "Salia katika Kiswahili" [ref=e145] [cursor=pointer]:
+        - /url: "#"
+      - link "Mipangilio ya lugha" [ref=e147] [cursor=pointer]:
+        - /url: /preferences?lang=1&hl=sw-KE&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQiIQCKAN6BAgMEAY#languages
+    - main [ref=e149]:
+      - generic [ref=e153]:
+        - generic [ref=e156]:
+          - heading "Matokeo ya Wavuti yaliyo na Viungo vya Tovuti" [level=2] [ref=e157]
+          - generic [ref=e158]:
+            - generic [ref=e162]:
+              - generic [ref=e164]:
+                - link "Browser MCP - Automate your browser using VS Code ... Browser MCP https://browsermcp.io" [ref=e166] [cursor=pointer]:
+                  - /url: https://browsermcp.io/
+                  - heading "Browser MCP - Automate your browser using VS Code ..." [level=3] [ref=e167]
+                  - generic [ref=e172]:
+                    - generic [ref=e174]: Browser MCP
+                    - generic [ref=e176]: https://browsermcp.io
+                - generic [ref=e177]:
+                  - generic [ref=e178]: ·
+                  - link "Tafsiri ukurasa huu" [ref=e179] [cursor=pointer]:
+                    - /url: https://browsermcp.io/
+                - button "Kuhusu tokeo hili" [ref=e180] [cursor=pointer]:
+                  - img [ref=e183]
+              - generic [ref=e187]:
+                - emphasis [ref=e188]: Browser MCP
+                - text: connects AI applications to your browser so you can automate tasks using AI. Supported by Claude, Cursor, VS Code, Windsurf, and more.
+            - group "Mapendekezo yaliyowekewa mapendeleo kulingana na historia yako" [ref=e189]:
+              - rowgroup [ref=e190]:
+                - row "Set up extension Open the Browser MCP extension by clicking the extension icon in ..." [ref=e191]:
+                  - cell "Set up extension Open the Browser MCP extension by clicking the extension icon in ..." [ref=e192]:
+                    - generic [ref=e197]:
+                      - heading "Set up extension" [level=3] [ref=e198]:
+                        - link "Set up extension" [ref=e199] [cursor=pointer]:
+                          - /url: https://docs.browsermcp.io/setup-extension
+                          - text: Set up extension
+                      - generic [ref=e202]: Open the Browser MCP extension by clicking the extension icon in ...
+                - row "Set up MCP server You need to have Node.js installed to use the Browser MCP server ..." [ref=e203]:
+                  - cell "Set up MCP server You need to have Node.js installed to use the Browser MCP server ..." [ref=e204]:
+                    - generic [ref=e209]:
+                      - heading "Set up MCP server" [level=3] [ref=e210]:
+                        - link "Set up MCP server" [ref=e211] [cursor=pointer]:
+                          - /url: https://docs.browsermcp.io/setup-server
+                          - text: Set up MCP server
+                      - generic [ref=e214]: You need to have Node.js installed to use the Browser MCP server ...
+                - row "Matokeo zaidi kutoka browsermcp.io »" [ref=e216]:
+                  - cell "Matokeo zaidi kutoka browsermcp.io »" [ref=e217]:
+                    - link "Matokeo zaidi kutoka browsermcp.io »" [ref=e219] [cursor=pointer]:
+                      - /url: /search?q=Browser+MCP+site:browsermcp.io&sca_esv=8d67f07cd29c129e&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQrAN6BAgXEAE
+        - generic [ref=e222]:
+          - heading "Web results" [level=2] [ref=e223]
+          - generic [ref=e224]:
+            - generic [ref=e227]:
+              - link "Browser MCP - Automate your browser using VS Code ... Chrome Web Store https://chromewebstore.google.com › ..." [ref=e229] [cursor=pointer]:
+                - /url: https://chromewebstore.google.com/detail/browser-mcp-automate-your/bjfgambnhccakkhmkepdoekmckoijdlc
+                - heading "Browser MCP - Automate your browser using VS Code ..." [level=3] [ref=e230]
+                - generic [ref=e235]:
+                  - generic [ref=e237]: Chrome Web Store
+                  - generic [ref=e239]: https://chromewebstore.google.com › ...
+              - generic [ref=e240]:
+                - generic [ref=e241]: ·
+                - link "Tafsiri ukurasa huu" [ref=e242] [cursor=pointer]:
+                  - /url: https://chromewebstore.google.com/detail/browser-mcp-automate-your/bjfgambnhccakkhmkepdoekmckoijdlc
+              - button "Kuhusu tokeo hili" [ref=e243] [cursor=pointer]:
+                - img [ref=e246]
+            - generic [ref=e250]:
+              - emphasis [ref=e251]: Browser MCP
+              - text: is a Model Context Protocol (MCP) server that allows clients like VS Code, Claude, Cursor, and Windsurf to automate your browser.
+        - generic [ref=e255]:
+          - generic [ref=e258]:
+            - 'link "BrowserMCP/mcp: Browser MCP is a Model Context ... GitHub https://github.com › browsermcp" [ref=e260] [cursor=pointer]':
+              - /url: https://github.com/browsermcp/mcp
+              - 'heading "BrowserMCP/mcp: Browser MCP is a Model Context ..." [level=3] [ref=e261]'
+              - generic [ref=e266]:
+                - generic [ref=e268]: GitHub
+                - generic [ref=e270]: https://github.com › browsermcp
+            - generic [ref=e271]:
+              - generic [ref=e272]: ·
+              - link "Tafsiri ukurasa huu" [ref=e273] [cursor=pointer]:
+                - /url: https://github.com/browsermcp/mcp
+            - button "Kuhusu tokeo hili" [ref=e274] [cursor=pointer]:
+              - img [ref=e277]
+          - generic [ref=e281]:
+            - emphasis [ref=e282]: Browser MCP
+            - text: is an MCP server + Chrome extension that allows you to automate your browser using AI applications like VS Code, Claude, Cursor, and Windsurf.
+        - generic [ref=e286]:
+          - generic [ref=e289]:
+            - link "Browser MCP browsermcp.com https://browsermcp.com" [ref=e291] [cursor=pointer]:
+              - /url: https://browsermcp.com/
+              - heading "Browser MCP" [level=3] [ref=e292]
+              - generic [ref=e297]:
+                - generic [ref=e299]: browsermcp.com
+                - generic [ref=e301]: https://browsermcp.com
+            - generic [ref=e302]:
+              - generic [ref=e303]: ·
+              - link "Tafsiri ukurasa huu" [ref=e304] [cursor=pointer]:
+                - /url: https://browsermcp.com/
+            - button "Kuhusu tokeo hili" [ref=e305] [cursor=pointer]:
+              - img [ref=e308]
+          - generic [ref=e312]:
+            - text: The 10X better Playwright MCP · ✓
+            - emphasis [ref=e313]: Runs in the cloud, can scale to 1,000s of browsers
+            - text: · Bound to your computer and browser · ✓ Emulates human behavior to ...
+        - generic [ref=e320]:
+          - generic [ref=e323]:
+            - 'link "Browser MCP with Cursor: Automate Tasks and Testing YouTube · All About AI Imetazamwa zaidi ya mara elfu 43.9 · miezi 11 iliyopita" [ref=e325] [cursor=pointer]':
+              - /url: https://www.youtube.com/watch?v=eD5SUj5qqgI
+              - 'heading "Browser MCP with Cursor: Automate Tasks and Testing" [level=3] [ref=e326]'
+              - generic [ref=e331]:
+                - generic [ref=e333]: YouTube · All About AI
+                - generic [ref=e335]: Imetazamwa zaidi ya mara elfu 43.9 · miezi 11 iliyopita
+            - button "Kuhusu tokeo hili" [ref=e336] [cursor=pointer]:
+              - img [ref=e339]
+          - generic [ref=e341]:
+            - 'button "Browser MCP with Cursor: Automate Tasks and Testing ya All About AI kwenye YouTube. Cheza kwenye Google. 10:55" [ref=e342] [cursor=pointer]':
+              - generic [ref=e344]:
+                - img [ref=e350]
+                - generic [ref=e353]:
+                  - generic [ref=e354]: 10:55
+                  - img [ref=e357]
+            - generic [ref=e360]: "Browser MCP with Cursor: Automate Tasks and Testing Become a YouTube Member for GH access: https://www.youtube.com/c/AllAboutAI/join ..."
+        - generic [ref=e364]:
+          - generic [ref=e367]:
+            - link "Chrome DevTools (MCP) for your AI agent | Blog Chrome for Developers https://developer.chrome.com › c..." [ref=e369] [cursor=pointer]:
+              - /url: https://developer.chrome.com/blog/chrome-devtools-mcp
+              - heading "Chrome DevTools (MCP) for your AI agent | Blog" [level=3] [ref=e370]
+              - generic [ref=e375]:
+                - generic [ref=e377]: Chrome for Developers
+                - generic [ref=e379]: https://developer.chrome.com › c...
+            - generic [ref=e380]:
+              - generic [ref=e381]: ·
+              - link "Tafsiri ukurasa huu" [ref=e382] [cursor=pointer]:
+                - /url: https://developer.chrome.com/blog/chrome-devtools-mcp
+            - button "Kuhusu tokeo hili" [ref=e383] [cursor=pointer]:
+              - img [ref=e386]
+          - generic [ref=e389]:
+            - generic [ref=e390]: 23 Sep 2025 —
+            - generic [ref=e391]:
+              - text: The Model Context Protocol (
+              - emphasis [ref=e392]: MCP
+              - text: ) is an open-source standard for connecting large language models (LLMs) to external tools and data sources. The ...
+        - generic [ref=e396]:
+          - generic [ref=e399]:
+            - link "MCP Server Browser Use https://docs.browser-use.com › m..." [ref=e401] [cursor=pointer]:
+              - /url: https://docs.browser-use.com/open-source/customize/integrations/mcp-server
+              - heading "MCP Server" [level=3] [ref=e402]
+              - generic [ref=e407]:
+                - generic [ref=e409]: Browser Use
+                - generic [ref=e411]: https://docs.browser-use.com › m...
+            - generic [ref=e412]:
+              - generic [ref=e413]: ·
+              - link "Tafsiri ukurasa huu" [ref=e414] [cursor=pointer]:
+                - /url: https://docs.browser-use.com/open-source/customize/integrations/mcp-server
+            - button "Kuhusu tokeo hili" [ref=e415] [cursor=pointer]:
+              - img [ref=e418]
+          - generic [ref=e422]:
+            - emphasis [ref=e423]: Run browser-use as a local Model Context Protocol server
+            - text: . Connect AI models to browser automation through the MCP standard.
+        - generic [ref=e427]:
+          - generic [ref=e430]:
+            - link "Browser MCP | Awesome MCP Servers mcpservers.org https://mcpservers.org › bytedance" [ref=e432] [cursor=pointer]:
+              - /url: https://mcpservers.org/servers/bytedance/browser-mcp
+              - heading "Browser MCP | Awesome MCP Servers" [level=3] [ref=e433]
+              - generic [ref=e438]:
+                - generic [ref=e440]: mcpservers.org
+                - generic [ref=e442]: https://mcpservers.org › bytedance
+            - generic [ref=e443]:
+              - generic [ref=e444]: ·
+              - link "Tafsiri ukurasa huu" [ref=e445] [cursor=pointer]:
+                - /url: https://mcpservers.org/servers/bytedance/browser-mcp
+            - button "Kuhusu tokeo hili" [ref=e446] [cursor=pointer]:
+              - img [ref=e449]
+          - generic [ref=e453]:
+            - emphasis [ref=e454]: A fast, lightweight MCP server
+            - text: that empowers LLMs with browser automation via Puppeteer's structured accessibility data.
+        - generic [ref=e458]:
+          - generic [ref=e461]:
+            - link "MCP servers OpenCode https://opencode.ai › docs › mcp-..." [ref=e463] [cursor=pointer]:
+              - /url: https://opencode.ai/docs/mcp-servers/
+              - heading "MCP servers" [level=3] [ref=e464]
+              - generic [ref=e469]:
+                - generic [ref=e471]: OpenCode
+                - generic [ref=e473]: https://opencode.ai › docs › mcp-...
+            - generic [ref=e474]:
+              - generic [ref=e475]: ·
+              - link "Tafsiri ukurasa huu" [ref=e476] [cursor=pointer]:
+                - /url: https://opencode.ai/docs/mcp-servers/
+            - button "Kuhusu tokeo hili" [ref=e477] [cursor=pointer]:
+              - img [ref=e480]
+          - generic [ref=e484]:
+            - text: The
+            - emphasis [ref=e485]: mcp auth command will open your browser for authorization
+            - text: . After you authorize, OpenCode will store the tokens securely in ~/.local/share/opencode/mcp-auth.
+        - generic [ref=e489]:
+          - generic [ref=e490]:
+            - heading "Maswali zaidi" [level=2] [ref=e491]
+            - button "Kuhusu tokeo hili" [ref=e492] [cursor=pointer]:
+              - img [ref=e495]
+          - generic [ref=e497]:
+            - button "What is browser MCP?" [ref=e503] [cursor=pointer]:
+              - generic [ref=e505]: What is browser MCP?
+              - img [ref=e508]
+            - button "How to start browser MCP?" [ref=e517] [cursor=pointer]:
+              - generic [ref=e519]: How to start browser MCP?
+              - img [ref=e522]
+            - generic [ref=e528]:
+              - button "How to use browser MCP in cursor?" [ref=e531] [cursor=pointer]:
+                - generic [ref=e533]: How to use browser MCP in cursor?
+                - img [ref=e536]
+              - text: "\"... ...\" \"... ...\""
+            - button "How to use browser MCP with claude code?" [ref=e545] [cursor=pointer]:
+              - generic [ref=e547]: How to use browser MCP with claude code?
+              - img [ref=e550]
+      - generic [ref=e554]:
+        - generic [ref=e559]:
+          - heading "Watu pia wanatafuta" [level=2] [ref=e561]
+          - generic [ref=e563]:
+            - generic [ref=e564]:
+              - link "Browser MCP extension" [ref=e568] [cursor=pointer]:
+                - /url: /search?sca_esv=8d67f07cd29c129e&q=Browser+MCP+extension&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ1QJ6BAg8EAE
+                - generic [ref=e569]:
+                  - generic [ref=e574]: Browser MCP extension
+                  - img [ref=e578]
+              - link "Browser MCP Cursor" [ref=e583] [cursor=pointer]:
+                - /url: /search?sca_esv=8d67f07cd29c129e&q=Browser+MCP+Cursor&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ1QJ6BAhAEAE
+                - generic [ref=e584]:
+                  - generic [ref=e589]: Browser MCP Cursor
+                  - img [ref=e593]
+              - link "Browser MCP Claude Code" [ref=e598] [cursor=pointer]:
+                - /url: /search?sca_esv=8d67f07cd29c129e&q=Browser+MCP+Claude+Code&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ1QJ6BAhDEAE
+                - generic [ref=e599]:
+                  - generic [ref=e604]: Browser MCP Claude Code
+                  - img [ref=e608]
+              - link "Browser MCP chrome extension" [ref=e613] [cursor=pointer]:
+                - /url: /search?sca_esv=8d67f07cd29c129e&q=Browser+MCP+chrome+extension&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ1QJ6BAhCEAE
+                - generic [ref=e614]:
+                  - generic [ref=e619]: Browser MCP chrome extension
+                  - img [ref=e623]
+            - generic [ref=e625]:
+              - link "Best browser MCP" [ref=e629] [cursor=pointer]:
+                - /url: /search?sca_esv=8d67f07cd29c129e&q=Best+browser+MCP&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ1QJ6BAhBEAE
+                - generic [ref=e630]:
+                  - generic [ref=e635]: Best browser MCP
+                  - img [ref=e639]
+              - link "Browser mcp github" [ref=e644] [cursor=pointer]:
+                - /url: /search?sca_esv=8d67f07cd29c129e&q=Browser+mcp+github&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ1QJ6BAg_EAE
+                - generic [ref=e645]:
+                  - generic [ref=e650]: Browser mcp github
+                  - img [ref=e654]
+              - link "Browser MCP Firefox" [ref=e659] [cursor=pointer]:
+                - /url: /search?sca_esv=8d67f07cd29c129e&q=Browser+MCP+Firefox&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ1QJ6BAg-EAE
+                - generic [ref=e660]:
+                  - generic [ref=e665]: Browser MCP Firefox
+                  - img [ref=e669]
+              - link "Browser MCP vs Playwright MCP" [ref=e674] [cursor=pointer]:
+                - /url: /search?sca_esv=8d67f07cd29c129e&q=Browser+MCP+vs+Playwright+MCP&sa=X&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ1QJ6BAg9EAE
+                - generic [ref=e675]:
+                  - generic [ref=e680]: Browser MCP vs Playwright MCP
+                  - img [ref=e684]
+        - navigation [ref=e686]:
+          - heading "Usogezaji Kurasa" [level=1] [ref=e687]
+          - text: "1"
+          - link "Page 2" [ref=e690] [cursor=pointer]:
+            - /url: /search?q=Browser+MCP&sca_esv=8d67f07cd29c129e&ei=1dDLadXuLqeMkdUPmNepwAI&start=10&sa=N&sstk=Af77f_eJ9nO5yi1dhktq31hAwQQR1Fd-QYv8TyOq6MLeFEQituzkeay8eYb8ERaOHhfy_9Z5xOcEwVXYIPpOKYgpjPFxvD3OkChWIg&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ8tMDegQICRAE
+            - text: "2"
+          - link "Page 3" [ref=e692] [cursor=pointer]:
+            - /url: /search?q=Browser+MCP&sca_esv=8d67f07cd29c129e&ei=1dDLadXuLqeMkdUPmNepwAI&start=20&sa=N&sstk=Af77f_eJ9nO5yi1dhktq31hAwQQR1Fd-QYv8TyOq6MLeFEQituzkeay8eYb8ERaOHhfy_9Z5xOcEwVXYIPpOKYgpjPFxvD3OkChWIg&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ8tMDegQICRAG
+            - text: "3"
+          - link "Page 4" [ref=e694] [cursor=pointer]:
+            - /url: /search?q=Browser+MCP&sca_esv=8d67f07cd29c129e&ei=1dDLadXuLqeMkdUPmNepwAI&start=30&sa=N&sstk=Af77f_eJ9nO5yi1dhktq31hAwQQR1Fd-QYv8TyOq6MLeFEQituzkeay8eYb8ERaOHhfy_9Z5xOcEwVXYIPpOKYgpjPFxvD3OkChWIg&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ8tMDegQICRAI
+            - text: "4"
+          - link "Page 5" [ref=e696] [cursor=pointer]:
+            - /url: /search?q=Browser+MCP&sca_esv=8d67f07cd29c129e&ei=1dDLadXuLqeMkdUPmNepwAI&start=40&sa=N&sstk=Af77f_eJ9nO5yi1dhktq31hAwQQR1Fd-QYv8TyOq6MLeFEQituzkeay8eYb8ERaOHhfy_9Z5xOcEwVXYIPpOKYgpjPFxvD3OkChWIg&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ8tMDegQICRAK
+            - text: "5"
+          - link "Page 6" [ref=e698] [cursor=pointer]:
+            - /url: /search?q=Browser+MCP&sca_esv=8d67f07cd29c129e&ei=1dDLadXuLqeMkdUPmNepwAI&start=50&sa=N&sstk=Af77f_eJ9nO5yi1dhktq31hAwQQR1Fd-QYv8TyOq6MLeFEQituzkeay8eYb8ERaOHhfy_9Z5xOcEwVXYIPpOKYgpjPFxvD3OkChWIg&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ8tMDegQICRAM
+            - text: "6"
+          - link "Page 7" [ref=e700] [cursor=pointer]:
+            - /url: /search?q=Browser+MCP&sca_esv=8d67f07cd29c129e&ei=1dDLadXuLqeMkdUPmNepwAI&start=60&sa=N&sstk=Af77f_eJ9nO5yi1dhktq31hAwQQR1Fd-QYv8TyOq6MLeFEQituzkeay8eYb8ERaOHhfy_9Z5xOcEwVXYIPpOKYgpjPFxvD3OkChWIg&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ8tMDegQICRAO
+            - text: "7"
+          - link "Page 8" [ref=e702] [cursor=pointer]:
+            - /url: /search?q=Browser+MCP&sca_esv=8d67f07cd29c129e&ei=1dDLadXuLqeMkdUPmNepwAI&start=70&sa=N&sstk=Af77f_eJ9nO5yi1dhktq31hAwQQR1Fd-QYv8TyOq6MLeFEQituzkeay8eYb8ERaOHhfy_9Z5xOcEwVXYIPpOKYgpjPFxvD3OkChWIg&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ8tMDegQICRAQ
+            - text: "8"
+          - link "Page 9" [ref=e704] [cursor=pointer]:
+            - /url: /search?q=Browser+MCP&sca_esv=8d67f07cd29c129e&ei=1dDLadXuLqeMkdUPmNepwAI&start=80&sa=N&sstk=Af77f_eJ9nO5yi1dhktq31hAwQQR1Fd-QYv8TyOq6MLeFEQituzkeay8eYb8ERaOHhfy_9Z5xOcEwVXYIPpOKYgpjPFxvD3OkChWIg&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ8tMDegQICRAS
+            - text: "9"
+          - link "Page 10" [ref=e706] [cursor=pointer]:
+            - /url: /search?q=Browser+MCP&sca_esv=8d67f07cd29c129e&ei=1dDLadXuLqeMkdUPmNepwAI&start=90&sa=N&sstk=Af77f_eJ9nO5yi1dhktq31hAwQQR1Fd-QYv8TyOq6MLeFEQituzkeay8eYb8ERaOHhfy_9Z5xOcEwVXYIPpOKYgpjPFxvD3OkChWIg&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ8tMDegQICRAU
+            - text: "10"
+          - heading "Mbele" [level=2] [ref=e708]:
+            - link "Mbele" [ref=e709] [cursor=pointer]:
+              - /url: /search?q=Browser+MCP&sca_esv=8d67f07cd29c129e&ei=1dDLadXuLqeMkdUPmNepwAI&start=10&sa=N&sstk=Af77f_eJ9nO5yi1dhktq31hAwQQR1Fd-QYv8TyOq6MLeFEQituzkeay8eYb8ERaOHhfy_9Z5xOcEwVXYIPpOKYgpjPFxvD3OkChWIg&ved=2ahUKEwiVrcfao8qTAxUnRqQEHZhrCigQ8NMDegQICRAW
+              - generic [ref=e711]: Mbele
+      - navigation
+    - contentinfo [ref=e712]:
+      - heading "Viungo vya Kijachini" [level=1] [ref=e713]
+      - generic [ref=e717]:
+        - generic [ref=e719]:
+          - text: Kenya
+          - generic [ref=e721]:
+            - button "Ruiru - Kutoka kwenye Anwani yako ya IP" [ref=e723] [cursor=pointer]:
+              - generic [ref=e724]: Ruiru
+              - generic [ref=e726]:
+                - text: "-"
+                - generic [ref=e727]: Kutoka kwenye Anwani yako ya IP
+            - text: "-"
+            - button "Sasisha eneo" [ref=e729] [cursor=pointer]: Sasisha eneo
+        - generic [ref=e732]:
+          - link "Usaidizi" [ref=e733] [cursor=pointer]:
+            - /url: https://support.google.com/websearch/?p=ws_results_help&hl=sw-KE&fg=1
+          - link "Tuma maoni" [ref=e734] [cursor=pointer]:
+            - /url: "#"
+          - link "Faragha" [ref=e735] [cursor=pointer]:
+            - /url: https://policies.google.com/privacy?hl=sw-KE&fg=1
+          - link "Masharti" [ref=e736] [cursor=pointer]:
+            - /url: https://policies.google.com/terms?hl=sw-KE&fg=1

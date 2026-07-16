@@ -1,0 +1,216 @@
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Home, Flame, AlertTriangle } from 'lucide-react'
+import { ReportModal } from '@/components/ui'
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { toast } from 'react-hot-toast'
+import { getListingById } from '@/firebase/listings'
+import { ImageGalleryModal } from '@/components/ui/ImageGalleryModal'
+import { useAuthStore } from '@/store/authStore'
+import { db } from '@/firebase/config'
+import type { Listing } from '@/types'
+import { timeAgo } from '@/utils/dateUtils'
+import { logger } from '@/utils/logger'
+
+const ListingDetailPage: React.FC = () => {
+  const { listingId } = useParams<{ listingId: string }>()
+  const navigate = useNavigate()
+  const { currentUser } = useAuthStore()
+  const [listing, setListing] = useState<Listing | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [galleryIndex, setGalleryIndex] = useState<number | null>(null)
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
+
+  const handleMessageOwner = async () => {
+    if (!listing || !currentUser) return
+
+    const chatId = [currentUser.uid, listing.hostId].sort().join('_')
+    const matchSnap = await getDoc(doc(db, 'matches', chatId))
+    const matchData = matchSnap.data() as { status?: string } | undefined
+
+    if (!matchSnap.exists() || matchData?.status !== 'matched') {
+      toast.error('You must match with this user before sending a message!', {
+        icon: '🔒',
+      })
+      return
+    }
+
+    const chatData = {
+      participants: [currentUser.uid, listing.hostId],
+      status: 'matched',
+      updatedAt: serverTimestamp(),
+      lastMessage: '',
+      unreadBy: [],
+    }
+
+    try {
+      await setDoc(doc(db, 'chats', chatId), chatData, { merge: true })
+      navigate(`/chat/${chatId}`)
+    } catch (error: any) {
+      if (error?.code === 'permission-denied') {
+        toast.error('You must match with this user before sending a message!', {
+          icon: '🔒',
+        })
+        return
+      }
+      toast.error('Could not start conversation. Please try again.')
+      logger.error(error)
+    }
+  }
+
+  useEffect(() => {
+    let cancelled = false
+
+    ;(async () => {
+      if (!listingId) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const data = await getListingById(listingId)
+        if (!cancelled) {
+          setListing(data)
+        }
+      } catch (error) {
+        logger.error('Failed to load listing detail:', error)
+        if (!cancelled) {
+          setListing(null)
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [listingId])
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full text-slate-600 dark:text-slate-300">
+        Weaving your matches...
+      </div>
+    )
+  }
+
+  if (!listing) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div className="card-surface card-surface-thatch rounded-2xl p-8 text-center">
+          <p className="text-slate-600 dark:text-slate-300">Listing not found.</p>
+          <Link
+            to="/discover"
+            className="inline-flex mt-4 rounded-xl bg-brand-600 text-white px-4 py-2 text-sm font-semibold hover:bg-brand-600"
+          >
+            Back to Discover
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const interestCount = listing.interestCount ?? 0
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 w-full">
+      <div className="card-surface card-surface-cello overflow-hidden rounded-2xl">
+        {listing.photos.length > 0 ? (
+          <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+            {listing.photos.map((photo, index) => (
+              <img
+                key={index}
+                src={photo}
+                alt={`Room view ${index + 1}`}
+                onClick={() => setGalleryIndex(index)}
+                className="snap-center shrink-0 w-[85vw] sm:w-[60vw] md:w-[500px] h-64 md:h-[400px] rounded-2xl object-cover cursor-pointer hover:opacity-95 transition-opacity border border-slate-200 dark:border-slate-700"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="w-full h-64 bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+            <Home className="h-10 w-10 text-slate-400 dark:text-slate-500" />
+          </div>
+        )}
+
+        <div className="p-6">
+          <h1 className="text-2xl font-syne font-bold text-slate-900 dark:text-slate-50 mb-2">
+            {listing.housingType} in {listing.zone}
+          </h1>
+          <p className="text-slate-600 dark:text-slate-300 mb-4">
+            KES {listing.roommateShare.toLocaleString()} match share
+          </p>
+
+          <div className="w-full bg-gradient-to-r from-amber-500/10 to-transparent border-l-4 border-amber-500 p-4 rounded-r-2xl my-6 flex items-start sm:items-center gap-3">
+            <div className="p-2 bg-amber-500/20 rounded-full shrink-0">
+              <Flame className="w-5 h-5 text-amber-600 dark:text-amber-500" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">This listing is highly active</h4>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                Posted {timeAgo(listing.createdAt)} • {interestCount}{' '}
+                {interestCount === 1 ? 'seeker is' : 'seekers are'} interested in this
+                space.
+              </p>
+            </div>
+          </div>
+
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Amenities: {listing.amenities.length ? listing.amenities.join(', ') : 'Not specified'}
+          </p>
+        </div>
+      </div>
+
+      <div className="card-surface-soft card-surface-cello fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between border-x-0 border-b-0 border-t p-4 px-6 pb-safe md:left-64">
+        <div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Total Rent</p>
+          <p className="text-lg font-bold text-slate-900 dark:text-white">
+            KES {listing.rentTotal}{' '}
+            <span className="text-sm font-normal text-slate-500">/mo</span>
+          </p>
+        </div>
+        <div className="flex gap-2">
+          {currentUser && currentUser.uid !== listing.hostId && (
+            <button
+              onClick={() => setIsReportModalOpen(true)}
+              className="p-3 border-2 border-red-500/20 hover:border-red-500 text-red-600 dark:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+              title="Report Listing"
+              aria-label="Report Listing"
+            >
+              <AlertTriangle className="w-5 h-5" />
+            </button>
+          )}
+          <button
+            onClick={handleMessageOwner}
+            className="bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-xl transition-colors shadow-sm"
+          >
+            Message Host
+          </button>
+        </div>
+      </div>
+
+      {galleryIndex !== null && (
+        <ImageGalleryModal
+          images={listing.photos}
+          initialIndex={galleryIndex}
+          onClose={() => setGalleryIndex(null)}
+        />
+      )}
+
+      {listing && (
+        <ReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          reportedId={listing.id}
+          type="listing"
+          reportedName={`${listing.housingType} in ${listing.zone}`}
+        />
+      )}
+    </div>
+  )
+}
+
+export default ListingDetailPage

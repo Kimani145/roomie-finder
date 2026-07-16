@@ -1,0 +1,95 @@
+[     704ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=59fe7d0b:21550
+[    1739ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx?t=1774965709699:66
+[    1741ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx?t=1774965709699:66
+[    1750ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774965700167:120
+[    1752ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774965700167:120
+[    1775ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    1776ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    1816ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=d6258253:4435
+[    1817ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=d6258253:4435
+[    1819ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    1819ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    2720ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[    2720ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[    2721ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[    2721ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[    2722ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[    2730ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774965700167:120
+[    2731ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774965700167:120
+[    2753ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    2754ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    2777ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    2777ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    2783ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[    2783ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[    2783ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[    2783ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[    2783ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[    2793ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    2794ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    3113ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    3117ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    3141ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[    3143ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  393152ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774966122815:125
+[  393152ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774966122815:125
+[  394380ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  394381ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  394382ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  394382ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  394382ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  394386ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774966122815:125
+[  394387ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774966122815:125
+[  394416ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  394417ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  394515ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  394525ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  394581ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  394582ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  395119ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  395124ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  395147ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  395150ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  423032ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774966152900:125
+[  423033ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774966152900:125
+[  424972ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  424973ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  424973ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  424973ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  424973ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  424977ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774966152900:125
+[  424981ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774966152900:125
+[  424992ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  424992ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  425010ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  425010ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  425017ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  425018ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  425274ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  425277ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  425293ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  425299ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  468176ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  468177ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  468177ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  468177ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  468177ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  468194ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  468194ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  468225ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  468227ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  468234ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  468235ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  468698ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  468701ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  468725ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  468727ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[ 1432839ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx?t=1774965709699:66
+[ 1432842ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx?t=1774965709699:66
+[ 1432896ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx?t=1774965709699:66
+[ 1432896ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx?t=1774965709699:66
+[ 1440764ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAiOa5dmaxslDHSWUoxzrOP4qeLaZOtUJ8:0
+[ 1440781ms] [ERROR] Login failed: {code: auth/invalid-credential, message: Firebase: Error (auth/invalid-credential).} @ http://localhost:5173/src/pages/LoginPage.tsx?t=1774966773357:42
+[ 1440784ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx?t=1774965709699:66
+[ 1440788ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx?t=1774965709699:66
+[ 1444919ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=59fe7d0b:21550

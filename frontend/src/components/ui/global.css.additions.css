@@ -1,0 +1,20 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   ADD THESE BLOCKS to src/styles/global.css
+   (append after existing content — do not replace)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ─── Shimmer animation for Skeleton components ──────────────────────────────── */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ─── Hide scrollbar but keep functionality (ChipGroup uses this) ─────────────── */
+.scrollbar-none {
+  -ms-overflow-style: none;   /* IE / Edge */
+  scrollbar-width: none;       /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;               /* Chrome / Safari / Opera */
+}
