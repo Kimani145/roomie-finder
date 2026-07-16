@@ -1,0 +1,32 @@
+[     901ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=59fe7d0b:21550
+[    2084ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx?t=1774965584721:66
+[    2088ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx?t=1774965584721:66
+[    2184ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=d6258253:4435
+[    2186ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=d6258253:4435
+[    2987ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[    2987ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[    2987ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[    2987ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[    2987ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[    3020ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[    3021ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[    3021ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[    3021ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[    3021ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  115517ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774965700167:120
+[  115518ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774965700167:120
+[  116258ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  116259ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  116259ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  116259ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  116259ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  116260ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774965700167:120
+[  116260ms] [LOG] PROTECTED ROUTE PASSED @ http://localhost:5173/src/routes/ProtectedRoute.tsx?t=1774965700167:120
+[  125110ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  125111ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  125113ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  125114ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  125123ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  125124ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  125251ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79
+[  125252ms] [LOG] RENDERING DISCOVERY PAGE @ http://localhost:5173/src/pages/DiscoveryPage.tsx?t=1774965709699:79

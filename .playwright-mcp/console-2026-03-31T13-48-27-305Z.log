@@ -1,0 +1,23 @@
+[   45719ms] [WARNING] Unrecognized feature: 'web-share'. @ https://www.google.com/xjs/_/js/k=xjs.s.sw.1XKAP0_v8iM.2019.O/am=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgCAAAgBAAgACAIAAAAAAAAAAAAAAAAACIABAAAAAAAAAAACAAAAAAAAAAAAAAAACAQAQAAAkAAAAAAAAgAAAAAAAAQAAAAAAAAAAGAAIAAAIIBAEAACAAgAAAAAAAAAAAAAAAAAAAAAAQBAIAAAAEkgAAPzbvgENAAAAAAAAAAAAAAAAAAAAAAAAACABAAAAAAAAAAAAWAAAAIBQGAAAAgAhAAIAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAQAAAAAQAEAABAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAEAKAAAAAAADgAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAABAAAMAAAAAAAAAAFAAI4AcAQAAAAAAAAAAcAAAAAAQCAAAAAAAuIIwAACAAAAAAAHIAeDyAQwQFAAAAAAAAAAAAAAAAAAAAAAAAgAAoAONA8gMCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAECKsCkAAAAAAMDWAIA/d=0/dg=0/br=1/rs=ACT90oEm19-Fut3cpGmzbNJxGA0QvXYRYA/ccb=loaded_h_0/m=sy392,P10Owf,sy344,gSZvdb,sy6bi,sy1xa,sy1rj,sy1rh,sy1ri,sy35j,sy35i,VD4Qme,sy6d2,TmFfhf,sy12q,Dq2Yjb,sy12u,sy12t,sy12r,NVlnE,sy12w,sy128,qmdEUe,sy12y,sy12x,UqGwg,sy7e4,EAZJjb,sy6yx,qcH9Lc,sy8s6,pjDTFb,gCngrf,sy6yw,sy2x2,sA1ssc,sy6yq,khkNpe?cb=121560822&xjs=s4:204
+[   46411ms] [WARNING] Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://www.youtube.com') does not match the recipient window's origin ('https://www.google.com'). @ https://www.youtube.com/s/player/f85ea353/www-widgetapi.vflset/www-widgetapi.js:209
+[   46652ms] [WARNING] Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://www.youtube.com') does not match the recipient window's origin ('https://www.google.com'). @ https://www.youtube.com/s/player/f85ea353/www-widgetapi.vflset/www-widgetapi.js:209
+[  141817ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=59fe7d0b:21550
+[  142050ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx:66
+[  142051ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx:66
+[  142077ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=d6258253:4435
+[  142077ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=d6258253:4435
+[  164787ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAiOa5dmaxslDHSWUoxzrOP4qeLaZOtUJ8:0
+[  164801ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx:66
+[  164804ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx:66
+[  179524ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx:66
+[  179525ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx:66
+[  180662ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  180662ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  180662ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  180662ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  180662ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  180712ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  180712ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  180712ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  180712ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  180712ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116

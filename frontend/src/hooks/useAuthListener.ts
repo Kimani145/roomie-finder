@@ -1,0 +1,57 @@
+import { useEffect } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '@/firebase/config'
+import { getUserProfile } from '@/firebase/profiles'
+import { useAuthStore } from '@/store/authStore'
+import { logger } from '@/utils/logger'
+
+/**
+ * Listens to Firebase Auth state changes.
+ *
+ * Three outcomes:
+ *   1. Firebase user + Firestore profile found  → setCurrentUser(profile)
+ *   2. Firebase user + NO Firestore profile     → setNeedsOnboarding(true)
+ *      (authenticated but onboarding incomplete — must not reach discovery)
+ *   3. No Firebase user / error                 → clearAuth()
+ */
+export function useAuthListener() {
+  const { setCurrentUser, setNeedsOnboarding, setLoading, clearAuth } =
+    useAuthStore()
+
+  useEffect(() => {
+    setLoading(true)
+
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        clearAuth()
+        return
+      }
+
+      try {
+        const profile = await getUserProfile(firebaseUser.uid)
+
+        if (profile) {
+          if (profile.twoFactorEnabled) {
+            const sessionVerified = sessionStorage.getItem(`rf_2fa_verified_${firebaseUser.uid}`) === 'true'
+            if (!sessionVerified) {
+              useAuthStore.getState().set2faPending(true)
+            }
+          }
+          // Full profile exists — user is ready for discovery
+          setCurrentUser(profile)
+        } else {
+          // Auth session exists but no Firestore profile yet
+          // Mark as needing onboarding — do NOT clear auth
+          setNeedsOnboarding(true)
+        }
+      } catch (err) {
+        logger.error('Failed to load user profile:', err)
+        clearAuth()
+      } finally {
+        setLoading(false)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [setCurrentUser, setNeedsOnboarding, setLoading, clearAuth])
+}
