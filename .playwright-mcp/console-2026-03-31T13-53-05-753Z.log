@@ -1,0 +1,45 @@
+[     532ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=59fe7d0b:21550
+[    1574ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx:66
+[    1575ms] [INFO] [App.tsx] Routing initialized @ http://localhost:5173/src/App.tsx:66
+[    1609ms] [WARNING] ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=d6258253:4435
+[    1611ms] [WARNING] ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath. @ http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=d6258253:4435
+[    2299ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[    2299ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[    2299ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[    2299ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[    2299ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[    2434ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[    2435ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[    2435ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[    2435ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[    2435ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  367589ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  367590ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  367590ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  367590ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  367590ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  368972ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  368973ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  368973ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  368973ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  368973ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  379862ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  379862ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  379862ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  379862ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  379862ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  379899ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  379902ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  379902ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  379903ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  379903ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  382011ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  382012ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  382012ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  382012ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  382013ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
+[  389060ms] [WARNING] === SECURITY GATE CHECK (ROUTE) === @ http://localhost:5173/src/context/AuthContext.tsx:112
+[  389060ms] [LOG] 1. Raw Email: jkimani145@students.tukenya.ac.ke @ http://localhost:5173/src/context/AuthContext.tsx:113
+[  389060ms] [LOG] 2. Is Verified (User Object): true @ http://localhost:5173/src/context/AuthContext.tsx:114
+[  389060ms] [LOG] 3. Is Verified (Token Claim): true @ http://localhost:5173/src/context/AuthContext.tsx:115
+[  389060ms] [WARNING] ================================= @ http://localhost:5173/src/context/AuthContext.tsx:116
