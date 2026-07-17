@@ -37,8 +37,21 @@ export async function buildApp() {
   app.setValidatorCompiler(validatorCompiler)
   app.setSerializerCompiler(serializerCompiler)
 
+  const allowedOrigins = [
+    process.env.FRONTEND_URL || 'https://roomie-finder.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:5174',
+  ].filter((origin, index, origins) => origins.indexOf(origin) === index)
+
   await app.register(cors, {
-    origin: '*', // TODO: restrict in production
+    origin: (origin, callback) => {
+      // Allow non-browser requests (curl, health checks, server-to-server)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+        return
+      }
+      callback(new Error('Not allowed by CORS'), false)
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   })
 

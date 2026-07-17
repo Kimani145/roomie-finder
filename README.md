@@ -1,113 +1,117 @@
-# 🏠 Roomie Finder
+# Roomie Finder
 
-<<<<<<< HEAD
-Student roommate matching for TUK students, built around compatibility scoring instead of pure listing search.
+Student roommate matching for TUK students, built around compatibility scoring instead of pure listing search. The platform pairs students based on lifestyle overlap, mutual housing goals, and verified identity rather than raw listing search.
 
-## Core Features
+The codebase is an **npm workspaces monorepo** with a clear trust boundary: the React client handles presentation and Firestore reads/writes governed by Security Rules, while the Fastify backend owns privileged operations (email, admin provisioning, audit logging).
+
+---
+
+## Architecture
+
+### Untrusted client (`frontend/`)
+
+- **Role:** Presentation, routing, and user interaction.
+- **Stack:** React 18, Vite, TypeScript, Tailwind CSS, Zustand, React Router v6.
+- **Rules:** The frontend does not send email, issue admin tokens, or decide authorization. It authenticates via Firebase Auth and passes ID tokens to the backend for trusted operations.
+
+### Trusted backend (`backend/`)
+
+- **Role:** Orchestration, authorization, and secure communications.
+- **Stack:** Node.js 22, Fastify, TypeScript, Zod, Pino.
+- **Responsibilities:**
+  - Password reset and email verification (Firebase Admin SDK)
+  - SMTP-backed transactional email (Brevo / compatible providers)
+  - Administrator invitation lifecycle and RBAC
+  - Immutable audit trails for privileged actions
+
+### Shared infrastructure
+
+- **Firebase Auth + Firestore** — identity and primary data store (Security Rules enforced at the database layer)
+- **Cloudinary** — listing photos and avatars via unsigned upload presets
+- **No Redis** — offline detection is client-side (`navigator.onLine`); no separate cache layer is required
+
+---
+
+## Core features
 
 - Compatibility-driven discovery feed (rooms + roommates)
-- Mutual-like matching flow
-- Real-time chat with unread tracking (`unreadBy`)
+- Mutual-like matching flow with real-time chat and unread tracking
 - Persistent notification history (Firestore-backed)
 - Role-based profiles (`HOST`, `SEEKER`, `FLEX`)
-- Email-Based Two-Step Verification (2FA) (SHA-256 OTPs, 5-minute expiry, rate-limited attempts, 60s cooldown)
+- Email-based two-step verification (SHA-256 OTPs, 5-minute expiry, rate-limited attempts, 60s resend cooldown)
 - Listing creation wizard with Cloudinary image uploads
-- Inline avatar upload from Profile page
-- Responsive app shell with collapsible desktop sidebar
-- PWA metadata support (`site.webmanifest`, favicon set, apple touch icon)
-
-## Tech Stack
-
-- React 18 + TypeScript
-- Vite
-- Firebase Auth + Firestore
-- Zustand
-- React Router v6
-- Tailwind CSS
-- Cloudinary (unsigned uploads)
-=======
-Roomie Finder is a secure, compatibility-driven student roommate matching platform. It pairs TUK students based on lifestyle overlap, mutual housing goals, and verified identity rather than raw listing search.
-
-This project is built on a **Service-Oriented Architecture (SOA)**, separating the presentation layer (untrusted client) from the operational layer (trusted backend). 
+- Admin console with RBAC, moderation, and mandatory 2FA for admin accounts
+- Responsive app shell with collapsible desktop sidebar and PWA metadata
 
 ---
 
-## Architecture Overview
-
-Roomie Finder is divided into two primary systems:
-
-### 1. The Untrusted Client (Frontend)
-- **Role:** Presentation, routing, and user interaction.
-- **Tech:** React 18, Vite, TypeScript, Tailwind CSS, Zustand.
-- **Rules:** The frontend cannot generate secure tokens, send emails directly, perform privileged database operations, or determine its own authorization level. It relies purely on Firebase Authentication for user sessions and passes identity tokens to the backend.
-
-### 2. The Trusted Execution Environment (Backend)
-- **Role:** Orchestration, authorization, and secure communications.
-- **Tech:** Node.js 22 LTS, Fastify, TypeScript, Zod (validation), Pino (logging).
-- **Rules:** The backend owns all confidential operations. It validates Firebase ID tokens via the Firebase Admin SDK and manages:
-  - **Identity Lifecycle:** Generating email verification and password reset links securely.
-  - **Communications:** Operating the SMTP abstraction layer (Brevo/Resend/SES) to send templated emails.
-  - **Administrator Provisioning:** Securely handling the lifecycle of administrative invitations and Role-Based Access Control (RBAC).
-  - **Audit Trails:** Writing immutable logs for all privileged and sensitive actions.
-
-### 3. The Core Infrastructure (Firebase & Cloudinary)
-- **Authentication:** Firebase Authentication serves as the system of record for identity.
-- **Database:** Firestore serves as the primary data store, with strict Security Rules applied at the database level.
-- **Media:** Cloudinary handles image and avatar uploads via unsigned presets.
-
----
->>>>>>> backend
-
-## Project Structure
+## Project structure
 
 ```txt
-<<<<<<< HEAD
-src/
-├── components/
-│   ├── discovery/
-│   ├── layout/
-│   ├── onboarding/
-│   ├── ui/
-│   └── GlobalListeners.tsx
-├── engine/
-│   └── compatibilityEngine.ts
-├── firebase/
-│   ├── config.ts
-│   ├── listings.ts
-│   ├── matches.ts
-│   ├── notifications.ts
-│   └── profiles.ts
-├── hooks/
-│   ├── useAuth.ts
-│   ├── useDiscovery.ts
-│   └── useChat.ts
-├── pages/
-│   ├── SecurityPage.tsx
-│   └── Verify2faPage.tsx
-├── services/
-│   ├── authService.ts
-│   ├── emailService.ts
-│   └── twoFactorService.ts
-├── store/
-│   ├── authStore.ts
-│   ├── discoveryStore.ts
-│   └── notificationStore.ts
-├── types/
-│   └── index.ts
-└── utils/
-    ├── formatters.ts
-    └── uploadToCloudinary.ts
+Roomie_Finder/
+├── frontend/                 # React + Vite SPA (deployed to Vercel)
+│   ├── src/
+│   │   ├── components/     # UI, layout, discovery, onboarding
+│   │   ├── pages/          # Route-level pages (student + admin)
+│   │   ├── firebase/       # Firestore client SDK helpers
+│   │   ├── services/       # apiClient, auth, 2FA
+│   │   ├── store/          # Zustand stores
+│   │   └── engine/         # compatibilityEngine.ts
+│   └── vercel.json         # SPA rewrite rules
+│
+├── backend/                  # Fastify API (deployed to Fly.io)
+│   ├── src/
+│   │   ├── routes/         # auth, admin, communications, audit
+│   │   ├── middleware/     # authenticate, authorize (permissions)
+│   │   ├── services/       # Firebase Admin, SMTP, audit, invitations
+│   │   ├── providers/      # SMTP provider abstraction
+│   │   └── templates/      # React Email templates
+│   └── Dockerfile.backend  # (referenced from repo root)
+│
+├── shared/                   # Shared TypeScript package (@roomiefinder/shared)
+├── Dockerfile.backend        # Monorepo-aware backend image
+├── fly.toml                  # Fly.io app config
+└── package.json              # Workspace root
 ```
 
-## Getting Started
+---
+
+## Getting started
+
+### Prerequisites
+
+- Node.js 22 LTS
+- npm 10+
+- Firebase project (Auth + Firestore enabled)
+- Cloudinary account
+- SMTP provider (e.g. Brevo)
+
+### Install and run locally
+
+From the repository root:
 
 ```bash
 npm install
-cp .env.example .env
+cp frontend/.env.example frontend/.env
+cp backend/.env.example backend/.env
 npm run dev
 ```
 
-### Required Environment Variables
+This starts the frontend (Vite) and backend (Fastify) concurrently.
+
+Useful workspace commands:
+
+```bash
+npm run dev              # frontend + backend
+npm run build            # build all workspaces
+npm run lint             # lint all workspaces
+npm run type-check       # type-check all workspaces
+npm run doctor           # sanity checks (ports, env files, deps)
+```
+
+### Environment variables
+
+**Frontend** (`frontend/.env`):
 
 ```bash
 VITE_FIREBASE_API_KEY=
@@ -118,141 +122,181 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 VITE_FIREBASE_MEASUREMENT_ID=
 VITE_CLOUDINARY_CLOUD_NAME=
-VITE_CLOUDINARY_UPLOAD_PRESET=
+VITE_CLOUDINARY_UPLOAD_PRESET=roomie_unsigned
+VITE_API_BASE_URL=http://localhost:8080
 ```
 
-## Available Scripts
+**Backend** (`backend/.env`):
 
 ```bash
-npm run dev
-npm run build
-npm run preview
-npm run lint
-npm run type-check
+PORT=8080
+HOST=0.0.0.0
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
+
+FIREBASE_PROJECT_ID=
+FIREBASE_CLIENT_EMAIL=
+FIREBASE_PRIVATE_KEY=
+
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASSWORD=
+SMTP_FROM=Roomie Finder <no-reply@example.com>
+
+LOG_LEVEL=info
 ```
 
-## Architecture Notes
+### API documentation
 
-### Two-Step Verification (2FA)
+When the backend is running locally, Swagger UI is available at:
 
-- Generates secure, random 6-digit numeric OTPs.
-- Hashes codes using client-side SHA-256 (SubtleCrypto API) before storage in `/otps` collection.
-- Expiration is set to 5 minutes.
-- Multi-attempt rate-limiting limits users to 5 verification attempts.
-- Cooldown period limits resending codes to once every 60 seconds to prevent email spam.
-- Triggers structured HTML notifications to the developer console and toast popups in development mode.
+```txt
+http://localhost:8080/documentation
+```
 
-### Discovery + Compatibility
+Authenticated endpoints require:
 
-- Discovery uses hard filters + soft scoring.
-- Compatibility scoring considers budget overlap, zone overlap, and lifestyle fit.
-- If strict matches are empty, soft filters relax progressively.
+```txt
+Authorization: Bearer <Firebase_ID_Token>
+```
 
-### Chat Gate + Error Handling
+---
 
-- Chat entry is protected by Firestore rules and matching state.
-- Chat initialization handles `permission-denied` gracefully and informs users they must match first.
+## Deployment
+
+### Frontend — Vercel
+
+- **Production URL:** https://roomie-finder.vercel.app
+- Root directory: `frontend`
+- `frontend/vercel.json` rewrites all routes to `/index.html` for SPA client-side routing.
+
+Set `VITE_API_BASE_URL` in the Vercel project to your Fly.io backend URL.
+
+### Backend — Fly.io
+
+The root `Dockerfile.backend` and `fly.toml` are tailored for the npm workspaces layout so Fly builds only the backend without confusion from the monorepo.
+
+```bash
+fly deploy
+```
+
+After the first successful deploy, set secrets (these are **not** stored in `fly.toml`):
+
+```bash
+fly secrets set \
+  FIREBASE_PROJECT_ID=... \
+  FIREBASE_CLIENT_EMAIL=... \
+  FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n" \
+  SMTP_HOST=... \
+  SMTP_PORT=587 \
+  SMTP_USER=... \
+  SMTP_PASSWORD=... \
+  SMTP_FROM="Roomie Finder <no-reply@yourdomain.com>"
+```
+
+Non-sensitive config (`FRONTEND_URL`, `PORT`, `NODE_ENV`) lives in `fly.toml`. CORS on the backend allows the production Vercel origin plus localhost dev ports.
+
+Verify after deploy:
+
+```bash
+curl https://<your-fly-app>.fly.dev/health
+```
+
+---
+
+## Security and trust model
+
+- **Zero-trust client:** Frontend role claims are ignored; authorization is evaluated by the backend and Firestore Security Rules.
+- **Permission-based RBAC:** Admin access uses granular permissions (e.g. `CREATE_ADMIN`, `SUSPEND_USERS`, `VIEW_AUDIT_LOGS`).
+- **Immutable auditing:** Privileged actions write correlation-tracked records to Firestore.
+- **Mandatory admin 2FA:** Administrative accounts require two-factor authentication.
+- **CORS:** Production backend accepts requests only from the configured `FRONTEND_URL` (plus localhost during development).
+
+### Firestore rules (high level)
+
+- Authenticated, verified student gating
+- OTP and audit log collections restricted to owners
+- Match and chat participant checks
+- Notification ownership (`recipientId == auth.uid`)
+
+---
+
+## Key routes
+
+**Student app**
+
+| Route | Purpose |
+| --- | --- |
+| `/discover` | Compatibility-driven feed |
+| `/matches` | Mutual matches |
+| `/messages/:matchId?` | Chat |
+| `/notifications` | Notification center |
+| `/listing/:listingId` | Listing detail |
+| `/create-listing` | Listing wizard |
+| `/profile`, `/edit-profile` | Profile management |
+| `/security`, `/verify-2fa` | Account security |
+
+**Admin**
+
+| Route | Purpose |
+| --- | --- |
+| `/admin` | Dashboard |
+| `/admin/login` | Admin sign-in |
+| `/admin/accept-invitation` | Accept admin invite |
+| `/admin/administrators` | Admin provisioning (super admin) |
+| `/admin/user-management` | User management |
+| `/admin/moderation` | Content moderation |
+
+---
+
+## Backend API (summary)
+
+| Method | Path | Auth | Description |
+| --- | --- | --- | --- |
+| `GET` | `/health` | No | Health check |
+| `GET` | `/version` | No | Build metadata |
+| `POST` | `/auth/password-reset` | No | Send password reset email |
+| `POST` | `/auth/email-verification` | No | Send verification email |
+| `POST` | `/admin/invitations` | Yes + `CREATE_ADMIN` | Invite administrator |
+| `POST` | `/admin/invitations/accept` | No | Accept invitation |
+| `POST` | `/communications/send` | Yes + permission | Dispatch email template |
+| `GET` | `/audit` | Yes + `VIEW_AUDIT_LOGS` | Retrieve audit logs |
+
+See Swagger UI for full request/response schemas.
+
+---
+
+## Architecture notes
+
+### Discovery and compatibility
+
+- Discovery applies hard filters first, then soft scoring.
+- Compatibility considers budget overlap, zone overlap, and lifestyle fit.
+- If strict matches are empty, filters relax progressively.
+
+### Two-step verification (2FA)
+
+- 6-digit OTPs hashed with SHA-256 before storage in `/otps`.
+- 5-minute expiry, max 5 verification attempts, 60-second resend cooldown.
 
 ### Notifications
 
-- `GlobalListeners` subscribes to matches/chats and writes notification records to Firestore.
-- Notification center and bell read from `notifications` collection in descending `createdAt`.
-- Clicking a notification marks it read, then routes to its deep link.
+- `GlobalListeners` watches matches/chats and writes to the `notifications` collection.
+- The notification bell and center read from Firestore ordered by `createdAt`.
 
-### Media Uploads
+### Media uploads
 
-- Listing photos and avatars use shared `uploadToCloudinary` utility.
-- Edit Profile and Profile avatar flows support conditional upload UX and progress states.
-
-### App Shell + Layout
-
-- Shared `AppLayout` controls sidebar collapse state.
-- Header, sidebar, and content areas are synchronized for light/dark elevation layers.
-- Chat page uses strict flex layout: only message pane scrolls.
-
-## PWA / Icons
-
-The app includes:
-
-- `public/favicon-16x16.png`
-- `public/favicon-32x32.png`
-- `public/favicon.ico`
-- `public/apple-touch-icon.png`
-- `public/site.webmanifest`
-
-`index.html` is wired with icon links, manifest, and `theme-color`.
-
-## Key Routes
-
-- `/discover`
-- `/matches`
-- `/messages`
-- `/chat/:matchId`
-- `/notifications`
-- `/listing/:listingId`
-- `/profile`
-- `/edit-profile`
-- `/security`
-- `/verify-2fa`
-
-## Security Model (Firestore)
-
-- Authenticated, verified student gating
-- Two-Factor Authentication enforcement rules (`/otps` and `/auditLogs` owner-restricted)
-- Immutable-like behavior for likes
-- Match participant checks
-- Chat participant checks
-- Notification ownership checks (`recipientId == auth.uid`)
-=======
-roomiefinder/
-├── roomie-finder/           # Frontend (React + Vite)
-│   ├── src/components/      # UI components and layout
-│   ├── src/pages/           # Routing and page-level orchestration
-│   ├── src/firebase/        # Untrusted Firestore reads/writes
-│   └── src/store/           # Client-side state (Zustand)
-│
-└── roomiefinder-backend/    # Backend (Fastify)
-    ├── src/controllers/     # Request/Response orchestration
-    ├── src/middleware/      # Token validation & Rate Limiting
-    ├── src/routes/          # Fastify endpoints and Zod schemas
-    ├── src/services/        # Firebase Admin, Communications, Audit
-    └── src/providers/       # Interchangeable SMTP Providers
-```
+- Listing photos and avatars share the `uploadToCloudinary` utility with unsigned preset support.
 
 ---
 
-## Security & Trust Model
+## PWA / icons
 
-Roomie Finder enforces the principles of **Security, Accountability, and Reliability**:
+Static assets in `frontend/public/`:
 
-- **Permission-Based Authorization:** Instead of simple role checks, access is governed by granular permissions (e.g., `CREATE_ADMIN`, `SUSPEND_USERS`).
-- **Immutable Auditing:** Every privileged action generates a correlation-tracked, immutable record in Firestore.
-- **Zero-Trust Client:** Frontend claims are ignored. Authorization is evaluated exclusively by the backend and enforced by Firestore Security Rules.
-- **Mandatory 2FA:** Administrative accounts are strictly gated behind Two-Factor Authentication.
+- `favicon-16x16.png`, `favicon-32x32.png`, `favicon.ico`
+- `apple-touch-icon.png`
+- `site.webmanifest`
 
----
-
-## Getting Started
-
-### Prerequisites
-- Node.js 22 LTS
-- Firebase Project (Auth & Firestore enabled)
-- Cloudinary Account
-- SMTP Provider (e.g., Brevo)
-
-### Running the System Locally
-
-*(Detailed steps will be populated as the monorepo/workspace setup is finalized.)*
-
-1. Clone the repository.
-2. Install dependencies for both the frontend and backend.
-3. Configure `.env` files for both projects using the provided `.env.example` templates.
-4. Run the development servers concurrently.
-
----
-
-## Documentation
-
-- The backend exposes comprehensive OpenAPI documentation. When running locally, visit `http://localhost:<PORT>/documentation` to explore the API endpoints, schemas, and authentication requirements via Swagger UI. 
-- Ensure all backend API requests include a valid `Authorization: Bearer <Firebase_ID_Token>` header.
->>>>>>> backend
+`index.html` references icon links, manifest, and `theme-color`.
