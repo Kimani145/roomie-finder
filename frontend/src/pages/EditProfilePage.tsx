@@ -202,6 +202,7 @@ const EditProfilePage: React.FC = () => {
         ...(profile?.dealBreakers ?? {
           noSmokingRequired: false,
           noAlcoholRequired: false,
+          noPetsRequired: false,
           mustHaveWiFi: false,
         }),
         femaleOnly: preferredGender === 'Female',

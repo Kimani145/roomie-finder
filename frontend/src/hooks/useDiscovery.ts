@@ -38,8 +38,13 @@ export function useDiscovery() {
         noiseMatch: 0,
         guestMatch: 0,
         studyMatch: 0,
+        genderMatch: 0,
+        smokingMatch: 0,
+        alcoholMatch: 0,
+        petsMatch: 0,
         smokingConflict: false,
         alcoholConflict: false,
+        petsConflict: false,
         totalScore: 0,
         matchedFactors: [],
       }

@@ -13,12 +13,17 @@ const SOCIAL_SCORES = {
   NOISE_MATCH: 10,
   GUEST_MATCH: 10,
   STUDY_MATCH: 10,
+  BUDGET_OVERLAP: 20,
+  GENDER_MATCH: 25,
+  SMOKING_MATCH: 15,
+  ALCOHOL_MATCH: 10,
 } as const
 
 const HOUSING_SCORES = {
   BUDGET_FIT: 50,
   ZONE_MATCH: 30,
   RULE_COMPATIBILITY: 20,
+  PETS_MATCH: 10,
 } as const
 
 const SOCIAL_MAX_SCORE =
@@ -27,7 +32,11 @@ const SOCIAL_MAX_SCORE =
   SOCIAL_SCORES.CLEANLINESS_MATCH +
   SOCIAL_SCORES.NOISE_MATCH +
   SOCIAL_SCORES.GUEST_MATCH +
-  SOCIAL_SCORES.STUDY_MATCH
+  SOCIAL_SCORES.STUDY_MATCH +
+  SOCIAL_SCORES.BUDGET_OVERLAP +
+  SOCIAL_SCORES.GENDER_MATCH +
+  SOCIAL_SCORES.SMOKING_MATCH +
+  SOCIAL_SCORES.ALCOHOL_MATCH
 
 function clampScore(score: number): number {
   return Math.max(0, Math.min(100, Math.round(score)))
@@ -87,13 +96,19 @@ function calculateSocialScoreBreakdown(
       noiseMatch: 0,
       guestMatch: 0,
       studyMatch: 0,
+      genderMatch: 0,
+      smokingMatch: 0,
+      alcoholMatch: 0,
+      petsMatch: 0,
       smokingConflict: false,
       alcoholConflict: false,
+      petsConflict: false,
       totalScore: 0,
       matchedFactors: [],
     }
   }
 
+  total += SOCIAL_SCORES.BUDGET_OVERLAP
   matchedFactors.push(
     `Budget overlap: ${Math.max(viewer.minBudget, candidate.minBudget)}-${Math.min(viewer.maxBudget, candidate.maxBudget)}`
   )
@@ -115,8 +130,13 @@ function calculateSocialScoreBreakdown(
       noiseMatch: 0,
       guestMatch: 0,
       studyMatch: 0,
+      genderMatch: 0,
+      smokingMatch: 0,
+      alcoholMatch: 0,
+      petsMatch: 0,
       smokingConflict,
       alcoholConflict,
+      petsConflict: false,
       totalScore: 0,
       matchedFactors,
     }
@@ -176,6 +196,24 @@ function calculateSocialScoreBreakdown(
     matchedFactors.push(`Study style match: ${candidate.lifestyle.studyStyle}`)
   }
 
+  const genderMatch = viewer.gender === candidate.gender ? SOCIAL_SCORES.GENDER_MATCH : 0
+  total += genderMatch
+  if (genderMatch > 0) {
+    matchedFactors.push(`Gender match: ${candidate.gender}`)
+  }
+
+  const smokingMatch = viewer.lifestyle.smoking === candidate.lifestyle.smoking ? SOCIAL_SCORES.SMOKING_MATCH : 0
+  total += smokingMatch
+  if (smokingMatch > 0) {
+    matchedFactors.push(`Smoking lifestyle alignment`)
+  }
+
+  const alcoholMatch = viewer.lifestyle.alcohol === candidate.lifestyle.alcohol ? SOCIAL_SCORES.ALCOHOL_MATCH : 0
+  total += alcoholMatch
+  if (alcoholMatch > 0) {
+    matchedFactors.push(`Alcohol lifestyle alignment`)
+  }
+
   return {
     budgetOverlap: true,
     zoneMatch,
@@ -185,8 +223,13 @@ function calculateSocialScoreBreakdown(
     noiseMatch,
     guestMatch,
     studyMatch,
+    genderMatch,
+    smokingMatch,
+    alcoholMatch,
+    petsMatch: 0,
     smokingConflict: false,
     alcoholConflict: false,
+    petsConflict: false,
     totalScore: total,
     matchedFactors,
   }
@@ -194,7 +237,8 @@ function calculateSocialScoreBreakdown(
 
 function calculateHousingScore(
   viewer: UserProfile,
-  listing: Listing
+  listing: Listing,
+  socialBreakdown: ScoreBreakdown
 ): { score: number; budgetFits: boolean; matchedFactors: string[] } {
   let score = 0
   const matchedFactors: string[] = []
@@ -215,13 +259,25 @@ function calculateHousingScore(
   const wifiRuleConflict =
     viewer.dealBreakers.mustHaveWiFi &&
     !listing.amenities.some((amenity) => amenity.toLowerCase() === 'wifi')
+  const petsRuleConflict =
+    viewer.dealBreakers.noPetsRequired && listing.houseRules.petsAllowed
 
-  if (!smokingRuleConflict && !wifiRuleConflict) {
+  if (!smokingRuleConflict && !wifiRuleConflict && !petsRuleConflict) {
     score += HOUSING_SCORES.RULE_COMPATIBILITY
     matchedFactors.push('House rules compatible')
   } else {
     if (smokingRuleConflict) matchedFactors.push('Clash: smoking not acceptable')
     if (wifiRuleConflict) matchedFactors.push('Clash: WiFi required')
+    if (petsRuleConflict) matchedFactors.push('Clash: pets not acceptable')
+  }
+  
+  if (!viewer.dealBreakers.noPetsRequired && listing.houseRules.petsAllowed) {
+    score += HOUSING_SCORES.PETS_MATCH
+    socialBreakdown.petsMatch = HOUSING_SCORES.PETS_MATCH
+    matchedFactors.push(`Pets allowed match`)
+  }
+  if (petsRuleConflict) {
+    socialBreakdown.petsConflict = true
   }
 
   return {
@@ -261,7 +317,7 @@ export function calculateCompatibilityScore(
     !!candidateListing
 
   if (isSeekerToHostWithListing && candidateListing) {
-    const housing = calculateHousingScore(viewer, candidateListing)
+    const housing = calculateHousingScore(viewer, candidateListing, socialBreakdown)
     const compositeScore = clampScore(socialScore * 0.6 + housing.score * 0.4)
 
     return {

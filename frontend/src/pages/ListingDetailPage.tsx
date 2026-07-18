@@ -45,7 +45,7 @@ const ListingDetailPage: React.FC = () => {
 
     try {
       await setDoc(doc(db, 'chats', chatId), chatData, { merge: true })
-      navigate(`/chat/${chatId}`)
+      navigate(`/messages/${chatId}`)
     } catch (error: any) {
       if (error?.code === 'permission-denied') {
         toast.error('You must match with this user before sending a message!', {

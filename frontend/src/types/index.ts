@@ -99,6 +99,7 @@ export interface LifestyleProfile {
 export interface DealBreakers {
   noSmokingRequired: boolean
   noAlcoholRequired: boolean
+  noPetsRequired: boolean
   mustHaveWiFi: boolean
   femaleOnly: boolean
   maleOnly: boolean
@@ -183,8 +184,13 @@ export interface ScoreBreakdown {
   noiseMatch: number
   guestMatch: number
   studyMatch: number
+  genderMatch: number
+  smokingMatch: number
+  alcoholMatch: number
+  petsMatch: number
   smokingConflict: boolean
   alcoholConflict: boolean
+  petsConflict: boolean
   totalScore: number
   matchedFactors: string[]
 }

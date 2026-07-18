@@ -75,7 +75,7 @@ service cloud.firestore {
         && data.lifestyle is map
         && data.lifestyle.keys().hasOnly(['sleepTime', 'noiseTolerance', 'guestFrequency', 'cleanlinessLevel', 'studyStyle', 'smoking', 'alcohol'])
         && data.dealBreakers is map
-        && data.dealBreakers.keys().hasOnly(['noSmokingRequired', 'noAlcoholRequired', 'mustHaveWiFi', 'femaleOnly', 'maleOnly']);
+        && data.dealBreakers.keys().hasOnly(['noSmokingRequired', 'noAlcoholRequired', 'noPetsRequired', 'mustHaveWiFi', 'femaleOnly', 'maleOnly']);
     }
 
     function validProfilePreviewDoc(data) {

@@ -225,6 +225,7 @@ export const OnboardingWizard: React.FC = () => {
         dealBreakers: {
           noSmokingRequired: nonSmoker,
           noAlcoholRequired: noAlcohol,
+          noPetsRequired: noPets,
           mustHaveWiFi: true,
           femaleOnly: false,
           maleOnly: false,

@@ -194,6 +194,7 @@ export function generateDeterministicProfile(uid: string): UserProfile {
     dealBreakers: {
       noSmokingRequired: !smoking && rand() < 0.6,
       noAlcoholRequired: !alcohol && rand() < 0.45,
+      noPetsRequired: rand() < 0.3,
       mustHaveWiFi: rand() < 0.8,
       femaleOnly: gender === 'Female' && rand() < 0.2,
       maleOnly: gender === 'Male' && rand() < 0.15,

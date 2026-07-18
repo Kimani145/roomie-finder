@@ -9,6 +9,7 @@ import {
   collection,
   Timestamp,
 } from 'firebase/firestore'
+import toast from 'react-hot-toast'
 import { logger } from '@/utils/logger'
 import { fetchWithAuth } from './apiClient'
 const OTPS_COLLECTION = 'otps'
@@ -122,6 +123,7 @@ export async function generateAndSendOtp(
     })
   }).catch((err) => {
     logger.error('Failed to dispatch 2FA email communication:', err)
+    toast.error('Failed to send verification code. Please try again.')
     throw new Error('Failed to dispatch 2FA email communication')
   })
 }

@@ -6,6 +6,7 @@ import {
   serverTimestamp,
   increment,
   updateDoc,
+  runTransaction
 } from 'firebase/firestore'
 import { toast } from 'react-hot-toast'
 import { db } from './config'
@@ -16,7 +17,6 @@ import { logger } from '@/utils/logger'
 const LIKES_COLLECTION = 'likes'
 const MATCHES_COLLECTION = 'matches'
 
-// ─── Like a profile ───────────────────────────────────────────────────────────
 export async function likeProfile(
   fromUid: string,
   toUid: string,
@@ -24,29 +24,82 @@ export async function likeProfile(
 ): Promise<{ matched: boolean; matchId?: string }> {
   if (fromUid === toUid) return { matched: false }
 
-  // Record the like. If it already exists, Firestore rules reject the implicit
-  // update; treat that case as "already liked" and continue.
   const likeId = `${fromUid}_${toUid}`
   const likeRef = doc(db, LIKES_COLLECTION, likeId)
+  const reverseLikeId = `${toUid}_${fromUid}`
+  const reverseRef = doc(db, LIKES_COLLECTION, reverseLikeId)
+
+  const [userA, userB] = [fromUid, toUid].sort()
+  const matchId = `${userA}_${userB}`
+  const matchRef = doc(db, MATCHES_COLLECTION, matchId)
+  const chatRef = doc(db, 'chats', matchId)
+
   let createdLike = false
+  let matched = false
 
   try {
-    await setDoc(likeRef, {
-      fromUid,
-      toUid,
-      createdAt: serverTimestamp(),
-    } as Omit<Like, 'createdAt'> & { createdAt: ReturnType<typeof serverTimestamp> })
-    createdLike = true
-  } catch (error: any) {
-    if (error?.code !== 'permission-denied') throw error
+    await runTransaction(db, async (transaction) => {
+      // --- ALL READS ---
+      const likeSnap = await transaction.get(likeRef)
+      const reverseSnap = await transaction.get(reverseRef)
+      const reverseExists = reverseSnap.exists()
+      
+      let matchSnap = null
+      if (reverseExists) {
+        matchSnap = await transaction.get(matchRef)
+      }
 
-    try {
-      const existingLike = await getDoc(likeRef)
-      if (!existingLike.exists()) throw error
-    } catch (readError) {
-      logger.error('Fallback getDoc likeRef failed:', readError);
-      throw error; // Throw original
+      // --- ALL WRITES ---
+      if (likeSnap.exists()) {
+        createdLike = false
+      } else {
+        transaction.set(likeRef, {
+          fromUid,
+          toUid,
+          createdAt: serverTimestamp(),
+        } as Omit<Like, 'createdAt'> & { createdAt: ReturnType<typeof serverTimestamp> })
+        createdLike = true
+      }
+
+      if (reverseExists) {
+        if (matchSnap && !matchSnap.exists()) {
+          transaction.set(matchRef, {
+            id: matchId,
+            userA,
+            userB,
+            participants: [userA, userB],
+            status: 'matched',
+            compatibilityVersion: 1,
+            createdAt: serverTimestamp(),
+            chatUnlocked: true,
+          } as Omit<Match, 'id' | 'createdAt'> & {
+            id: string
+            createdAt: ReturnType<typeof serverTimestamp>
+          })
+        }
+        
+        transaction.set(
+          chatRef,
+          {
+            participants: [userA, userB],
+            status: 'matched',
+            lastMessage: '',
+            unreadBy: [],
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true }
+        )
+        
+        matched = true
+      }
+    })
+  } catch (error: any) {
+    if (error?.code === 'permission-denied') {
+      logger.error('Permission denied in likeProfile transaction', error)
+      return { matched: false }
     }
+    logger.error('Failed likeProfile transaction:', error)
+    throw error
   }
 
   if (createdLike && listingId) {
@@ -59,22 +112,8 @@ export async function likeProfile(
     }
   }
 
-  // Check if the other person already liked us (mutual match)
-  const reverseLikeId = `${toUid}_${fromUid}`
-  const reverseRef = doc(db, LIKES_COLLECTION, reverseLikeId)
-  let reverseExists = false
-
-  try {
-    const reverseSnap = await getDoc(reverseRef)
-    reverseExists = reverseSnap.exists()
-  } catch (error: any) {
-    if (error?.code !== 'permission-denied') throw error
-    // Current rules can deny reads on missing docs; treat this as "no reverse like".
-    reverseExists = false
-  }
-
   // --- Start Notification Grouping Injection ---
-  if (!reverseExists && createdLike) {
+  if (!matched && createdLike) {
     try {
       const fromUser = await getUserProfile(fromUid)
       const actorName = fromUser?.displayName || 'Someone'
@@ -97,49 +136,7 @@ export async function likeProfile(
     }
   }
 
-  if (reverseExists) {
-    const [userA, userB] = [fromUid, toUid].sort()
-    const matchId = `${userA}_${userB}`
-    const matchRef = doc(db, MATCHES_COLLECTION, matchId)
-
-    try {
-      await setDoc(matchRef, {
-        id: matchId,
-        userA,
-        userB,
-        participants: [userA, userB],
-        status: 'matched',
-        compatibilityVersion: 1,
-        createdAt: serverTimestamp(),
-        chatUnlocked: true,
-      } as Omit<Match, 'id' | 'createdAt'> & {
-        id: string
-        createdAt: ReturnType<typeof serverTimestamp>
-      })
-    } catch (error: any) {
-      if (error?.code !== 'permission-denied') throw error
-
-      // Existing immutable match docs reject updates; allow if doc already exists.
-      const existingMatch = await getDoc(matchRef)
-      if (!existingMatch.exists()) throw error
-    }
-
-    try {
-      await setDoc(
-        doc(db, 'chats', matchId),
-        {
-          participants: [userA, userB],
-          status: 'matched',
-          lastMessage: '',
-          unreadBy: [],
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true }
-      )
-    } catch (error) {
-      logger.error('Failed to initialize chat thread for match:', error)
-    }
-
+  if (matched) {
     toast.success('🎉 You have a new match!')
     return { matched: true, matchId }
   }
