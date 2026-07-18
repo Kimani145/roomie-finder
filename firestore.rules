@@ -216,7 +216,7 @@ service cloud.firestore {
     // AUDIT LOGS
     // =========================================================================
     match /auditLogs/{logId} {
-      allow create: if isAdmin() && request.resource.data.actorUid == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.actorUid == request.auth.uid;
       allow read: if isAdmin();
       allow update, delete: if false;
     }

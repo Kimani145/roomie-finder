@@ -10,7 +10,7 @@ import {
   Timestamp,
 } from 'firebase/firestore'
 import { logger } from '@/utils/logger'
-import { fetchApi } from './apiClient'
+import { fetchWithAuth } from './apiClient'
 const OTPS_COLLECTION = 'otps'
 const AUDIT_LOGS_COLLECTION = 'auditLogs'
 
@@ -54,7 +54,7 @@ export async function log2faAuditEvent(
 ): Promise<void> {
   try {
     await addDoc(collection(db, AUDIT_LOGS_COLLECTION), {
-      userId,
+      actorUid: userId,
       email,
       action,
       timestamp: Timestamp.now(),
@@ -109,12 +109,12 @@ export async function generateAndSendOtp(
   await log2faAuditEvent(userId, email, '2fa_generated')
 
   // Send the email (unified communication system)
-  await fetchApi('/communications/send', {
+  await fetchWithAuth('/communications/send', {
     method: 'POST',
     body: JSON.stringify({
       type: '2FA_CODE',
+      to: email,
       payload: {
-        to: email,
         code: plainOtp,
         browser: navigator.userAgent,
         device: navigator.platform || 'Web App'
@@ -122,6 +122,7 @@ export async function generateAndSendOtp(
     })
   }).catch((err) => {
     logger.error('Failed to dispatch 2FA email communication:', err)
+    throw new Error('Failed to dispatch 2FA email communication')
   })
 }
 
