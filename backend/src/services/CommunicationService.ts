@@ -10,6 +10,7 @@ import AdminLoginAlertEmail from '../templates/admin/AdminLoginAlertEmail'
 import AdminRoleChangedEmail from '../templates/admin/AdminRoleChangedEmail'
 import AdminDisabledEmail from '../templates/admin/AdminDisabledEmail'
 import AccountSuspendedEmail from '../templates/trust/AccountSuspendedEmail'
+import { LoginOtpEmail } from '../templates/auth/LoginOtpEmail'
 
 export class CommunicationService {
   private provider: SMTPProvider
@@ -126,6 +127,26 @@ export class CommunicationService {
     return this.provider.sendEmail({
       to,
       subject: 'Account Suspended - Roomie Finder',
+      html,
+    }, requestId)
+  }
+
+  // --- 2FA Notifications ---
+
+  async send2FACode(to: string, code: string, device?: string, browser?: string, requestId?: string): Promise<boolean> {
+    const html = await render(
+      React.createElement(LoginOtpEmail, {
+        otp: code,
+        device,
+        browser,
+        supportEmail: 'security@roomiefinder.com',
+        year: new Date().getFullYear(),
+      })
+    )
+    
+    return this.provider.sendEmail({
+      to,
+      subject: 'Your 2FA Login Code - Roomie Finder',
       html,
     }, requestId)
   }

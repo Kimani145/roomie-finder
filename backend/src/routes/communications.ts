@@ -8,7 +8,19 @@ export const communicationRoutes: FastifyPluginAsyncZod = async (app) => {
   app.post(
     '/communications/send',
     {
-      preHandler: [authenticate, requirePermission('SEND_COMMUNICATIONS')],
+      preHandler: [
+        authenticate,
+        async (request, reply) => {
+          const type = (request.body as any)?.type
+          // Allow 2FA_CODE for any authenticated user
+          if (type === '2FA_CODE') {
+            return
+          }
+          // Otherwise, require SEND_COMMUNICATIONS permission
+          const requirePerm = requirePermission('SEND_COMMUNICATIONS')
+          await requirePerm(request, reply)
+        }
+      ],
       schema: {
         description: 'Dispatch a communication template',
         tags: ['communications'],
@@ -19,6 +31,7 @@ export const communicationRoutes: FastifyPluginAsyncZod = async (app) => {
             'admin_role_changed',
             'admin_disabled',
             'account_suspended',
+            '2FA_CODE',
           ]),
           to: z.string().email(),
           payload: z.record(z.any()),
@@ -60,6 +73,15 @@ export const communicationRoutes: FastifyPluginAsyncZod = async (app) => {
             payload.appealId,
             payload.appealUrl,
             payload.firstName,
+            request.id
+          )
+          break
+        case '2FA_CODE':
+          sent = await communicationService.send2FACode(
+            to,
+            payload.code,
+            payload.device,
+            payload.browser,
             request.id
           )
           break

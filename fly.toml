@@ -14,6 +14,10 @@ primary_region = 'iad'
   HOST = '0.0.0.0'
   NODE_ENV = 'production'
   PORT = '8080'
+  LOG_LEVEL = 'info'
+  SMTP_HOST = 'smtp.resend.com'
+  SMTP_PORT = '587'
+  SMTP_FROM = 'no-reply@roomiefinder.app'
 
 [http_service]
   internal_port = 8080
