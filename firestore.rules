@@ -292,7 +292,12 @@ service cloud.firestore {
       // Canonical deterministic ID + participant checks.
       // Note: Any future backend integration (e.g. Cloud Functions, backend server) MUST maintain the
       // invariant where the Match document ID matches canonicalMatchId(userA, userB) to prevent duplicate matches.
-      allow read: if isParticipant(resource.data.participants) || isAdmin();
+      allow read: if isVerifiedStudent() && (
+        matchId.matches('^' + request.auth.uid + '_.*') ||
+        matchId.matches('.*_' + request.auth.uid + '$') ||
+        isAdmin() ||
+        isParticipant(resource.data.participants)
+      );
 
       allow create: if isVerifiedStudent()
         && validMatchDoc(request.resource.data, matchId)

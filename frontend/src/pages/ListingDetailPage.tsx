@@ -25,30 +25,30 @@ const ListingDetailPage: React.FC = () => {
     if (!listing || !currentUser) return
 
     const chatId = [currentUser.uid, listing.hostId].sort().join('_')
-    const matchSnap = await getDoc(doc(db, 'matches', chatId))
-    const matchData = matchSnap.data() as { status?: string } | undefined
-
-    if (!matchSnap.exists() || matchData?.status !== 'matched') {
-      toast.error('You must match with this user before sending a message!', {
-        icon: '🔒',
-      })
-      return
-    }
-
-    const chatData = {
-      participants: [currentUser.uid, listing.hostId],
-      status: 'matched',
-      updatedAt: serverTimestamp(),
-      lastMessage: '',
-      unreadBy: [],
-    }
-
     try {
+      const matchSnap = await getDoc(doc(db, 'matches', chatId))
+      const matchData = matchSnap.data() as { status?: string } | undefined
+
+      if (!matchSnap.exists() || matchData?.status !== 'matched') {
+        toast.error('You need a mutual match before messaging is enabled.', {
+          icon: '🔒',
+        })
+        return
+      }
+
+      const chatData = {
+        participants: [currentUser.uid, listing.hostId],
+        status: 'matched',
+        updatedAt: serverTimestamp(),
+        lastMessage: '',
+        unreadBy: [],
+      }
+
       await setDoc(doc(db, 'chats', chatId), chatData, { merge: true })
       navigate(`/messages/${chatId}`)
     } catch (error: any) {
       if (error?.code === 'permission-denied') {
-        toast.error('You must match with this user before sending a message!', {
+        toast.error('You need a mutual match before messaging is enabled.', {
           icon: '🔒',
         })
         return

@@ -238,9 +238,9 @@ const ProfileDetailPage: React.FC = () => {
     } catch (err: any) {
       logger.error('Failed to like profile', err)
       if (err?.code === 'permission-denied') {
-        setActionError("You don't have permission to perform this action.")
+        setActionError("Permission error while checking existing matches. Please try again later.")
       } else {
-        setActionError('Failed to send like. Please try again.')
+        setActionError('Unable to process your like right now. Please try again.')
       }
     } finally {
       setIsSubmittingLike(false)

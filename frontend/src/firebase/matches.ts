@@ -96,7 +96,7 @@ export async function likeProfile(
   } catch (error: any) {
     if (error?.code === 'permission-denied') {
       logger.error('Permission denied in likeProfile transaction', error)
-      return { matched: false }
+      throw error
     }
     logger.error('Failed likeProfile transaction:', error)
     throw error
