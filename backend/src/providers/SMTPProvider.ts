@@ -44,11 +44,6 @@ export class SMTPProvider implements IEmailProvider {
       // Base headers
       const customHeaders = { ...payload.headers }
       
-      // Resend SMTP Idiom: use idempotency key in headers
-      if (payload.idempotencyKey) {
-        customHeaders['Resend-Idempotency-Key'] = payload.idempotencyKey
-      }
-      
       if (payload.correlationId) {
         customHeaders['X-Correlation-ID'] = payload.correlationId
       }

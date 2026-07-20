@@ -15,9 +15,9 @@ primary_region = 'iad'
   NODE_ENV = 'production'
   PORT = '8080'
   LOG_LEVEL = 'info'
-  SMTP_HOST = 'smtp.resend.com'
+  SMTP_HOST = 'smtp-relay.brevo.com'
   SMTP_PORT = '587'
-  SMTP_FROM = 'no-reply@roomiefinder.app'
+  SMTP_FROM = "Roomie Finder <colonyroomiefinder@gmail.com>"
 
 [http_service]
   internal_port = 8080
