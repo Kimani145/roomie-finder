@@ -70,3 +70,4 @@ TROUBLESHOOTING.md
 deleted_files/
 *.old.ts
 *.old.js
+backend/.env

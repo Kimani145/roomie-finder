@@ -54,7 +54,7 @@ export class SMTPProvider implements IEmailProvider {
       }
 
       const info = await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || 'Roomie Finder <no-reply@roomiefinder.com>',
+        from: process.env.SMTP_FROM || 'Roomie Finder <no-reply@roomiefinder.app>',
         to: payload.to,
         subject: payload.subject,
         html: payload.html,
