@@ -38,7 +38,7 @@ export async function buildApp() {
   app.setSerializerCompiler(serializerCompiler)
 
   const allowedOrigins = [
-    process.env.FRONTEND_URL || 'https://roomie-finder.vercel.app',
+    process.env.FRONTEND_URL || 'https://tuk-roomie-finder.vercel.app',
     'http://localhost:5173',
     'http://localhost:5174',
   ].filter((origin, index, origins) => origins.indexOf(origin) === index)
@@ -47,11 +47,11 @@ export async function buildApp() {
     origin: (origin, callback) => {
       // Allow non-browser requests (curl, health checks, server-to-server)
       if (!origin) return callback(null, true)
-      
+
       if (allowedOrigins.includes(origin)) {
         return callback(null, true)
       }
-      
+
       // Allow Vercel preview deployments
       if (origin.endsWith('.vercel.app')) {
         return callback(null, true)
