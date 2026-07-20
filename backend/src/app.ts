@@ -46,13 +46,21 @@ export async function buildApp() {
   await app.register(cors, {
     origin: (origin, callback) => {
       // Allow non-browser requests (curl, health checks, server-to-server)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true)
-        return
+      if (!origin) return callback(null, true)
+      
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true)
       }
-      callback(new Error('Not allowed by CORS'), false)
+      
+      // Allow Vercel preview deployments
+      if (origin.endsWith('.vercel.app')) {
+        return callback(null, true)
+      }
+
+      callback(null, false)
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
   })
 
   // Rate Limiting

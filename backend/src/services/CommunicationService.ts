@@ -36,6 +36,7 @@ export class CommunicationService {
       to,
       subject: 'Roomie Finder Administrator Invitation',
       html,
+      correlationId: requestId,
     }, requestId)
   }
 
@@ -53,6 +54,7 @@ export class CommunicationService {
       to,
       subject: 'Administrator Account Activated',
       html,
+      correlationId: requestId,
     }, requestId)
   }
 
@@ -73,6 +75,7 @@ export class CommunicationService {
       to,
       subject: 'Administrator Login Alert',
       html,
+      correlationId: requestId,
     }, requestId)
   }
 
@@ -90,6 +93,7 @@ export class CommunicationService {
       to,
       subject: 'Administrator Role Updated',
       html,
+      correlationId: requestId,
     }, requestId)
   }
 
@@ -106,6 +110,7 @@ export class CommunicationService {
       to,
       subject: 'Administrator Access Revoked',
       html,
+      correlationId: requestId,
     }, requestId)
   }
 
@@ -128,6 +133,7 @@ export class CommunicationService {
       to,
       subject: 'Account Suspended - Roomie Finder',
       html,
+      correlationId: requestId,
     }, requestId)
   }
 
@@ -148,13 +154,14 @@ export class CommunicationService {
       to,
       subject: 'Your 2FA Login Code - Roomie Finder',
       html,
+      correlationId: requestId,
     }, requestId)
   }
 
   // For password resets and verification links (native Firebase templates or custom)
   // We can pass simple HTML or use a custom template if built.
   async sendCustomEmail(to: string, subject: string, html: string, requestId?: string): Promise<boolean> {
-    return this.provider.sendEmail({ to, subject, html }, requestId)
+    return this.provider.sendEmail({ to, subject, html, correlationId: requestId }, requestId)
   }
 }
 

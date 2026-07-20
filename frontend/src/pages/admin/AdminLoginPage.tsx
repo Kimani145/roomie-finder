@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import { auth, db } from '@/firebase/config'
 import { logger } from '@/utils/logger'
-import { fetchWithAuth } from '@/services/apiClient'
+import { CommunicationClient } from '@/services/CommunicationClient'
 import { auditService } from '@/services/auditService'
 import { ShieldAlert, Loader2, ArrowRight } from 'lucide-react'
 
@@ -61,16 +61,13 @@ const AdminLoginPage: React.FC = () => {
       })
 
       // Send a login alert (fail-safe logic so we don't crash the login flow if it fails)
-      fetchWithAuth('/communications/send', {
-        method: 'POST',
-        body: JSON.stringify({
-          type: 'admin_login_alert',
-          to: email,
-          payload: {
-            browser: navigator.userAgent,
-            time: new Date().toLocaleString()
-          }
-        })
+      CommunicationClient.send({
+        type: 'admin_login_alert',
+        to: email,
+        payload: {
+          browser: navigator.userAgent,
+          time: new Date().toLocaleString()
+        }
       }).catch(err => logger.error('Failed to send admin login alert', err))
 
       // 4. Redirect to 2FA or Dashboard (handled by AdminRoute)

@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore'
 import toast from 'react-hot-toast'
 import { logger } from '@/utils/logger'
-import { fetchWithAuth } from './apiClient'
+import { CommunicationClient } from './CommunicationClient'
 const OTPS_COLLECTION = 'otps'
 const AUDIT_LOGS_COLLECTION = 'auditLogs'
 
@@ -110,21 +110,18 @@ export async function generateAndSendOtp(
   await log2faAuditEvent(userId, email, '2fa_generated')
 
   // Send the email (unified communication system)
-  await fetchWithAuth('/communications/send', {
-    method: 'POST',
-    body: JSON.stringify({
-      type: '2FA_CODE',
-      to: email,
-      payload: {
-        code: plainOtp,
-        browser: navigator.userAgent,
-        device: navigator.platform || 'Web App'
-      }
-    })
+  await CommunicationClient.send({
+    type: '2FA_CODE',
+    to: email,
+    payload: {
+      code: plainOtp,
+      browser: navigator.userAgent,
+      device: navigator.platform || 'Web App'
+    }
   }).catch((err) => {
     logger.error('Failed to dispatch 2FA email communication:', err)
-    toast.error('Failed to send verification code. Please try again.')
-    throw new Error('Failed to dispatch 2FA email communication')
+    toast.error(err.message || 'Failed to send verification code. Please try again.')
+    throw err
   })
 }
 

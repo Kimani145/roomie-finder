@@ -12,6 +12,10 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
   const headers = new Headers(options.headers)
   headers.set('Authorization', `Bearer ${token}`)
   
+  if (!headers.has('X-Correlation-ID')) {
+    headers.set('X-Correlation-ID', crypto.randomUUID())
+  }
+
   return fetchApi(endpoint, {
     ...options,
     headers,

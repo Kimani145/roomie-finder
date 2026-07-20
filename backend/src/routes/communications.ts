@@ -47,50 +47,57 @@ export const communicationRoutes: FastifyPluginAsyncZod = async (app) => {
     async (request, reply) => {
       const { type, to, payload } = request.body
 
-      let sent = false
-      switch (type) {
-        case 'admin_login_alert':
-          sent = await communicationService.sendAdminLoginAlert(
-            to,
-            payload.device || 'Unknown',
-            payload.browser || 'Unknown',
-            payload.location || 'Unknown',
-            payload.time || new Date().toLocaleString(),
-            request.id
-          )
-          break
-        case 'admin_role_changed':
-          sent = await communicationService.sendAdminRoleChanged(to, payload.systemRole, request.id)
-          break
-        case 'admin_disabled':
-          sent = await communicationService.sendAdminDisabled(to, request.id)
-          break
-        case 'account_suspended':
-          sent = await communicationService.sendAccountSuspended(
-            to,
-            payload.reason,
-            payload.suspensionDate,
-            payload.appealId,
-            payload.appealUrl,
-            payload.firstName,
-            request.id
-          )
-          break
-        case '2FA_CODE':
-          sent = await communicationService.send2FACode(
-            to,
-            payload.code,
-            payload.device,
-            payload.browser,
-            request.id
-          )
-          break
-      }
+      const correlationId = request.headers['x-correlation-id'] as string || request.id
 
-      if (sent) {
-        return { success: true, message: 'Communication sent' }
-      } else {
-        return reply.status(500).send({ success: false, message: 'Failed to send communication' })
+      let sent = false
+      try {
+        switch (type) {
+          case 'admin_login_alert':
+            sent = await communicationService.sendAdminLoginAlert(
+              to,
+              payload.device || 'Unknown',
+              payload.browser || 'Unknown',
+              payload.location || 'Unknown',
+              payload.time || new Date().toLocaleString(),
+              correlationId
+            )
+            break
+          case 'admin_role_changed':
+            sent = await communicationService.sendAdminRoleChanged(to, payload.systemRole, correlationId)
+            break
+          case 'admin_disabled':
+            sent = await communicationService.sendAdminDisabled(to, correlationId)
+            break
+          case 'account_suspended':
+            sent = await communicationService.sendAccountSuspended(
+              to,
+              payload.reason,
+              payload.suspensionDate,
+              payload.appealId,
+              payload.appealUrl,
+              payload.firstName,
+              correlationId
+            )
+            break
+          case '2FA_CODE':
+            sent = await communicationService.send2FACode(
+              to,
+              payload.code,
+              payload.device,
+              payload.browser,
+              correlationId
+            )
+            break
+        }
+
+        if (sent) {
+          return { success: true, message: 'Communication sent' }
+        } else {
+          return reply.status(500).send({ success: false, message: 'Failed to process request' })
+        }
+      } catch (err) {
+        request.log.error({ err, correlationId }, 'Error dispatching communication')
+        return reply.status(500).send({ success: false, message: 'Failed to process request' })
       }
     }
   )

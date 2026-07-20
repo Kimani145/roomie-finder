@@ -139,6 +139,12 @@ export default function Verify2faPage() {
   // Handle verification
   const handleVerify = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
+    
+    if (!navigator.onLine) {
+      setError('You appear to be offline. Please check your internet connection.')
+      return
+    }
+
     const code = otp.join('')
     if (code.length < 6) {
       setError('Please enter all 6 digits of the code.')
