@@ -167,7 +167,7 @@ Authorization: Bearer <Firebase_ID_Token>
 
 ### Frontend — Vercel
 
-- **Production URL:** https://roomie-finder.vercel.app
+- **Production URL:** https://tuk-roomie-finder.vercel.app
 - Root directory: `frontend`
 - `frontend/vercel.json` rewrites all routes to `/index.html` for SPA client-side routing.
 

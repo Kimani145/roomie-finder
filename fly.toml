@@ -10,7 +10,7 @@ primary_region = 'iad'
   dockerfile = 'Dockerfile.backend'
 
 [env]
-  FRONTEND_URL = 'https://roomie-finder.vercel.app'
+  FRONTEND_URL = 'https://tuk-roomie-finder.vercel.app'
   HOST = '0.0.0.0'
   NODE_ENV = 'production'
   PORT = '8080'
