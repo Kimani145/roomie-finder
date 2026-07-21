@@ -5,8 +5,12 @@ import { useAuthStore } from '@/store/authStore'
 import { toast } from 'react-hot-toast'
 import { getUserProfile } from '@/firebase/profiles'
 import { useNotificationStore } from '@/store/notificationStore'
-import { createNotification, subscribeToNotifications } from '@/firebase/notifications'
+import { subscribeToNotifications } from '@/firebase/notifications'
 import { logger } from '@/utils/logger'
+
+// BACKEND AUTHORITY: Notification CREATION is now owned by the backend (NotificationService).
+// GlobalListeners only reacts to incoming Firestore changes (reads).
+// It shows UI toasts for real-time awareness but no longer creates notification documents.
 
 const isActiveChat = (data: { status?: string }) => data.status !== 'unmatched'
 
@@ -21,6 +25,9 @@ const GlobalListeners: React.FC = () => {
   const chatsInitializedRef = useRef(false)
   const matchesInitializedRef = useRef(false)
 
+  // ── Chat message listener ────────────────────────────────────────────────
+  // Shows a toast when a new message arrives. The actual notification document
+  // was already created by the backend's message handler (or will be in a future sprint).
   useEffect(() => {
     if (!currentUser) {
       unreadByMapRef.current = {}
@@ -75,22 +82,10 @@ const GlobalListeners: React.FC = () => {
               try {
                 const otherUser = await getUserProfile(otherUid)
                 const senderName = otherUser?.displayName || 'Unknown'
-                // Only trigger active screen popups for Medium and High priority events.
-                // Low priority events (like passive profile likes) should only silently increment the Notification Bell counter.
+                // Toast for real-time awareness — notification document created by backend
                 toast.success(`New message from ${senderName}`, { icon: '💬' })
-                await createNotification({
-                  recipientId: currentUser.uid,
-                  type: 'message',
-                  title: 'New message',
-                  body: `${senderName} sent you a new message.`,
-                  link: `/chat/${docChange.doc.id}`,
-                  matchId: docChange.doc.id,
-                  senderId: otherUid,
-                })
               } catch (error) {
                 logger.error('Failed to get sender info:', error)
-                // Only trigger active screen popups for Medium and High priority events.
-                // Only trigger active screen popups for Medium and High priority events.
                 toast('New message received', { icon: '💬' })
               }
             }
@@ -106,6 +101,9 @@ const GlobalListeners: React.FC = () => {
     return () => unsubscribe()
   }, [currentUser, setUnreadMessages])
 
+  // ── Match listener ────────────────────────────────────────────────────────
+  // Shows a toast when a new match appears. The match notification document was
+  // already created by the backend MatchService (NotificationService).
   useEffect(() => {
     if (!currentUser) {
       matchesInitializedRef.current = false
@@ -129,34 +127,8 @@ const GlobalListeners: React.FC = () => {
       for (const docChange of snapshot.docChanges()) {
         if (docChange.type === 'added') {
           newMatchCount += 1
-          // Only trigger active screen popups for Medium and High priority events.
-          // Low priority events (like passive profile likes) should only silently increment the Notification Bell counter.
-          // Only trigger active screen popups for Medium and High priority events.
-          // Low priority events (like passive profile likes) should only silently increment the Notification Bell counter.
+          // Toast for real-time awareness — notification document created by MatchService
           toast.success('🎉 New Match!')
-          try {
-            const matchData = docChange.doc.data() as {
-              userA?: string
-              userB?: string
-            }
-            const otherUid =
-              matchData.userA === currentUser.uid ? matchData.userB : matchData.userA
-            if (otherUid) {
-              const otherUser = await getUserProfile(otherUid)
-              const otherUserName = otherUser?.displayName || 'someone'
-              await createNotification({
-                recipientId: currentUser.uid,
-                type: 'match',
-                title: 'New Match!',
-                body: `You and ${otherUserName} liked each other.`,
-                link: `/matches`,
-                matchId: docChange.doc.id,
-                senderId: otherUid,
-              })
-            }
-          } catch (error) {
-            logger.error('Failed to persist match notification:', error)
-          }
         }
       }
 
@@ -170,6 +142,7 @@ const GlobalListeners: React.FC = () => {
     return () => unsubscribe()
   }, [currentUser, setUnreadMatches])
 
+  // ── Notification bell listener ────────────────────────────────────────────
   useEffect(() => {
     if (!currentUser) {
       setNotifications([])

@@ -221,6 +221,7 @@ const ProfileDetailPage: React.FC = () => {
     try {
       const result = await likeProfile(currentUser.uid, viewedUser.uid, hostListing?.id)
 
+      // Mutual match — trigger the match modal
       if (result.matched && result.matchId) {
         await new Promise<void>((resolve) => {
           window.setTimeout(resolve, 800)
@@ -234,14 +235,18 @@ const ProfileDetailPage: React.FC = () => {
         return
       }
 
+      // Already liked — no error, just reflect state
+      if (result.alreadyLiked) {
+        setLikeSent(true)
+        return
+      }
+
+      // New like sent
       setLikeSent(true)
     } catch (err: any) {
       logger.error('Failed to like profile', err)
-      if (err?.code === 'permission-denied') {
-        setActionError("Permission error while checking existing matches. Please try again later.")
-      } else {
-        setActionError('Unable to process your like right now. Please try again.')
-      }
+      // Network or auth errors — show friendly message
+      setActionError('Unable to process your like right now. Please try again.')
     } finally {
       setIsSubmittingLike(false)
     }

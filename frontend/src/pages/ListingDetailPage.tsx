@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Home, Flame, AlertTriangle } from 'lucide-react'
 import { ReportModal } from '@/components/ui'
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { toast } from 'react-hot-toast'
 import { getListingById } from '@/firebase/listings'
 import { ImageGalleryModal } from '@/components/ui/ImageGalleryModal'
@@ -36,15 +36,6 @@ const ListingDetailPage: React.FC = () => {
         return
       }
 
-      const chatData = {
-        participants: [currentUser.uid, listing.hostId],
-        status: 'matched',
-        updatedAt: serverTimestamp(),
-        lastMessage: '',
-        unreadBy: [],
-      }
-
-      await setDoc(doc(db, 'chats', chatId), chatData, { merge: true })
       navigate(`/messages/${chatId}`)
     } catch (error: any) {
       if (error?.code === 'permission-denied') {

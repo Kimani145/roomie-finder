@@ -1,5 +1,16 @@
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { db } from '@/firebase/config'
+/**
+ * auditService.ts — Frontend audit stub.
+ *
+ * BACKEND AUTHORITY: All audit logs are written by the backend (AuditService via Admin SDK).
+ * Firestore rule: auditLogs — allow create: if false
+ *
+ * This stub exists so existing callers do not need to be refactored immediately.
+ * In development, events are logged to console. In production, they are silently
+ * dropped — the backend creates the authoritative audit trail.
+ *
+ * TODO: Replace remaining callers with server-side audit events in their
+ * corresponding backend endpoints (Phase 2 of audit migration).
+ */
 import { logger } from '@/utils/logger'
 import { UserRole } from '@/types'
 
@@ -34,21 +45,16 @@ export interface AuditLogPayload {
 }
 
 export const auditService = {
+  /**
+   * @deprecated Frontend audit logging is disabled. Audit events are now
+   * written exclusively by the backend. This stub exists for backward
+   * compatibility only and will be removed in a future sprint.
+   */
   async log(payload: AuditLogPayload): Promise<void> {
-    try {
-      const logEntry = {
-        ...payload,
-        userAgent: payload.userAgent || navigator.userAgent,
-        ipAddress: payload.ipAddress || 'Unknown', // IP address will be captured if available
-        timestamp: serverTimestamp(),
-      }
-
-      await addDoc(collection(db, 'auditLogs'), logEntry)
-      logger.info(`[Audit] ${payload.action} by ${payload.actorUid}`)
-    } catch (error) {
-      // We log to console/monitoring, but do not necessarily fail the main transaction
-      // if an audit log fails to write, though in a strict environment we might.
-      logger.error('Failed to write audit log', error)
+    // Development: log to console so devs can see what would have been audited
+    if (import.meta.env.DEV) {
+      logger.info(`[Audit (client-stub)] ${payload.action} by ${payload.actorUid}`, payload)
     }
+    // Production: intentionally no-op — backend owns the audit trail
   },
 }

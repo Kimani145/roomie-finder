@@ -1,7 +1,10 @@
 import React from 'react'
 import { render } from '@react-email/render'
-import { SMTPProvider, EmailPayload } from '../providers/SMTPProvider'
+import { IEmailProvider } from '../providers/EmailProvider'
+import { SMTPProvider } from '../providers/SMTPProvider'
 import { logger } from '../utils/logger'
+import { EventBus } from '../events/EventBus'
+import { Events, EventPayloads } from '../events/EventCatalogue'
 
 // Import templates
 import AdminInvitationEmail from '../templates/admin/AdminInvitationEmail'
@@ -11,157 +14,76 @@ import AdminRoleChangedEmail from '../templates/admin/AdminRoleChangedEmail'
 import AdminDisabledEmail from '../templates/admin/AdminDisabledEmail'
 import AccountSuspendedEmail from '../templates/trust/AccountSuspendedEmail'
 import { LoginOtpEmail } from '../templates/auth/LoginOtpEmail'
+import { adminDb } from '../config/firebase' // Needed for looking up emails if payload only has uid
 
 export class CommunicationService {
-  private provider: SMTPProvider
+  private provider: IEmailProvider
 
-  constructor() {
-    this.provider = new SMTPProvider()
+  constructor(provider?: IEmailProvider) {
+    this.provider = provider || new SMTPProvider()
+    this.setupListeners()
   }
 
-  // --- Auth & Admin Notifications ---
+  private setupListeners() {
+    EventBus.subscribe(Events.OTP_REQUESTED, async (payload) => {
+      await this.sendOtp(payload.email, payload.otp)
+    })
 
-  async sendAdminInvitation(to: string, systemRole: string, invitationUrl: string, requestId?: string): Promise<boolean> {
-    const html = await render(
-      React.createElement(AdminInvitationEmail, {
-        email: to,
-        systemRole,
-        invitationUrl,
-        supportEmail: 'security@roomiefinder.com',
-        year: new Date().getFullYear(),
-      })
-    )
-    
-    return this.provider.sendEmail({
-      to,
-      subject: 'Roomie Finder Administrator Invitation',
-      html,
-      correlationId: requestId,
-    }, requestId)
+    EventBus.subscribe(Events.PASSWORD_RESET_REQUESTED, async (payload) => {
+      await this.sendPasswordReset(payload.email, payload.token)
+    })
+
+    EventBus.subscribe(Events.ADMIN_INVITED, async (payload) => {
+      await this.sendAdminInvitation(payload.email, payload.role, payload.token)
+    })
+
+    // Subscribe to more events as needed for email delivery
   }
 
-  async sendAdminActivated(to: string, dashboardUrl: string, requestId?: string): Promise<boolean> {
-    const html = await render(
-      React.createElement(AdminActivatedEmail, {
-        email: to,
-        dashboardUrl,
-        supportEmail: 'security@roomiefinder.com',
-        year: new Date().getFullYear(),
-      })
-    )
-    
-    return this.provider.sendEmail({
-      to,
-      subject: 'Administrator Account Activated',
-      html,
-      correlationId: requestId,
-    }, requestId)
+  // Externally available generic send method if required
+  async send(options: { to: string; subject: string; html: string; text?: string; correlationId?: string }): Promise<boolean> {
+    try {
+      return await this.provider.sendEmail(options)
+    } catch (error) {
+      logger.error({ msg: 'CommunicationService: send failed', to: options.to, error })
+      return false
+    }
   }
 
-  async sendAdminLoginAlert(to: string, device: string, browser: string, location: string, time: string, requestId?: string): Promise<boolean> {
-    const html = await render(
-      React.createElement(AdminLoginAlertEmail, {
-        email: to,
-        device,
-        browser,
-        location,
-        time,
-        supportEmail: 'security@roomiefinder.com',
-        year: new Date().getFullYear(),
-      })
-    )
-    
-    return this.provider.sendEmail({
-      to,
-      subject: 'Administrator Login Alert',
-      html,
-      correlationId: requestId,
-    }, requestId)
-  }
+  // ─── Internal Specific Send Methods ──────────────────────────────────────────
 
-  async sendAdminRoleChanged(to: string, systemRole: string, requestId?: string): Promise<boolean> {
-    const html = await render(
-      React.createElement(AdminRoleChangedEmail, {
-        email: to,
-        systemRole,
-        supportEmail: 'security@roomiefinder.com',
-        year: new Date().getFullYear(),
-      })
-    )
-    
-    return this.provider.sendEmail({
-      to,
-      subject: 'Administrator Role Updated',
-      html,
-      correlationId: requestId,
-    }, requestId)
-  }
-
-  async sendAdminDisabled(to: string, requestId?: string): Promise<boolean> {
-    const html = await render(
-      React.createElement(AdminDisabledEmail, {
-        email: to,
-        supportEmail: 'security@roomiefinder.com',
-        year: new Date().getFullYear(),
-      })
-    )
-    
-    return this.provider.sendEmail({
-      to,
-      subject: 'Administrator Access Revoked',
-      html,
-      correlationId: requestId,
-    }, requestId)
-  }
-
-  // --- Trust & Safety Notifications ---
-
-  async sendAccountSuspended(to: string, reason: string, suspensionDate: string, appealId: string, appealUrl: string, firstName?: string, requestId?: string): Promise<boolean> {
-    const html = await render(
-      React.createElement(AccountSuspendedEmail, {
-        firstName,
-        reason,
-        suspensionDate,
-        appealId,
-        appealUrl,
-        supportEmail: 'trust@roomiefinder.com',
-        year: new Date().getFullYear(),
-      })
-    )
-    
-    return this.provider.sendEmail({
-      to,
-      subject: 'Account Suspended - Roomie Finder',
-      html,
-      correlationId: requestId,
-    }, requestId)
-  }
-
-  // --- 2FA Notifications ---
-
-  async send2FACode(to: string, code: string, device?: string, browser?: string, requestId?: string): Promise<boolean> {
+  private async sendOtp(to: string, code: string, device?: string, browser?: string): Promise<boolean> {
     const html = await render(
       React.createElement(LoginOtpEmail, {
-        otp: code,
-        device,
-        browser,
+        otp: code, device, browser,
         supportEmail: 'security@roomiefinder.com',
         year: new Date().getFullYear(),
       })
     )
-    
-    return this.provider.sendEmail({
-      to,
-      subject: 'Your 2FA Login Code - Roomie Finder',
-      html,
-      correlationId: requestId,
-    }, requestId)
+    return this.send({ to, subject: 'Your 2FA Login Code - Roomie Finder', html })
   }
 
-  // For password resets and verification links (native Firebase templates or custom)
-  // We can pass simple HTML or use a custom template if built.
-  async sendCustomEmail(to: string, subject: string, html: string, requestId?: string): Promise<boolean> {
-    return this.provider.sendEmail({ to, subject, html, correlationId: requestId }, requestId)
+  private async sendPasswordReset(to: string, resetLink: string): Promise<boolean> {
+    const html = `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+        <h2 style="color:#1d4ed8">Reset Your Roomie Finder Password</h2>
+        <p>We received a request to reset your password.</p>
+        <a href="${resetLink}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:6px;margin:16px 0;font-weight:bold">Reset Password</a>
+        <p style="color:#6b7280;font-size:13px">If you didn't request this, you can safely ignore this email. This link expires in 1 hour.</p>
+      </div>`
+    const text = `Reset your Roomie Finder password:\n${resetLink}\n\nIf you didn't request this, ignore this email.`
+    return this.send({ to, subject: 'Reset your Roomie Finder password', html, text })
+  }
+
+  private async sendAdminInvitation(to: string, systemRole: string, invitationUrl: string): Promise<boolean> {
+    const html = await render(
+      React.createElement(AdminInvitationEmail, {
+        email: to, systemRole, invitationUrl,
+        supportEmail: 'security@roomiefinder.com',
+        year: new Date().getFullYear(),
+      })
+    )
+    return this.send({ to, subject: 'Roomie Finder Administrator Invitation', html })
   }
 }
 

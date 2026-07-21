@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { collection, query, limit, getDocs, doc, updateDoc } from 'firebase/firestore'
+import { collection, query, limit, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
 import { Ban, AlertCircle, RefreshCw } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
+import { fetchWithAuth } from '@/utils/api'
 import { formatDistanceToNow } from 'date-fns'
 import { logger } from '@/utils/logger'
 
@@ -45,7 +46,10 @@ const UserManagementPage: React.FC = () => {
     
     try {
       setActionLoading(uid)
-      await updateDoc(doc(db, 'profiles', uid), { status: 'banned' })
+      await fetchWithAuth(`/api/v1/admin/users/${uid}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'banned' })
+      })
       toast.success('User banned successfully')
       await fetchUsers()
     } catch (err) {
@@ -61,7 +65,10 @@ const UserManagementPage: React.FC = () => {
     
     try {
       setActionLoading(uid)
-      await updateDoc(doc(db, 'profiles', uid), { status: 'active' })
+      await fetchWithAuth(`/api/v1/admin/users/${uid}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'active' })
+      })
       toast.success('User unbanned successfully')
       await fetchUsers()
     } catch (err) {

@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { db } from '@/firebase/config'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { useAuthStore } from '@/store/authStore'
 import { ShieldAlert, ArrowLeft, Send, Upload, HelpCircle, Loader2 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
-
-import { createNotification } from '@/firebase/notifications'
+import { fetchWithAuth } from '@/services/apiClient'
 import { logger } from '@/utils/logger'
+import { useAuthStore } from '@/store/authStore'
+
+// Note: appeal notifications are now dispatched by the backend (NotificationService).
+// No client-side createNotification() calls needed here.
+
 
 export const AppealSubmissionPage: React.FC = () => {
   const { currentUser } = useAuthStore()
@@ -56,35 +57,27 @@ export const AppealSubmissionPage: React.FC = () => {
 
     setSubmitting(true)
     try {
-      // 1. Write appeal document to Firestore
-      await addDoc(collection(db, 'appeals'), {
-        userId: currentUser.uid,
-        userName: currentUser.displayName || 'TUK Student',
-        userEmail: currentUser.email || '',
-        reason: reason.trim(),
-        explanation: explanation.trim(),
-        evidenceURL: evidenceName ? `placeholder://uploads/evidence/${evidenceName}` : null,
-        status: 'submitted',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        suspensionReason,
-        suspensionDate: suspensionDate || null,
+      // Submit appeal to the backend API instead of direct Firestore write
+      const res = await fetchWithAuth('/api/v1/appeals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reason: reason.trim(),
+          explanation: explanation.trim(),
+          evidenceURL: evidenceName ? `placeholder://uploads/evidence/${evidenceName}` : null,
+          suspensionReason,
+          suspensionDate: suspensionDate || null,
+        }),
       })
 
-      // 2. Log in-app notification
-      await createNotification({
-        recipientId: currentUser.uid,
-        type: 'appeal',
-        title: 'Appeal Submitted Successfully',
-        body: 'We have received your appeal request. Our safety administrators will review it shortly.',
-        link: '/appeal-status',
-        senderId: 'system_trust_and_safety',
-      })
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || 'Failed to submit appeal')
+      }
 
-      // 3. Email sending logic has been moved to the trusted backend.
-      // A backend trigger or dedicated endpoint should handle the 'appeal_received' email.
+      // Notification and email sending logic is handled by the trusted backend.
 
-      toast.success('Appeal submitted successfully!')
+      toast.success('Appeal submitted successfully')
       navigate('/appeal-status')
     } catch (err: any) {
       logger.error('Failed to submit appeal:', err)

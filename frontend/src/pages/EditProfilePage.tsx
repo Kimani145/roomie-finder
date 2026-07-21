@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { doc, updateDoc } from 'firebase/firestore'
+// Removed doc, updateDoc
 import type { FirebaseError } from 'firebase/app'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/authStore'
+import { fetchWithAuth } from '@/utils/api'
 import { getUserProfile } from '@/firebase/profiles'
-import { db } from '@/firebase/config'
+// Removed db import
 import { TUK_ZONES, TukZone } from '@/constants/zones'
 import type { UserProfile, HousingRole } from '@/types'
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
@@ -227,7 +228,10 @@ const EditProfilePage: React.FC = () => {
         }
       }
 
-      await updateDoc(doc(db, 'profiles', uid), updatedData)
+      await fetchWithAuth('/api/v1/profiles/me', {
+        method: 'PUT',
+        body: JSON.stringify(updatedData)
+      })
 
       if (profile) {
         setCurrentUser({

@@ -376,7 +376,7 @@ const MessagesPage: React.FC = () => {
       setThreadMessages(nextMessages)
 
       try {
-        await markChatAsRead(selectedChatId, currentUser.uid)
+        await markChatAsRead(selectedChatId)
       } catch (readError) {
         logger.error('Failed to mark selected chat as read:', readError)
       }
@@ -405,7 +405,7 @@ const MessagesPage: React.FC = () => {
           setUserNearBottom(true)
           scrollTimeout = setTimeout(async () => {
             try {
-              await markChatAsRead(selectedChatId, currentUser.uid)
+              await markChatAsRead(selectedChatId)
             } catch (error) {
               logger.error('Failed to mark chat as read:', error)
             }

@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/authStore';
 import { getUserProfile } from '@/firebase/profiles';
 import type { UserProfile } from '@/types';
-import { doc, updateDoc } from 'firebase/firestore';
+import { fetchWithAuth } from '@/utils/api';
 import { toast } from 'react-hot-toast';
 import {
   MapPin,
@@ -20,7 +20,6 @@ import {
   Camera,
   Loader2,
 } from 'lucide-react';
-import { db } from '@/firebase/config';
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
 import FullScreenLoader from '@/components/ui/FullScreenLoader';
 
@@ -76,9 +75,9 @@ const ProfilePage: React.FC = () => {
     setProfileStatus(newStatus); // Optimistic UI update
 
     try {
-      const promise = updateDoc(doc(db, 'profiles', currentUser.uid), {
-        status: newStatus,
-        updatedAt: new Date()
+      const promise = fetchWithAuth('/api/v1/profiles/me', {
+        method: 'PUT',
+        body: JSON.stringify({ status: newStatus })
       });
       
       toast.promise(promise, {
@@ -109,8 +108,10 @@ const ProfilePage: React.FC = () => {
     setIsUploading(true);
     try {
       const url = await uploadToCloudinary(file);
-      await updateDoc(doc(db, 'profiles', currentUser.uid), { photoURL: url });
-      await updateDoc(doc(db, 'users', currentUser.uid), { updatedAt: new Date() });
+      await fetchWithAuth('/api/v1/profiles/me', {
+        method: 'PUT',
+        body: JSON.stringify({ photoURL: url })
+      });
       const nextUser = { ...currentUser, photoURL: url };
       setCurrentUser(nextUser);
       setProfile(nextUser);

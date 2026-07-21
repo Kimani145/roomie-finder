@@ -1,3 +1,12 @@
+/**
+ * notifications.ts — Frontend notification reads.
+ *
+ * BACKEND AUTHORITY: Notification CREATION is owned by the backend (NotificationService).
+ * This file only contains read operations and user interaction (mark as read).
+ *
+ * DO NOT add createNotification() or any write operation to this file.
+ * All notification creation goes through the backend API.
+ */
 import {
   collection,
   doc,
@@ -5,8 +14,6 @@ import {
   onSnapshot,
   orderBy,
   query,
-  serverTimestamp,
-  setDoc,
   updateDoc,
   writeBatch,
   where,
@@ -26,27 +33,7 @@ type FirestoreNotification = {
   createdAt?: { toDate?: () => Date } | null
 }
 
-export const createNotification = async (params: {
-  recipientId: string
-  type: AppNotificationType
-  title: string
-  body: string
-  link: string
-  matchId?: string
-  senderId: string
-}) => {
-  await setDoc(doc(collection(db, 'notifications')), {
-    recipientId: params.recipientId,
-    type: params.type,
-    title: params.title,
-    body: params.body,
-    link: params.link,
-    senderId: params.senderId,
-    ...(params.matchId ? { matchId: params.matchId } : {}),
-    isRead: false,
-    createdAt: serverTimestamp(),
-  })
-}
+// ─── Subscribe to Notifications (Real-time) ───────────────────────────────────
 
 export const subscribeToNotifications = (
   recipientId: string,
@@ -86,9 +73,13 @@ export const subscribeToNotifications = (
   )
 }
 
+// ─── Mark Individual Notification Read ────────────────────────────────────────
+
 export const markNotificationRead = async (notificationId: string) => {
   await updateDoc(doc(db, 'notifications', notificationId), { isRead: true })
 }
+
+// ─── Mark All Notifications Read ─────────────────────────────────────────────
 
 export const markAllNotificationsRead = async (
   notifications: Array<{ id: string; isRead: boolean }>
@@ -97,6 +88,8 @@ export const markAllNotificationsRead = async (
     notifications.filter((item) => !item.isRead).map((item) => markNotificationRead(item.id))
   )
 }
+
+// ─── Mark Match Notifications Read ───────────────────────────────────────────
 
 export const markAllNotificationsReadForMatch = async (params: {
   recipientId: string

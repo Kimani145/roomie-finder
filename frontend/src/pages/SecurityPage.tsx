@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { doc, updateDoc, deleteDoc } from 'firebase/firestore'
+// Removed firestore imports
 
-import { db } from '@/firebase/config'
+// Removed db import
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/authStore'
-import { log2faAuditEvent } from '@/services/twoFactorService'
-import { fetchApi } from '@/services/apiClient'
+
+import { fetchWithAuth, fetchApi } from '@/services/apiClient'
 import { logger } from '@/utils/logger'
 
 import {
@@ -48,9 +48,9 @@ export default function SecurityPage() {
     const newValue = !is2faEnabled
 
     try {
-      const profileRef = doc(db, 'profiles', currentUser.uid)
-      await updateDoc(profileRef, {
-        twoFactorEnabled: newValue,
+      await fetchWithAuth('/api/v1/profiles/me', {
+        method: 'PUT',
+        body: JSON.stringify({ twoFactorEnabled: newValue }),
       })
 
       // Update local store state
@@ -58,13 +58,6 @@ export default function SecurityPage() {
         ...currentUser,
         twoFactorEnabled: newValue,
       })
-
-      // Log audit event
-      await log2faAuditEvent(
-        currentUser.uid,
-        userEmail,
-        newValue ? '2fa_enabled' : '2fa_disabled'
-      )
 
       // Skip security alert email for now since we removed CommunicationService
       // A dedicated backend endpoint can be added later if needed.
@@ -115,9 +108,9 @@ export default function SecurityPage() {
     }
     setDeletingAccount(true)
     try {
-      // 1. Delete Firestore profile document
-      await deleteDoc(doc(db, 'profiles', user.uid))
-      // 2. Delete Auth user account
+      // 1. Call backend to disable account and mark profile inactive
+      await fetchWithAuth('/api/v1/profiles/me', { method: 'DELETE' })
+      // 2. Delete Auth user account (optional, but good for cleanup if they want it fully gone, though backend disabled it)
       await user.delete()
       
       toast.success('Your account has been deleted successfully.')

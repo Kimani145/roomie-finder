@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react'
 import {
-  addDoc,
-  arrayRemove,
   collection,
-  doc,
-  getDoc,
   onSnapshot,
   query,
-  serverTimestamp,
-  setDoc,
-  updateDoc,
   where,
 } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import type { LocalMessage, MessageStatus } from '@/types'
+import { fetchWithAuth } from '@/services/apiClient'
+
 
 export const getChatParticipants = (chatId: string): string[] =>
   chatId.split('_').filter(Boolean)
@@ -34,33 +29,10 @@ export const sendChatMessage = async (params: {
   const trimmed = params.text.trim()
   if (!trimmed) return
 
-  const participants = getChatParticipants(params.chatId)
-  const recipientUid = participants.find((id) => id !== params.currentUserUid)
-  const chatRef = doc(db, 'chats', params.chatId)
-  const existingChatSnap = await getDoc(chatRef)
-  const existingChat = existingChatSnap.data() as { status?: string } | undefined
-
-  if (existingChat?.status === 'unmatched') {
-    throw new Error('chat-unmatched')
-  }
-
-  await setDoc(
-    chatRef,
-    {
-      status: existingChat?.status ?? 'matched',
-      participants,
-      lastMessage: trimmed,
-      updatedAt: serverTimestamp(),
-      lastMessageTime: serverTimestamp(),
-      unreadBy: recipientUid ? [recipientUid] : [],
-    },
-    { merge: true }
-  )
-
-  await addDoc(collection(db, 'chats', params.chatId, 'messages'), {
-    senderUid: params.currentUserUid,
-    text: trimmed,
-    createdAt: serverTimestamp(),
+  await fetchWithAuth(`/api/v1/chats/${params.chatId}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: trimmed }),
   })
 }
 
@@ -90,36 +62,22 @@ export const sendChatMessageWithOptimism = async (params: {
   }
 
   try {
-    const participants = getChatParticipants(params.chatId)
-    const recipientUid = participants.find((id) => id !== params.currentUserUid)
-    const chatRef = doc(db, 'chats', params.chatId)
-    const existingChatSnap = await getDoc(chatRef)
-    const existingChat = existingChatSnap.data() as { status?: string } | undefined
-
-    if (existingChat?.status === 'unmatched') {
-      return { success: false, error: 'chat-unmatched' }
-    }
-
-    await setDoc(
-      chatRef,
-      {
-        status: existingChat?.status ?? 'matched',
-        participants,
-        lastMessage: trimmed,
-        updatedAt: serverTimestamp(),
-        lastMessageTime: serverTimestamp(),
-        unreadBy: recipientUid ? [recipientUid] : [],
+    const res = await fetchWithAuth(`/api/v1/chats/${params.chatId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-idempotency-key': params.tempId, // Ensure idempotency for retries
       },
-      { merge: true }
-    )
-
-    const messageRef = await addDoc(collection(db, 'chats', params.chatId, 'messages'), {
-      senderUid: params.currentUserUid,
-      text: trimmed,
-      createdAt: serverTimestamp(),
+      body: JSON.stringify({ text: trimmed }),
     })
 
-    return { success: true, serverMessageId: messageRef.id }
+    const data = await res.json()
+
+    if (!res.ok) {
+      return { success: false, error: data.error || 'Failed to send message' }
+    }
+
+    return { success: true, serverMessageId: data.messageId }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return { success: false, error: errorMessage }
@@ -139,9 +97,11 @@ export const retryFailedMessage = async (params: {
   })
 }
 
-export const markChatAsRead = async (chatId: string, currentUserUid: string) => {
-  await updateDoc(doc(db, 'chats', chatId), {
-    unreadBy: arrayRemove(currentUserUid),
+export const markChatAsRead = async (chatId: string) => {
+  await fetchWithAuth(`/api/v1/chats/${chatId}/read`, {
+    method: 'POST',
+  }).catch(() => {
+    // Silently ignore errors here to avoid interrupting UI, backend handles it
   })
 }
 

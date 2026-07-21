@@ -1,150 +1,80 @@
-import {
-  doc,
-  collection,
-  getDoc,
-  setDoc,
-  serverTimestamp,
-  increment,
-  updateDoc,
-  runTransaction
-} from 'firebase/firestore'
-import { toast } from 'react-hot-toast'
+/**
+ * matches.ts — Frontend match interactions.
+ *
+ * BACKEND AUTHORITY: All write operations (like, match, chat, notification creation)
+ * are performed exclusively by the backend via the Admin SDK.
+ *
+ * The frontend:
+ *   - Calls POST /api/v1/matches/like via likeProfile()
+ *   - Reads like status via hasLiked() (read-only Firestore access)
+ *   - Receives matches and chats reactively via Firestore onSnapshot
+ *
+ * DO NOT add any Firestore write operations to this file.
+ */
+import { doc, getDoc } from 'firebase/firestore'
 import { db } from './config'
-import type { Like, Match } from '@/types'
-import { getUserProfile } from '@/firebase/profiles'
+import { fetchWithAuth } from '@/services/apiClient'
 import { logger } from '@/utils/logger'
 
 const LIKES_COLLECTION = 'likes'
-const MATCHES_COLLECTION = 'matches'
 
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+export interface LikeApiResult {
+  matched: boolean
+  alreadyLiked?: boolean
+  matchId?: string
+  chatId?: string
+}
+
+// ─── Like Profile (via Backend API) ──────────────────────────────────────────
+
+/**
+ * Send a like to a profile.
+ *
+ * Delegates to POST /api/v1/matches/like — the backend atomically creates
+ * the Like document, and if mutual: the Match, Chat, and Notifications.
+ *
+ * @throws Error with a user-friendly message on failure.
+ */
 export async function likeProfile(
   fromUid: string,
   toUid: string,
   listingId?: string | null
-): Promise<{ matched: boolean; matchId?: string }> {
-  if (fromUid === toUid) return { matched: false }
-
-  const likeId = `${fromUid}_${toUid}`
-  const likeRef = doc(db, LIKES_COLLECTION, likeId)
-  const reverseLikeId = `${toUid}_${fromUid}`
-  const reverseRef = doc(db, LIKES_COLLECTION, reverseLikeId)
-
-  const [userA, userB] = [fromUid, toUid].sort()
-  const matchId = `${userA}_${userB}`
-  const matchRef = doc(db, MATCHES_COLLECTION, matchId)
-  const chatRef = doc(db, 'chats', matchId)
-
-  let createdLike = false
-  let matched = false
+): Promise<LikeApiResult> {
+  if (fromUid === toUid) {
+    logger.warn('[matches] Attempted self-like, ignoring')
+    return { matched: false }
+  }
 
   try {
-    await runTransaction(db, async (transaction) => {
-      // --- ALL READS ---
-      const likeSnap = await transaction.get(likeRef)
-      const reverseSnap = await transaction.get(reverseRef)
-      const reverseExists = reverseSnap.exists()
-      
-      let matchSnap = null
-      if (reverseExists) {
-        matchSnap = await transaction.get(matchRef)
-      }
-
-      // --- ALL WRITES ---
-      if (likeSnap.exists()) {
-        createdLike = false
-      } else {
-        transaction.set(likeRef, {
-          fromUid,
-          toUid,
-          createdAt: serverTimestamp(),
-        } as Omit<Like, 'createdAt'> & { createdAt: ReturnType<typeof serverTimestamp> })
-        createdLike = true
-      }
-
-      if (reverseExists) {
-        if (matchSnap && !matchSnap.exists()) {
-          transaction.set(matchRef, {
-            id: matchId,
-            userA,
-            userB,
-            participants: [userA, userB],
-            status: 'matched',
-            compatibilityVersion: 1,
-            createdAt: serverTimestamp(),
-            chatUnlocked: true,
-          } as Omit<Match, 'id' | 'createdAt'> & {
-            id: string
-            createdAt: ReturnType<typeof serverTimestamp>
-          })
-        }
-        
-        transaction.set(
-          chatRef,
-          {
-            participants: [userA, userB],
-            status: 'matched',
-            lastMessage: '',
-            unreadBy: [],
-            updatedAt: serverTimestamp(),
-          },
-          { merge: true }
-        )
-        
-        matched = true
-      }
+    const response = await fetchWithAuth('/api/v1/matches/like', {
+      method: 'POST',
+      body: JSON.stringify({
+        targetUid: toUid,
+        ...(listingId ? { listingId } : {}),
+      }),
     })
+
+    return response as LikeApiResult
   } catch (error: any) {
-    if (error?.code === 'permission-denied') {
-      logger.error('Permission denied in likeProfile transaction', error)
-      throw error
+    // 409 Conflict = already liked — not a hard error
+    if (error?.message?.includes('Already liked') || error?.status === 409) {
+      logger.info('[matches] Already liked this profile')
+      return { matched: false, alreadyLiked: true }
     }
-    logger.error('Failed likeProfile transaction:', error)
+
+    logger.error('[matches] likeProfile API call failed', error)
     throw error
   }
-
-  if (createdLike && listingId) {
-    try {
-      await updateDoc(doc(db, 'listings', listingId), {
-        interestCount: increment(1),
-      })
-    } catch (error) {
-      logger.error('Failed to update listing interest count:', error)
-    }
-  }
-
-  // --- Start Notification Grouping Injection ---
-  if (!matched && createdLike) {
-    try {
-      const fromUser = await getUserProfile(fromUid)
-      const actorName = fromUser?.displayName || 'Someone'
-      const notifRef = doc(collection(db, 'notifications'))
-      
-      await setDoc(notifRef, {
-        recipientId: toUid,
-        type: 'like',
-        senderId: fromUid,
-        latestActorName: actorName,
-        title: 'New Like!',
-        body: `${actorName} liked your profile. Tap to view and match!`,
-        link: `/profile/${fromUid}`,
-        createdAt: serverTimestamp(),
-        isRead: false,
-        priority: 'high'
-      })
-    } catch (err) {
-      logger.error('Failed to send like notification:', err)
-    }
-  }
-
-  if (matched) {
-    toast.success('🎉 You have a new match!')
-    return { matched: true, matchId }
-  }
-
-  return { matched: false }
 }
 
-// ─── Check if already liked ───────────────────────────────────────────────────
+// ─── Check if already liked (read-only) ──────────────────────────────────────
+
+/**
+ * Check if fromUid has already liked toUid.
+ * Read-only Firestore access — safe to call from frontend.
+ */
 export async function hasLiked(fromUid: string, toUid: string): Promise<boolean> {
   const ref = doc(db, LIKES_COLLECTION, `${fromUid}_${toUid}`)
   try {

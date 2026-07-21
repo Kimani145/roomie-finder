@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { X, AlertTriangle, Upload, RefreshCw } from 'lucide-react'
-import { db } from '@/firebase/config'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { fetchWithAuth } from '@/services/apiClient'
 import { useAuthStore } from '@/store/authStore'
 import { toast } from 'react-hot-toast'
 import { logger } from '@/utils/logger'
@@ -55,16 +54,21 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
     setSubmitting(true)
     try {
-      await addDoc(collection(db, 'reports'), {
-        reporterId: currentUser.uid,
-        reportedId,
-        type,
-        reason,
-        description,
-        screenshotURL: screenshotName ? `placeholder://uploads/${screenshotName}` : null,
-        createdAt: serverTimestamp(),
-        status: 'pending',
+      const res = await fetchWithAuth('/api/v1/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reportedUserId: reportedId,
+          reason,
+          description,
+          evidenceLink: screenshotName ? `placeholder://uploads/${screenshotName}` : null,
+        }),
       })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || 'Failed to submit report')
+      }
 
       toast.success('Report submitted successfully. Our safety moderators will review it shortly.')
       

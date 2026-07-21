@@ -1,20 +1,13 @@
 import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  collection,
-  doc,
-  getDocs,
-  query,
-  serverTimestamp,
-  where,
-  writeBatch,
-} from 'firebase/firestore'
+import { serverTimestamp } from 'firebase/firestore'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { db } from '@/firebase/config'
 import { TUK_ZONES } from '@/constants/zones'
 import { HOUSING_TYPES } from '@/types'
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
+import { fetchWithAuth } from '@/utils/api'
 import type { HousingType, TukZone } from '@/types'
 import { inputCls as inputClassName } from '@/utils/formStyles'
 import { logger } from '@/utils/logger'
@@ -136,23 +129,7 @@ const ListingWizardPage: React.FC = () => {
         return
       }
 
-      const listingRef = doc(collection(db, 'listings'))
-      const batch = writeBatch(db)
-
-      const activeListingsQuery = query(
-        collection(db, 'listings'),
-        where('hostId', '==', currentUser.uid),
-        where('status', '==', 'active')
-      )
-
-      const activeListingsSnapshot = await getDocs(activeListingsQuery)
-      activeListingsSnapshot.forEach((listingDoc) => {
-        batch.update(listingDoc.ref, { status: 'paused' })
-      })
-
       const listingData = {
-        id: listingRef.id,
-        hostId: currentUser.uid,
         zone: zone as TukZone,
         housingType: housingType as HousingType,
         rentTotal: rentValue,
@@ -164,14 +141,12 @@ const ListingWizardPage: React.FC = () => {
           petsAllowed,
           guestPolicy: guestPolicy.trim(),
         },
-        createdAt: serverTimestamp(),
-        status: 'active' as const,
-        interestCount: 0,
-        viewCount: 0,
       }
 
-      batch.set(listingRef, listingData)
-      await batch.commit()
+      await fetchWithAuth('/api/v1/listings', {
+        method: 'POST',
+        body: JSON.stringify(listingData)
+      })
       toast.success('Listing published successfully!')
       navigate('/my-listings')
     } catch (error) {

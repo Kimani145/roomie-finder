@@ -1,29 +1,18 @@
 import nodemailer from 'nodemailer'
+import { IEmailProvider, EmailPayload } from './EmailProvider'
 import { logger } from '../utils/logger'
 
-export interface EmailPayload {
-  to: string
-  subject: string
-  html: string
-  text?: string
-  replyTo?: string
-  cc?: string | string[]
-  bcc?: string | string[]
-  headers?: Record<string, string>
-  idempotencyKey?: string
-  correlationId?: string
-  tags?: Array<{name: string, value: string}>
-  attachments?: Array<{
-    filename: string,
-    content: Buffer | string,
-    contentType?: string
-  }>
-}
+export { EmailPayload, IEmailProvider } from './EmailProvider'
 
-export interface IEmailProvider {
-  sendEmail(payload: EmailPayload, requestId?: string): Promise<boolean>
-}
-
+/**
+ * SMTPProvider — Brevo/nodemailer implementation of IEmailProvider.
+ *
+ * Credentials live in backend/.env only (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD).
+ * Never exposed to the frontend.
+ *
+ * Switching to Resend: create ResendProvider.ts that implements IEmailProvider,
+ * then update CommunicationDispatcher to load it when EMAIL_PROVIDER=resend.
+ */
 export class SMTPProvider implements IEmailProvider {
   private transporter: nodemailer.Transporter
 
@@ -41,9 +30,8 @@ export class SMTPProvider implements IEmailProvider {
 
   async sendEmail(payload: EmailPayload, requestId?: string): Promise<boolean> {
     try {
-      // Base headers
       const customHeaders = { ...payload.headers }
-      
+
       if (payload.correlationId) {
         customHeaders['X-Correlation-ID'] = payload.correlationId
       }
