@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import FullScreenLoader from '@/components/ui/FullScreenLoader'
 import { logger } from '@/utils/logger'
@@ -22,30 +22,32 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children, requireRole })
   useEffect(() => {
     if (loading) return
     if (!user) {
+      setAdminDoc(null)
       setChecking(false)
       return
     }
 
-    const checkAdmin = async () => {
-      try {
-        const snap = await getDoc(doc(db, 'admins', user.uid))
+    const unsubscribe = onSnapshot(
+      doc(db, 'admins', user.uid),
+      (snap) => {
         if (snap.exists()) {
           setAdminDoc(snap.data())
         } else {
           setAdminDoc(null)
         }
-      } catch (err) {
-        logger.error("Admin check failed:", err)
+        setChecking(false)
+      },
+      (err) => {
+        logger.error('Admin snapshot listener failed:', err)
         setAdminDoc(null)
-      } finally {
         setChecking(false)
       }
-    }
-    
-    checkAdmin()
+    )
+
+    return () => unsubscribe()
   }, [user, loading])
 
-  if (loading || checking) return <FullScreenLoader />
+  if (loading || checking) return <FullScreenLoader message="Loading dashboard..." />
 
   // 1. Must be logged in and have an admin document
   if (!user || !adminDoc) {

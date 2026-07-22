@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
+  Heart,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useNotificationStore } from '@/store/notificationStore'
@@ -23,6 +24,7 @@ const BASE_NAV: NavItem[] = [
   { path: '/discover', label: 'Discover', icon: Compass },
   { path: '/matches', label: 'Matches', icon: Users },
   { path: '/messages', label: 'Messages', icon: MessageCircle },
+  { path: '/saved', label: 'Wishlist', icon: Heart },
 ]
 
 interface SidebarProps {

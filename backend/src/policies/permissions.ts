@@ -4,9 +4,13 @@ export type Permission =
   | 'PROMOTE_ADMIN'
   | 'VIEW_AUDIT_LOGS'
   | 'REVIEW_REPORTS'
+  | 'MANAGE_REPORTS'
   | 'SUSPEND_USERS'
   | 'RESTORE_USERS'
   | 'MANAGE_USERS'
+  | 'MANAGE_LISTINGS'
+  | 'DELETE_LISTING'
+  | 'VIEW_METRICS'
   | 'MANAGE_SETTINGS'
   | 'SEND_COMMUNICATIONS'
 
@@ -17,17 +21,25 @@ export const RolePermissions: Record<string, Permission[]> = {
     'PROMOTE_ADMIN',
     'VIEW_AUDIT_LOGS',
     'REVIEW_REPORTS',
+    'MANAGE_REPORTS',
     'SUSPEND_USERS',
     'RESTORE_USERS',
     'MANAGE_USERS',
+    'MANAGE_LISTINGS',
+    'DELETE_LISTING',
+    'VIEW_METRICS',
     'MANAGE_SETTINGS',
     'SEND_COMMUNICATIONS',
   ],
   'ADMIN': [
     'REVIEW_REPORTS',
+    'MANAGE_REPORTS',
     'SUSPEND_USERS',
     'RESTORE_USERS',
     'MANAGE_USERS',
+    'MANAGE_LISTINGS',
+    'VIEW_AUDIT_LOGS',
+    'VIEW_METRICS',
     'SEND_COMMUNICATIONS',
   ],
   // Default STUDENT has no admin permissions

@@ -7,6 +7,8 @@ import { fetchWithAuth } from '@/services/apiClient'
 import { formatDistanceToNow } from 'date-fns'
 import { logger } from '@/utils/logger'
 
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal'
+
 interface ProfileDoc {
   uid: string
   displayName: string
@@ -21,6 +23,24 @@ const UserManagementPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean
+    title: string
+    displayName: string
+    actionSummary: string
+    confirmText: string
+    variant: 'danger' | 'success'
+    onConfirm: () => Promise<void>
+  }>({
+    isOpen: false,
+    title: '',
+    displayName: '',
+    actionSummary: '',
+    confirmText: '',
+    variant: 'danger',
+    onConfirm: async () => {},
+  })
 
   const fetchUsers = async () => {
     try {
@@ -41,42 +61,60 @@ const UserManagementPage: React.FC = () => {
     fetchUsers()
   }, [])
 
-  const handleBan = async (uid: string) => {
-    if (!window.confirm(`Are you absolutely sure you want to ban user ${uid}?`)) return
-    
-    try {
-      setActionLoading(uid)
-      await fetchWithAuth(`/api/v1/admin/users/${uid}/status`, {
-        method: 'PUT',
-        body: JSON.stringify({ status: 'banned' })
-      })
-      toast.success('User banned successfully')
-      await fetchUsers()
-    } catch (err) {
-      logger.error('Error:', err)
-      toast.error('Failed to ban user')
-    } finally {
-      setActionLoading(null)
-    }
+  const triggerBan = (userDoc: ProfileDoc) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Ban User Account',
+      displayName: userDoc.displayName || 'Selected User',
+      actionSummary: `Are you sure you want to ban ${userDoc.displayName || 'this user'}? Their account status will be changed to banned and active platform access will be revoked immediately.`,
+      confirmText: 'Ban User',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(userDoc.uid)
+          await fetchWithAuth(`/api/v1/admin/users/${userDoc.uid}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status: 'banned' }),
+          })
+          toast.success('User banned successfully')
+          await fetchUsers()
+        } catch (err) {
+          logger.error('Error:', err)
+          toast.error('Failed to ban user')
+        } finally {
+          setActionLoading(null)
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }))
+        }
+      },
+    })
   }
 
-  const handleUnban = async (uid: string) => {
-    if (!window.confirm(`Are you sure you want to unban user ${uid}?`)) return
-    
-    try {
-      setActionLoading(uid)
-      await fetchWithAuth(`/api/v1/admin/users/${uid}/status`, {
-        method: 'PUT',
-        body: JSON.stringify({ status: 'active' })
-      })
-      toast.success('User unbanned successfully')
-      await fetchUsers()
-    } catch (err) {
-      logger.error('Error:', err)
-      toast.error('Failed to unban user')
-    } finally {
-      setActionLoading(null)
-    }
+  const triggerUnban = (userDoc: ProfileDoc) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Unban User Account',
+      displayName: userDoc.displayName || 'Selected User',
+      actionSummary: `Are you sure you want to unban ${userDoc.displayName || 'this user'}? Their platform status will be restored to active.`,
+      confirmText: 'Unban User',
+      variant: 'success',
+      onConfirm: async () => {
+        try {
+          setActionLoading(userDoc.uid)
+          await fetchWithAuth(`/api/v1/admin/users/${userDoc.uid}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status: 'active' }),
+          })
+          toast.success('User unbanned successfully')
+          await fetchUsers()
+        } catch (err) {
+          logger.error('Error:', err)
+          toast.error('Failed to unban user')
+        } finally {
+          setActionLoading(null)
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }))
+        }
+      },
+    })
   }
 
   if (loading) {
@@ -132,7 +170,7 @@ const UserManagementPage: React.FC = () => {
                         {user.displayName || 'Unknown User'}
                       </span>
                       <span className="text-sm text-slate-500 dark:text-slate-400 font-mono">
-                        {user.uid.slice(0, 8)}...
+                        {(user.uid ?? '').slice(0, 8)}...
                       </span>
                     </div>
                   </td>
@@ -166,7 +204,7 @@ const UserManagementPage: React.FC = () => {
                       <div className="flex items-center justify-end space-x-2">
                         {user.status === 'banned' ? (
                           <button
-                            onClick={() => handleUnban(user.uid)}
+                            onClick={() => triggerUnban(user)}
                             disabled={actionLoading === user.uid}
                             className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:text-emerald-500 dark:hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
                           >
@@ -174,7 +212,7 @@ const UserManagementPage: React.FC = () => {
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleBan(user.uid)}
+                            onClick={() => triggerBan(user)}
                             disabled={actionLoading === user.uid}
                             className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-500/10 transition-colors disabled:opacity-50"
                           >
@@ -199,6 +237,18 @@ const UserManagementPage: React.FC = () => {
           </table>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        displayName={confirmModal.displayName}
+        actionSummary={confirmModal.actionSummary}
+        confirmText={confirmModal.confirmText}
+        variant={confirmModal.variant}
+        loading={actionLoading !== null}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   )
 }

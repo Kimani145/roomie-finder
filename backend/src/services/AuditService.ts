@@ -1,6 +1,7 @@
 import { adminDb } from '../config/firebase'
 import { FieldValue } from 'firebase-admin/firestore'
 import { logger } from '../utils/logger'
+import { hydrateUserIdentities } from '../utils/identityHydrator'
 
 // ─── Typed Audit Actions ──────────────────────────────────────────────────────
 export type AuditAction =
@@ -32,10 +33,29 @@ export type AuditAction =
   // Trust & Safety
   | 'report_submitted'
   | 'report_reviewed'
+  | 'report_status_pending'
+  | 'report_status_under_review'
+  | 'report_status_resolved'
+  | 'report_status_archived'
+  | 'moderation_ban_user'
+  | 'moderation_pause_listing'
   | 'account_suspension'
   | 'account_reinstated'
   | 'appeal_submitted'
   | 'appeal_decision'
+  // Listings Administration
+  | 'listing_status_active'
+  | 'listing_status_paused'
+  | 'listing_status_flagged'
+  | 'listing_status_filled'
+  | 'listing_featured'
+  | 'listing_unfeatured'
+  | 'listing_deleted'
+  // Admin Team Actions
+  | 'admin_role_updated_SUPER_ADMIN'
+  | 'admin_role_updated_ADMIN'
+  | 'admin_status_active'
+  | 'admin_status_disabled'
   // Messaging
   | 'message_sent'
 
@@ -107,7 +127,39 @@ export class AuditService {
       docs = docs.filter((d) => d['action'] === filters!.action)
     }
 
-    return docs
+    const uidsToHydrate = docs.flatMap((d) => [d['actorUid'], d['targetUid'], d['metadata']?.targetUid])
+    const identities = await hydrateUserIdentities(uidsToHydrate)
+
+    return docs.map((doc) => {
+      const actorId = doc['actorUid']
+      const targetId = doc['targetUid'] || doc['metadata']?.targetUid
+      const actorIdentity = actorId ? identities.get(actorId) : null
+      const targetIdentity = targetId ? identities.get(targetId) : null
+
+      return {
+        ...doc,
+        actor: actorIdentity
+          ? {
+              uid: actorIdentity.uid,
+              name: actorIdentity.displayName,
+              email: actorIdentity.email,
+              role: actorIdentity.role,
+              avatar: actorIdentity.photoURL,
+              status: actorIdentity.status,
+            }
+          : null,
+        target: targetIdentity
+          ? {
+              uid: targetIdentity.uid,
+              name: targetIdentity.displayName,
+              email: targetIdentity.email,
+              role: targetIdentity.role,
+              avatar: targetIdentity.photoURL,
+              status: targetIdentity.status,
+            }
+          : null,
+      }
+    })
   }
 }
 

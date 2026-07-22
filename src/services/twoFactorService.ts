@@ -10,7 +10,7 @@ import {
   Timestamp,
 } from 'firebase/firestore'
 import { logger } from '@/utils/logger'
-import { fetchApi } from './apiClient'
+import { fetchApi, fetchWithAuth } from './apiClient'
 const OTPS_COLLECTION = 'otps'
 const AUDIT_LOGS_COLLECTION = 'auditLogs'
 
@@ -184,18 +184,50 @@ export async function verifyOtpCode(
   }
 }
 
-// Stub for TOTP (Authenticator App) setup, required by Admin2FASetupPage
 export const twoFactorService = {
-  generateSecret: async (_uid: string) => {
-    logger.warn('TOTP generateSecret not implemented. Returning mock.')
-    return { qrCodeUrl: 'mock-url', secret: 'MOCK_SECRET' }
+  generateSecret: async (_uid: string): Promise<{ qrCodeUrl: string; secret: string; otpauthUrl?: string }> => {
+    try {
+      const data = await fetchWithAuth('/api/v1/admin/2fa/setup', {
+        method: 'POST',
+        body: JSON.stringify({}),
+      })
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to generate 2FA secret')
+      }
+      return {
+        qrCodeUrl: data.qrCodeUrl,
+        secret: data.secret,
+        otpauthUrl: data.otpauthUrl,
+      }
+    } catch (err: any) {
+      logger.error('Failed to generate 2FA secret from backend:', err)
+      throw err
+    }
   },
-  verifyCode: async (_uid: string, _code: string, _secret: string) => {
-    logger.warn('TOTP verifyCode not implemented. Returning true.')
-    return true
+
+  verifyCode: async (_uid: string, code: string, secret: string): Promise<boolean> => {
+    try {
+      const data = await fetchWithAuth('/api/v1/admin/2fa/verify', {
+        method: 'POST',
+        body: JSON.stringify({ code, secret }),
+      })
+      return Boolean(data.success)
+    } catch (err: any) {
+      logger.error('Failed to verify 2FA code via backend:', err)
+      return false
+    }
   },
-  enable2FA: async (_uid: string, _secret: string) => {
-    logger.warn('TOTP enable2FA not implemented. Returning true.')
-    return true
-  }
+
+  enable2FA: async (_uid: string, secret: string): Promise<boolean> => {
+    try {
+      const data = await fetchWithAuth('/api/v1/admin/2fa/enable', {
+        method: 'POST',
+        body: JSON.stringify({ secret }),
+      })
+      return Boolean(data.success)
+    } catch (err: any) {
+      logger.error('Failed to enable 2FA via backend:', err)
+      return false
+    }
+  },
 }

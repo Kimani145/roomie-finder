@@ -34,24 +34,36 @@ export class Profile {
     delete this.metadata.suspensionDate
   }
 
+  unban(): void {
+    this.status = 'active'
+    delete this.metadata.suspensionReason
+    delete this.metadata.suspensionDate
+  }
+
   ban(): void {
     this.status = 'banned'
   }
 
   toJSON() {
-    return {
+    const data: Record<string, any> = {
       uid: this.uid,
-      displayName: this.displayName,
-      email: this.email,
-      role: this.role,
+      displayName: this.displayName ?? '',
+      email: this.email ?? '',
+      role: this.role ?? 'SEEKER',
       status: this.status,
-      twoFactorEnabled: this.twoFactorEnabled,
+      twoFactorEnabled: this.twoFactorEnabled ?? false,
       ...this.metadata
     }
+    Object.keys(data).forEach(key => {
+      if (data[key] === undefined) {
+        delete data[key]
+      }
+    })
+    return data
   }
 
   static fromFirestore(id: string, data: any): Profile {
-    const { displayName, email, role, status, twoFactorEnabled, ...metadata } = data
+    const { displayName = '', email = '', role = 'SEEKER', status = 'active', twoFactorEnabled = false, ...metadata } = data || {}
     return new Profile(id, displayName, email, role, status, twoFactorEnabled, metadata)
   }
 }

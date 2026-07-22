@@ -11,50 +11,58 @@ export class NotificationService {
 
   private setupListeners() {
     EventBus.subscribe(Events.MATCH_CREATED, async (payload) => {
-      // Send to User A
-      const notifA = Notification.create(
-        payload.userA,
-        'match',
-        "It's a Match! 🎉",
-        `You matched with a user! Start a conversation.`,
-        { matchId: payload.matchId, link: `/messages/${payload.matchId}` }
-      )
-      await notificationRepository.save(notifA)
+      try {
+        const notifA = Notification.create(
+          payload.userA,
+          'match',
+          "It's a Match! 🎉",
+          `You matched with a roommate! Start a conversation.`,
+          { matchId: payload.matchId, link: `/messages/${payload.matchId}` }
+        )
+        await notificationRepository.save(notifA)
 
-      // Send to User B
-      const notifB = Notification.create(
-        payload.userB,
-        'match',
-        "It's a Match! 🎉",
-        `You matched with a user! Start a conversation.`,
-        { matchId: payload.matchId, link: `/messages/${payload.matchId}` }
-      )
-      await notificationRepository.save(notifB)
-    })
-
-    EventBus.subscribe(Events.MESSAGE_SENT, async (payload) => {
-      // In a real app we'd fetch the chat participants to see who receives it
-      // Since MESSAGE_SENT is just matchId and senderUid, we'd need ChatRepository here
-      // to find the recipient. I'll just log it for now and we can add ChatRepository
-      // when we flesh out the Message flow.
-      logger.info({ msg: 'Message sent, would notify other participant', matchId: payload.matchId })
+        const notifB = Notification.create(
+          payload.userB,
+          'match',
+          "It's a Match! 🎉",
+          `You matched with a roommate! Start a conversation.`,
+          { matchId: payload.matchId, link: `/messages/${payload.matchId}` }
+        )
+        await notificationRepository.save(notifB)
+      } catch (err) {
+        logger.error({ msg: 'Error processing MATCH_CREATED notification', err })
+      }
     })
 
     EventBus.subscribe(Events.REPORT_RESOLVED, async (payload) => {
-      // Fetch report details if needed, but for now we just log it
-      logger.info({ msg: 'Report resolved, would notify reporter', reportId: payload.reportId })
+      try {
+        logger.info({ msg: 'Report resolved event received', reportId: payload.reportId })
+      } catch (err) {
+        logger.error({ msg: 'Error processing REPORT_RESOLVED notification', err })
+      }
     })
 
     EventBus.subscribe(Events.APPEAL_DECISION, async (payload: any) => {
-      // If we add this to EventCatalogue, we can notify the user
-      const notif = Notification.create(
-        payload.uid,
-        'appeal',
-        'Appeal Decision',
-        `Your appeal has been ${payload.decision}`,
-        { link: '/security' }
-      )
-      await notificationRepository.save(notif)
+      try {
+        const notif = Notification.create(
+          payload.uid,
+          'appeal',
+          'Appeal Decision Update',
+          `Your appeal has been reviewed and marked as ${payload.decision}`,
+          { link: '/security' }
+        )
+        await notificationRepository.save(notif)
+      } catch (err) {
+        logger.error({ msg: 'Error processing APPEAL_DECISION notification', err })
+      }
+    })
+
+    EventBus.subscribe(Events.ADMIN_ACCEPTED, async (payload) => {
+      try {
+        logger.info({ msg: 'Admin invitation accepted', uid: payload.uid, email: payload.email })
+      } catch (err) {
+        logger.error({ msg: 'Error processing ADMIN_ACCEPTED notification', err })
+      }
     })
   }
 

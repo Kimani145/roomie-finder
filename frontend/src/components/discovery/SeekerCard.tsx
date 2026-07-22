@@ -1,10 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { ShieldCheck } from 'lucide-react'
+import { ShieldCheck, Heart } from 'lucide-react'
 import type { MatchResult } from '@/types'
 import { formatBudget, getMatchTierMeta } from '@/utils/formatters'
 import { getCompatibilityPercentage } from '@/engine/compatibilityEngine'
 import { useAuthStore } from '@/store/authStore'
+import { useFavorites } from '@/hooks/useFavorites'
 
 interface SeekerCardProps {
   match: MatchResult
@@ -93,8 +94,31 @@ export const SeekerCard: React.FC<SeekerCardProps> = ({
   // Completeness calculation helper for trust display
   const profileCompleteness = profile.lifestyle ? 85 : 55
 
+  const { isFavorite, toggleFavorite } = useFavorites()
+  const isSaved = profile ? isFavorite('profile', profile.uid) : false
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (profile) {
+      void toggleFavorite('profile', profile.uid)
+    }
+  }
+
   return (
     <article className="group block overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-800/90 text-slate-900 dark:text-slate-50 shadow-lg transition-all flex flex-col hover:-translate-y-1 hover:shadow-2xl relative">
+      
+      {/* Heart Wishlist Button */}
+      {!isGuest && profile && (
+        <button
+          type="button"
+          onClick={handleFavoriteClick}
+          className="absolute top-3 left-3 p-2 rounded-full bg-slate-900/60 backdrop-blur-md text-white hover:bg-slate-900 transition-transform active:scale-90 z-30"
+          title={isSaved ? 'Remove from wishlist' : 'Save to wishlist'}
+        >
+          <Heart className={`w-4 h-4 ${isSaved ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+        </button>
+      )}
       
       {/* Locked Overlay for Guest Users */}
       {isGuest && (

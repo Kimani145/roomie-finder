@@ -60,20 +60,38 @@ export const CompatibilityInsights: React.FC<CompatibilityInsightsProps> = ({
 }) => {
   const alignmentTraits = getAlignmentTraits(scoreBreakdown)
   const frictionSignals = getFrictionSignals(viewer, candidate)
+  const matchedFactors = scoreBreakdown.matchedFactors || []
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700/50 dark:bg-slate-800">
-      <h2 className="font-syne text-lg font-bold text-slate-900 dark:text-slate-50 mb-4">
-        Compatibility Insights
+    <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700/50 dark:bg-slate-800 space-y-4">
+      <h2 className="font-syne text-lg font-bold text-slate-900 dark:text-slate-50">
+        Compatibility Explanations
       </h2>
+
+      {/* Badges for matched factors */}
+      <div className="flex flex-wrap gap-2">
+        {scoreBreakdown.budgetOverlap && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">
+            ✓ Same Budget Overlap
+          </span>
+        )}
+        {alignmentTraits.map((trait) => (
+          <span
+            key={trait}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+          >
+            ✓ Matched {trait}
+          </span>
+        ))}
+      </div>
 
       <div className="space-y-3">
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
-          <p className="text-sm font-semibold text-emerald-400">
-            {`You align on ${alignmentTraits.length} key traits`}
+          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+            {`You align on ${alignmentTraits.length} key lifestyle traits`}
           </p>
-          <p className="mt-1 text-sm text-slate-200">
-            {alignmentTraits.length > 0 ? alignmentTraits.join(', ') : 'No strong overlaps yet'}
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+            {matchedFactors.length > 0 ? matchedFactors.join(' • ') : 'No strong overlaps yet'}
           </p>
         </div>
 
@@ -82,7 +100,7 @@ export const CompatibilityInsights: React.FC<CompatibilityInsightsProps> = ({
             key={signal}
             className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3"
           >
-            <p className="text-sm font-semibold text-amber-300">Potential friction: {signal}</p>
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">Potential friction: {signal}</p>
           </div>
         ))}
       </div>

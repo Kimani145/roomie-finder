@@ -22,7 +22,9 @@ import {
   markChatAsRead, 
   sendChatMessageWithOptimism,
   retryFailedMessage,
+  sendTypingStatus,
 } from '@/hooks/useChat'
+import { usePresenceHeartbeat, useUserPresence } from '@/hooks/usePresence'
 import type { UserProfile, MessageStatus } from '@/types'
 import { logger } from '@/utils/logger'
 
@@ -445,21 +447,49 @@ const MessagesPage: React.FC = () => {
     return () => container.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Simulating typing indicator
-  useEffect(() => {
-    if (!messageText || isSending) return
-    const randomDelay = Math.random() * 3000 + 2000
-    const timeout = setTimeout(() => {
-      setOtherUserTyping(true)
-      setTimeout(() => setOtherUserTyping(false), 3000)
-    }, randomDelay)
-    return () => clearTimeout(timeout)
-  }, [messageText, isSending])
-
   const selectedThread = useMemo(
     () => inboxThreads.find((thread) => thread.chatId === selectedChatId) ?? null,
     [inboxThreads, selectedChatId]
   )
+
+  // Real-time user presence heartbeat
+  usePresenceHeartbeat(currentUser?.uid, messageText.trim() ? selectedChatId : null)
+
+  // Fetch recipient real-time presence metadata
+  const { presence: recipientPresence } = useUserPresence(selectedThread?.otherUser?.uid)
+
+  // Real-time typing status listener from Firestore chat document
+  useEffect(() => {
+    if (!selectedChatId || !selectedThread?.otherUser?.uid) {
+      setOtherUserTyping(false)
+      return
+    }
+
+    const chatRef = doc(db, 'chats', selectedChatId)
+    const unsub = onSnapshot(chatRef, (snap) => {
+      if (!snap.exists()) return
+      const data = snap.data() as { typingBy?: string[] }
+      const isTyping = data.typingBy?.includes(selectedThread.otherUser!.uid) ?? false
+      setOtherUserTyping(isTyping)
+    })
+
+    return () => unsub()
+  }, [selectedChatId, selectedThread])
+
+  // Broadcast typing status when user types
+  useEffect(() => {
+    if (!selectedChatId) return
+    const isTyping = messageText.trim().length > 0
+    void sendTypingStatus(selectedChatId, isTyping)
+
+    const timer = setTimeout(() => {
+      if (isTyping) {
+        void sendTypingStatus(selectedChatId, false)
+      }
+    }, 4000)
+
+    return () => clearTimeout(timer)
+  }, [messageText, selectedChatId])
 
   const formatUpdatedAt = (timestamp: number) => {
     if (!timestamp) return ''
@@ -713,13 +743,42 @@ const MessagesPage: React.FC = () => {
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                       </button>
                     )}
-                    <div>
-                      <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                        {selectedThread.otherUser?.displayName ?? 'Unknown'}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {selectedThread.otherUser?.role ?? 'Member'}
-                      </p>
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        {selectedThread.otherUser?.photoURL ? (
+                          <img
+                            src={selectedThread.otherUser.photoURL}
+                            alt={selectedThread.otherUser.displayName}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-700 dark:text-slate-200">
+                            {selectedThread.otherUser?.displayName?.charAt(0)?.toUpperCase() || '?'}
+                          </div>
+                        )}
+                        <span
+                          className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 ${
+                            recipientPresence?.onlineStatus === 'online'
+                              ? 'bg-emerald-500'
+                              : recipientPresence?.onlineStatus === 'idle'
+                              ? 'bg-amber-500'
+                              : 'bg-slate-400'
+                          }`}
+                          title={recipientPresence?.onlineStatus ?? 'offline'}
+                        />
+                      </div>
+                      <div>
+                        <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                          {selectedThread.otherUser?.displayName ?? 'Unknown'}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">
+                          {otherUserTyping ? (
+                            <span className="text-brand-600 dark:text-brand-400 font-bold animate-pulse">Typing...</span>
+                          ) : (
+                            `${selectedThread.otherUser?.role ?? 'Member'} • ${recipientPresence?.onlineStatus || 'offline'}`
+                          )}
+                        </p>
+                      </div>
                     </div>
                   </div>
                   {selectedThread.otherUser && (

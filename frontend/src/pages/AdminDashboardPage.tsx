@@ -1,292 +1,271 @@
 import React, { useEffect, useState } from 'react'
-import { collection, query, where, getCountFromServer, getDocs, doc, updateDoc, writeBatch, orderBy, limit } from 'firebase/firestore'
-import { db } from '@/firebase/config'
-import { CheckCircle2, Ban, ShieldAlert, Users, Home, HeartHandshake, Loader2, AlertCircle} from 'lucide-react'
-import toast from 'react-hot-toast'
-import { formatTimeAgo } from '@/utils/formatters'
+import {
+  Users,
+  Home,
+  HeartHandshake,
+  ShieldAlert,
+  AlertCircle,
+  RefreshCw,
+  ArrowRight,
+  Shield,
+  FileText,
+  Building,
+} from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { fetchWithAuth } from '@/services/apiClient'
 import { logger } from '@/utils/logger'
 
-interface TelemetryStats {
-  activeUsers: number
-  activeListings: number
-  matches: number
-  pendingReports: number
+interface MetricsData {
+  users: { total: number; active: number; banned: number }
+  listings: { total: number; active: number; paused: number; flagged: number }
+  reports: { total: number; pending: number; under_review: number; resolved: number }
+  matches: { total: number; matched: number }
+  admins: { total: number; superAdmins: number; regularAdmins: number }
 }
 
-interface ReportDoc {
-  id: string
-  reportedUserId: string
-  reportedBy: string
-  reason: string
-  status: string
-  createdAt: any
-}
-
-interface GovernancePressureMetric {
+const TelemetryCard: React.FC<{
   label: string
-  value: number | null
-}
-
-const AdminCardStats: React.FC<{ loading: boolean; label: string; value: number | string; icon: any }> = ({ loading, label, value, icon: Icon }) => (
-  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex items-start justify-between">
-    <div className="space-y-2">
-      <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{label}</p>
-      {loading ? (
-        <div className="h-8 w-16 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
-      ) : (
-        <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">{value}</p>
+  value: number | string
+  subtext?: string
+  icon: any
+  colorClass: string
+  linkTo?: string
+}> = ({ label, value, subtext, icon: Icon, colorClass, linkTo }) => {
+  const CardContent = (
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between h-full">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            {label}
+          </p>
+          <p className="text-3xl font-syne font-bold text-slate-900 dark:text-slate-50 mt-2">
+            {value}
+          </p>
+        </div>
+        <div className={`p-3.5 rounded-2xl ${colorClass}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+      </div>
+      {subtext && (
+        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+          <span>{subtext}</span>
+          {linkTo && <ArrowRight className="w-3.5 h-3.5 text-slate-400" />}
+        </div>
       )}
     </div>
-    <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-      <Icon className="h-6 w-6 text-slate-400 dark:text-slate-500" />
-    </div>
-  </div>
-)
+  )
 
-const AdminDashboardPage: React.FC = () => {
-  const [stats, setStats] = useState<TelemetryStats | null>(null)
-  const [reports, setReports] = useState<ReportDoc[]>([])
-  const [recentListings, setRecentListings] = useState<any[]>([])
+  if (linkTo) {
+    return <Link to={linkTo} className="block">{CardContent}</Link>
+  }
+
+  return CardContent
+}
+
+const DEFAULT_METRICS: MetricsData = {
+  users: { total: 0, active: 0, banned: 0 },
+  listings: { total: 0, active: 0, paused: 0, flagged: 0 },
+  reports: { total: 0, pending: 0, under_review: 0, resolved: 0 },
+  matches: { total: 0, matched: 0 },
+  admins: { total: 0, superAdmins: 0, regularAdmins: 0 },
+}
+
+export default function AdminDashboardPage() {
+  const [metrics, setMetrics] = useState<MetricsData>(DEFAULT_METRICS)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [actionLoading, setActionLoading] = useState<string | null>(null)
 
-  // TODO: Replace with dedicated aggregation query once governance metrics endpoint is available.
-  const governanceMetrics: GovernancePressureMetric[] = [
-    { label: 'Active Reports (24h)', value: null },
-    { label: 'Total Matches Formed', value: null },
-    { label: 'Inactive Users (>14 days)', value: null },
-  ]
-
-  const fetchDashboardData = async () => {
+  const fetchMetrics = async () => {
     try {
       setLoading(true)
       setError(null)
-
-      // Parallel reads for telemetry using getCountFromServer
-      const [usersSnap, listingsSnap, matchesSnap, reportsSnap] = await Promise.all([
-        getCountFromServer(query(collection(db, 'profiles'), where('status', '==', 'active'))),
-        getCountFromServer(query(collection(db, 'listings'), where('status', '==', 'active'))),
-        getCountFromServer(query(collection(db, 'matches'), where('status', '==', 'matched'))),
-        getCountFromServer(query(collection(db, 'reports'), where('status', '==', 'pending')))
-      ])
-
-      setStats({
-        activeUsers: usersSnap.data().count,
-        activeListings: listingsSnap.data().count,
-        matches: matchesSnap.data().count,
-        pendingReports: reportsSnap.data().count
-      })
-
-      // Fetch pending reports
-      const reportsQuery = query(collection(db, 'reports'), where('status', '==', 'pending'))
-      const rSnap = await getDocs(reportsQuery)
-      setReports(rSnap.docs.map(d => ({ id: d.id, ...d.data() } as ReportDoc)))
-
-      // Fetch recent listings
-      const recentListingsQuery = query(collection(db, 'listings'), orderBy('createdAt', 'desc'), limit(5))
-      const rlSnap = await getDocs(recentListingsQuery)
-      setRecentListings(rlSnap.docs.map(d => ({ id: d.id, ...d.data() })))
-
+      const data = await fetchWithAuth('/api/v1/admin/metrics')
+      if (data && data.metrics) {
+        setMetrics({
+          users: {
+            total: data.metrics.users?.total ?? 0,
+            active: data.metrics.users?.active ?? 0,
+            banned: data.metrics.users?.banned ?? 0,
+          },
+          listings: {
+            total: data.metrics.listings?.total ?? 0,
+            active: data.metrics.listings?.active ?? 0,
+            paused: data.metrics.listings?.paused ?? 0,
+            flagged: data.metrics.listings?.flagged ?? 0,
+          },
+          reports: {
+            total: data.metrics.reports?.total ?? 0,
+            pending: data.metrics.reports?.pending ?? 0,
+            under_review: data.metrics.reports?.under_review ?? 0,
+            resolved: data.metrics.reports?.resolved ?? 0,
+          },
+          matches: {
+            total: data.metrics.matches?.total ?? 0,
+            matched: data.metrics.matches?.matched ?? 0,
+          },
+          admins: {
+            total: data.metrics.admins?.total ?? 0,
+            superAdmins: data.metrics.admins?.superAdmins ?? 0,
+            regularAdmins: data.metrics.admins?.regularAdmins ?? 0,
+          },
+        })
+      }
     } catch (err: any) {
-      logger.error('Admin telemetry failed:', err)
-      setError('Failed to fetch system telemetry. Ensure Firestore rules permit admin access.')
+      logger.error('Failed to fetch platform metrics:', err)
+      setError('Could not connect to live operational telemetry endpoint.')
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchDashboardData()
+    fetchMetrics()
   }, [])
 
-  const handleDismissReport = async (reportId: string) => {
-    try {
-      setActionLoading(reportId)
-      await updateDoc(doc(db, 'reports', reportId), {
-        status: 'resolved'
-      })
-      toast.success('Report dismissed')
-      await fetchDashboardData()
-    } catch (err) {
-      logger.error('Error:', err)
-      toast.error('Failed to dismiss report')
-    } finally {
-      setActionLoading(null)
-    }
-  }
-
-  const handleBanUser = async (reportId: string, reportedUserId: string) => {
-    if (!window.confirm(`CRITICAL ACTION: Are you sure you want to ban user ${reportedUserId}?`)) return
-    
-    try {
-      setActionLoading(reportId)
-      const batch = writeBatch(db)
-
-      // 1. Ban profile
-      batch.update(doc(db, 'profiles', reportedUserId), { status: 'banned' })
-      
-      // 2. Pause their listings
-      const lQuery = query(collection(db, 'listings'), where('hostId', '==', reportedUserId))
-      const lSnap = await getDocs(lQuery)
-      lSnap.docs.forEach(lDoc => {
-        batch.update(doc(db, 'listings', lDoc.id), { status: 'paused' })
-      })
-
-      // 3. Resolve report
-      batch.update(doc(db, 'reports', reportId), { status: 'resolved' })
-
-      await batch.commit()
-      toast.success('User banned and associated listings paused.')
-      await fetchDashboardData()
-    } catch (err) {
-      logger.error('Error:', err)
-      toast.error('Failed to ban user.')
-    } finally {
-      setActionLoading(null)
-    }
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/50 rounded-2xl mx-4 my-8">
-        <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <h3 className="text-xl font-syne font-bold text-slate-900 dark:text-slate-50 mb-2">Telemetry Offline</h3>
-        <p className="text-slate-500 max-w-md">{error}</p>
-        <button onClick={fetchDashboardData} className="mt-6 px-6 py-2 bg-slate-900 dark:bg-slate-50 text-white dark:text-slate-900 rounded-xl font-medium">
-          Retry Connection
-        </button>
-      </div>
-    )
-  }
+  const safeMetrics = metrics ?? DEFAULT_METRICS
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {governanceMetrics.map((metric) => (
-          <div
-            key={metric.label}
-            className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700/50 dark:bg-slate-800 shadow-lg shadow-black/20"
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-syne font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
+            <Shield className="w-8 h-8 text-brand-600 dark:text-brand-400" />
+            Real-time Operations Dashboard
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+            Live platform telemetry, trust & safety metrics, and operational command shortcuts.
+          </p>
+        </div>
+        <button
+          onClick={fetchMetrics}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl transition-colors self-start sm:self-auto"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Refresh Telemetry
+        </button>
+      </div>
+
+      {error ? (
+        <div className="flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/50 rounded-2xl">
+          <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+          <h3 className="text-xl font-syne font-bold text-slate-900 dark:text-slate-50 mb-2">
+            Telemetry Feed Disconnected
+          </h3>
+          <p className="text-slate-500 mb-4">{error}</p>
+          <button
+            onClick={fetchMetrics}
+            className="px-4 py-2 bg-brand-600 text-white rounded-xl text-sm font-semibold"
           >
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-              {metric.label}
-            </p>
-            {metric.value === null ? (
-              <>
-                {/* TODO: Bind real metric value after backend aggregation lands. */}
-                <div className="mt-3 h-8 w-24 rounded bg-slate-200 dark:bg-slate-700 animate-pulse" />
-              </>
-            ) : (
-              <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-slate-50">
-                {metric.value}
-              </p>
-            )}
+            Reconnect Telemetry
+          </button>
+        </div>
+      ) : loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-36 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl animate-pulse"
+            />
+          ))}
+        </div>
+      ) : metrics ? (
+        <>
+          {/* Main Telemetry Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <TelemetryCard
+              label="Pending Reports"
+              value={safeMetrics?.reports?.pending ?? 0}
+              subtext={`${safeMetrics?.reports?.under_review ?? 0} under review • ${safeMetrics?.reports?.resolved ?? 0} resolved`}
+              icon={ShieldAlert}
+              colorClass="bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+              linkTo="/admin/moderation"
+            />
+
+            <TelemetryCard
+              label="Active Accommodation Listings"
+              value={safeMetrics?.listings?.active ?? 0}
+              subtext={`${safeMetrics?.listings?.total ?? 0} total • ${safeMetrics?.listings?.paused ?? 0} paused • ${safeMetrics?.listings?.flagged ?? 0} flagged`}
+              icon={Home}
+              colorClass="bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400"
+              linkTo="/admin/listings"
+            />
+
+            <TelemetryCard
+              label="Registered Users"
+              value={safeMetrics?.users?.total ?? 0}
+              subtext={`${safeMetrics?.users?.active ?? 0} active • ${safeMetrics?.users?.banned ?? 0} banned`}
+              icon={Users}
+              colorClass="bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+              linkTo="/admin/users"
+            />
+
+            <TelemetryCard
+              label="Successful Roomie Matches"
+              value={safeMetrics?.matches?.matched ?? 0}
+              subtext={`${safeMetrics?.matches?.total ?? 0} total compatibility interactions`}
+              icon={HeartHandshake}
+              colorClass="bg-pink-50 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400"
+            />
           </div>
-        ))}
-      </div>
 
-      <div>
-        <h1 className="text-3xl font-syne font-bold text-slate-900 dark:text-slate-50">System Telemetry</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Real-time platform health and active user metrics.</p>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        <AdminCardStats loading={loading} label="Active Users" value={stats?.activeUsers ?? 0} icon={Users} />
-        <AdminCardStats loading={loading} label="Active Listings" value={stats?.activeListings ?? 0} icon={Home} />
-        <AdminCardStats loading={loading} label="Formed Matches" value={stats?.matches ?? 0} icon={HeartHandshake} />
-        <AdminCardStats loading={loading} label="Pending Reports" value={stats?.pendingReports ?? 0} icon={ShieldAlert} />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-        <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-xl font-syne font-bold text-slate-900 dark:text-slate-50">Actionable Reports</h2>
-          
-          {loading ? (
-            <div className="space-y-4">
-              {[1,2].map(i => (
-                <div key={i} className="h-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl animate-pulse" />
-              ))}
-            </div>
-          ) : reports.length === 0 ? (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center">
-              <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-500/10 rounded-full flex items-center justify-center mb-4">
-                <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+          {/* Platform Governance & Control Quick Links */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+            <Link
+              to="/admin/moderation"
+              className="group bg-gradient-to-br from-amber-500/10 via-slate-900/5 to-transparent dark:from-amber-500/10 dark:to-slate-900 border border-amber-500/20 rounded-3xl p-6 hover:border-amber-500/40 transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <div className="p-3 bg-amber-500/10 text-amber-500 rounded-2xl">
+                  <ShieldAlert className="w-6 h-6" />
+                </div>
+                <ArrowRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-50 mb-2">System Stable</h3>
-              <p className="text-slate-500">0 Pending Reports in queue.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {reports.map(report => (
-                <div key={report.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6">
-                  <div className="flex flex-col md:flex-row justify-between gap-4">
-                    <div className="space-y-2 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400">
-                          Reported User
-                        </span>
-                        <code className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
-                          {report.reportedUserId}
-                        </code>
-                      </div>
-                      <p className="text-slate-900 dark:text-slate-50 font-medium whitespace-pre-wrap">{report.reason}</p>
-                      <div className="text-xs text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-800">
-                        Reported by: {report.reportedBy} • {report.createdAt?.toDate().toLocaleString()}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 shrink-0">
-                      <button
-                        onClick={() => handleDismissReport(report.id)}
-                        disabled={actionLoading !== null}
-                        className="px-4 py-2 text-sm font-medium rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 dark:text-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 flex items-center"
-                      >
-                        {actionLoading === report.id ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Dismiss'}
-                      </button>
-                      <button
-                        onClick={() => handleBanUser(report.id, report.reportedUserId)}
-                        disabled={actionLoading !== null}
-                        className="px-4 py-2 text-sm font-medium rounded-xl text-white bg-red-500 hover:bg-red-600 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
-                      >
-                        {actionLoading === report.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ban className="w-4 h-4" />}
-                        Ban User
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+              <h3 className="font-syne font-bold text-lg text-slate-900 dark:text-slate-50 mt-4">
+                Moderation Command Center
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Inspect pending safety reports and execute user bans or listing pauses.
+              </p>
+            </Link>
 
-        <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col h-full min-h-[300px] overflow-hidden">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-              <h3 className="font-syne font-bold text-slate-900 dark:text-slate-50">Live Operational Feed</h3>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              {recentListings.map(listing => (
-                <div key={listing.id} className="flex items-start gap-3 p-3 border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <div className="p-1.5 bg-brand-600/10 text-brand-600 rounded-md shrink-0">
-                    <Home className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-900 dark:text-slate-100">
-                      <span className="font-bold">New Listing</span> created in {listing.zone}
-                    </p>
-                    <p className="text-xs text-slate-500 mt-0.5">{listing.createdAt ? formatTimeAgo(listing.createdAt.toDate()) : 'Recently'}</p>
-                  </div>
+            <Link
+              to="/admin/listings"
+              className="group bg-gradient-to-br from-brand-500/10 via-slate-900/5 to-transparent dark:from-brand-500/10 dark:to-slate-900 border border-brand-500/20 rounded-3xl p-6 hover:border-brand-500/40 transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <div className="p-3 bg-brand-500/10 text-brand-600 dark:text-brand-400 rounded-2xl">
+                  <Building className="w-6 h-6" />
                 </div>
-              ))}
-              {recentListings.length === 0 && (
-                <div className="p-6 text-center text-slate-500">No recent activity</div>
-              )}
-            </div>
+                <ArrowRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+              </div>
+              <h3 className="font-syne font-bold text-lg text-slate-900 dark:text-slate-50 mt-4">
+                Listings Control
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Manage room listings, toggle featured status, and moderate housing options.
+              </p>
+            </Link>
+
+            <Link
+              to="/admin/audit"
+              className="group bg-gradient-to-br from-indigo-500/10 via-slate-900/5 to-transparent dark:from-indigo-500/10 dark:to-slate-900 border border-indigo-500/20 rounded-3xl p-6 hover:border-indigo-500/40 transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <div className="p-3 bg-indigo-500/10 text-indigo-500 rounded-2xl">
+                  <FileText className="w-6 h-6" />
+                </div>
+                <ArrowRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+              </div>
+              <h3 className="font-syne font-bold text-lg text-slate-900 dark:text-slate-50 mt-4">
+                Audit Trail Logs
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Inspect immutable security audit logs across all platform administrative actions.
+              </p>
+            </Link>
           </div>
-        </div>
-      </div>
+        </>
+      ) : null}
     </div>
   )
 }
-
-export default AdminDashboardPage

@@ -1,11 +1,12 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Flame, ShieldCheck } from 'lucide-react'
+import { Flame, ShieldCheck, Heart } from 'lucide-react'
 import type { MatchResult } from '@/types'
 import { getCompatibilityPercentage } from '@/engine/compatibilityEngine'
 import { getMatchBadgeClasses } from '@/utils/formatters'
 import { timeAgo } from '@/utils/dateUtils'
 import { useAuthStore } from '@/store/authStore'
+import { useFavorites } from '@/hooks/useFavorites'
 
 interface ListingCardProps {
   match: MatchResult
@@ -47,10 +48,22 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   onPrimaryAction,
 }) => {
   const { currentUser } = useAuthStore()
+  const { isFavorite, toggleFavorite } = useFavorites()
   const isGuest = !currentUser
 
   const { profile, listing, compatibilityScore } = match
   if (!profile) return null
+
+  const listingId = listing?.id
+  const isSaved = listingId ? isFavorite('listing', listingId) : false
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (listingId) {
+      void toggleFavorite('listing', listingId)
+    }
+  }
 
   const interestCount = listing?.interestCount ?? 0
   const compatibilityPct = getCompatibilityPercentage(compatibilityScore)
@@ -78,6 +91,18 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           />
         ) : (
           <div className="h-48 sm:h-56 w-full bg-slate-200 dark:bg-slate-700 shrink-0" />
+        )}
+
+        {/* Heart Wishlist Toggle Button */}
+        {!isGuest && listingId && (
+          <button
+            type="button"
+            onClick={handleFavoriteClick}
+            className="absolute top-3 left-3 p-2 rounded-full bg-slate-900/60 backdrop-blur-md text-white hover:bg-slate-900 transition-transform active:scale-90 z-20"
+            title={isSaved ? 'Remove from wishlist' : 'Save to wishlist'}
+          >
+            <Heart className={`w-4 h-4 ${isSaved ? 'fill-pink-500 text-pink-500' : 'text-white'}`} />
+          </button>
         )}
 
         {/* Guest View Photo Overlay */}

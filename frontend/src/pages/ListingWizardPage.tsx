@@ -92,10 +92,36 @@ const ListingWizardPage: React.FC = () => {
   }
 
   const handlePhotosChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const incomingFiles = Array.from(event.target.files || []).filter((file) =>
-      file.type.startsWith('image/')
-    )
-    setPhotos(incomingFiles.slice(0, 5))
+    const incomingFiles = Array.from(event.target.files || [])
+    const validFiles: File[] = []
+
+    for (const file of incomingFiles) {
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        toast.error(`Invalid format: ${file.name}. Only JPG, PNG, and WebP are allowed.`)
+        continue
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`File too large: ${file.name}. Maximum allowed size is 5MB.`)
+        continue
+      }
+      validFiles.push(file)
+    }
+
+    setPhotos((prev) => [...prev, ...validFiles].slice(0, 5))
+  }
+
+  const removePhoto = (index: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const setAsPrimaryPhoto = (index: number) => {
+    if (index === 0) return
+    setPhotos((prev) => {
+      const copy = [...prev]
+      const [selected] = copy.splice(index, 1)
+      return [selected, ...copy]
+    })
+    toast.success('Set as primary cover photo')
   }
 
   const handlePublish = async () => {
@@ -320,12 +346,39 @@ const ListingWizardPage: React.FC = () => {
               </p>
             </label>
 
-            <div className="mt-4 space-y-2">
-              {photos.map((file) => (
-                <p key={file.name} className="text-xs text-slate-600 dark:text-slate-300">
-                  {file.name}
-                </p>
-              ))}
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {photos.map((file, idx) => {
+                const previewUrl = URL.createObjectURL(file)
+                return (
+                  <div
+                    key={`${file.name}-${idx}`}
+                    className="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 h-28"
+                  >
+                    <img src={previewUrl} alt={file.name} className="w-full h-full object-cover" />
+                    {idx === 0 ? (
+                      <span className="absolute top-2 left-2 bg-emerald-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
+                        Primary Cover
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setAsPrimaryPhoto(idx)}
+                        className="absolute top-2 left-2 bg-slate-900/80 text-white text-[9px] font-bold px-2 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        Set as Cover
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(idx)}
+                      className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-80 hover:opacity-100 transition-opacity"
+                      title="Remove image"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )
+              })}
             </div>
 
             {stepThreeError && <p className={errorTextClassName}>{stepThreeError}</p>}

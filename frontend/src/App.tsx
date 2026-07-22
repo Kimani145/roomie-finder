@@ -32,6 +32,9 @@ const AdministratorsPage = React.lazy(() => import('@/pages/admin/Administrators
 const AdminDashboardPage = React.lazy(() => import('@/pages/AdminDashboardPage'))
 const UserManagementPage = React.lazy(() => import('@/pages/admin/UserManagementPage'))
 const ModerationPage = React.lazy(() => import('@/pages/admin/ModerationPage'))
+const ListingsManagementPage = React.lazy(() => import('@/pages/admin/ListingsManagementPage'))
+const AuditLogPage = React.lazy(() => import('@/pages/admin/AuditLogPage'))
+const AdminTeamPage = React.lazy(() => import('@/pages/admin/AdminTeamPage'))
 const MessagesPage = React.lazy(() => import('@/pages/MessagesPage'))
 const ListingWizardPage = React.lazy(() => import('@/pages/ListingWizardPage'))
 const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'))
@@ -39,6 +42,7 @@ const EditProfilePage = React.lazy(() => import('@/pages/EditProfilePage'))
 const ProfileDetailPage = React.lazy(() => import('@/pages/ProfileDetailPage'))
 const MatchesPage = React.lazy(() => import('@/pages/MatchesPage'))
 const NotificationsPage = React.lazy(() => import('@/pages/NotificationsPage'))
+const SavedPage = React.lazy(() => import('@/pages/SavedPage'))
 const MyListingsPage = React.lazy(() => import('@/pages/MyListingsPage'))
 const ListingDetailPage = React.lazy(() => import('@/pages/ListingDetailPage'))
 const SecurityPage = React.lazy(() => import('@/pages/SecurityPage'))
@@ -162,6 +166,16 @@ const AppRoutes: React.FC = () => {
             }
           />
           <Route
+            path="/saved"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <SavedPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/listing/:listingId"
             element={
               <ProtectedRoute>
@@ -245,21 +259,31 @@ const AppRoutes: React.FC = () => {
             }
           />
           <Route
-            path="/admin/users"
+            path="/admin/listings"
             element={
               <AdminRoute>
                 <AdminLayout>
-                  <UserManagementPage />
+                  <ListingsManagementPage />
                 </AdminLayout>
               </AdminRoute>
             }
           />
           <Route
-            path="/admin/moderation"
+            path="/admin/audit"
             element={
               <AdminRoute>
                 <AdminLayout>
-                  <ModerationPage />
+                  <AuditLogPage />
+                </AdminLayout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/team"
+            element={
+              <AdminRoute>
+                <AdminLayout>
+                  <AdminTeamPage />
                 </AdminLayout>
               </AdminRoute>
             }

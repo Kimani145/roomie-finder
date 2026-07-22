@@ -21,6 +21,13 @@ import { matchRoutes } from './routes/matches'
 import { chatRoutes } from './routes/chats'
 import { appealRoutes } from './routes/appeals'
 import { reportRoutes } from './routes/reports'
+import { adminReportsRoutes } from './routes/adminReports'
+import { adminListingsRoutes } from './routes/adminListings'
+import { notificationRoutes } from './routes/notifications'
+import { presenceRoutes } from './routes/presence'
+import { favoritesRoutes } from './routes/favorites'
+import { recommendationRoutes } from './routes/recommendations'
+import { analyticsRoutes } from './routes/analytics'
 
 export async function buildApp() {
   const app = Fastify({
@@ -161,12 +168,19 @@ export async function buildApp() {
     v1.register(authRoutes)
     v1.register(adminRoutes)
     v1.register(auditRoutes)
+    v1.register(adminReportsRoutes)
+    v1.register(adminListingsRoutes)
     v1.register(profileRoutes, { prefix: '/profiles' })
     v1.register(listingRoutes, { prefix: '/listings' })
     v1.register(matchRoutes)
     v1.register(chatRoutes)
     v1.register(appealRoutes)
     v1.register(reportRoutes)
+    v1.register(notificationRoutes)
+    v1.register(presenceRoutes)
+    v1.register(favoritesRoutes)
+    v1.register(recommendationRoutes)
+    v1.register(analyticsRoutes)
   }, { prefix: '/api/v1' })
 
   // ─── Legacy unversioned routes ─────────────────────────────────────────────
@@ -175,9 +189,16 @@ export async function buildApp() {
   app.register(authRoutes)
   app.register(adminRoutes)
   app.register(auditRoutes)
+  app.register(adminReportsRoutes)
+  app.register(adminListingsRoutes)
   app.register(chatRoutes)
   app.register(appealRoutes)
   app.register(reportRoutes)
+  app.register(notificationRoutes)
+  app.register(presenceRoutes)
+  app.register(favoritesRoutes)
+  app.register(recommendationRoutes)
+  app.register(analyticsRoutes)
 
   return app
 }

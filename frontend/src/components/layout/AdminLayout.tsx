@@ -1,14 +1,17 @@
 import React, { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { LayoutDashboard, Users, ShieldAlert, Moon, Sun, ChevronLeft } from 'lucide-react'
+import { LayoutDashboard, Users, ShieldAlert, Home, FileText, UserCheck, Moon, Sun, ChevronLeft } from 'lucide-react'
 import { useTheme } from '@/context/ThemeContext'
 import { useAuthStore } from '@/store/authStore'
 
 // ─── Route Configuration ──────────────────────────────────────────────────────
 const ADMIN_NAV = [
   { path: '/admin', label: 'Command Center', icon: LayoutDashboard },
+  { path: '/admin/moderation', label: 'Moderation Queue', icon: ShieldAlert },
+  { path: '/admin/listings', label: 'Listings Control', icon: Home },
   { path: '/admin/user-management', label: 'User Management', icon: Users },
-  { path: '/admin/moderation', label: 'Moderation', icon: ShieldAlert },
+  { path: '/admin/audit', label: 'Audit Logs', icon: FileText },
+  { path: '/admin/team', label: 'Admin Governance', icon: UserCheck },
 ]
 
 // ─── AdminSidebar ───────────────────────────────────────────────────────────

@@ -69,7 +69,7 @@ export const sendChatMessageWithOptimism = async (params: {
   }
 
   try {
-    const res = await fetchWithAuth(`/api/v1/chats/${params.chatId}/messages`, {
+    const data = await fetchWithAuth(`/api/v1/chats/${params.chatId}/messages`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -77,12 +77,6 @@ export const sendChatMessageWithOptimism = async (params: {
       },
       body: JSON.stringify({ text: trimmed }),
     })
-
-    const data = await res.json()
-
-    if (!res.ok) {
-      return { success: false, error: data.error || 'Failed to send message' }
-    }
 
     return { success: true, serverMessageId: data.messageId }
   } catch (error) {
@@ -101,6 +95,16 @@ export const retryFailedMessage = async (params: {
   return sendChatMessageWithOptimism({
     ...params,
     onOptimisticMessage: undefined, // Don't re-show optimistic on retry
+  })
+}
+
+export const sendTypingStatus = async (chatId: string, isTyping: boolean) => {
+  if (!chatId) return
+  await fetchWithAuth(`/api/v1/chats/${chatId}/typing`, {
+    method: 'POST',
+    body: JSON.stringify({ isTyping }),
+  }).catch(() => {
+    // Silently ignore typing status broadcast failures
   })
 }
 
