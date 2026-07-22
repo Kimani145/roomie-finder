@@ -17,6 +17,7 @@ export const Events = {
   ADMIN_ACCEPTED: 'ADMIN_ACCEPTED',
   OTP_REQUESTED: 'OTP_REQUESTED',
   PASSWORD_RESET_REQUESTED: 'PASSWORD_RESET_REQUESTED',
+  EMAIL_VERIFICATION_REQUESTED: 'EMAIL_VERIFICATION_REQUESTED',
   ACCOUNT_DELETED: 'ACCOUNT_DELETED'
 } as const
 
@@ -41,5 +42,6 @@ export interface EventPayloads {
   [Events.ADMIN_ACCEPTED]: { uid: string, email: string }
   [Events.OTP_REQUESTED]: { email: string, otp: string, purpose: string }
   [Events.PASSWORD_RESET_REQUESTED]: { email: string, token: string }
+  [Events.EMAIL_VERIFICATION_REQUESTED]: { email: string, token: string }
   [Events.ACCOUNT_DELETED]: { uid: string }
 }

@@ -6,6 +6,7 @@ export type Permission =
   | 'REVIEW_REPORTS'
   | 'SUSPEND_USERS'
   | 'RESTORE_USERS'
+  | 'MANAGE_USERS'
   | 'MANAGE_SETTINGS'
   | 'SEND_COMMUNICATIONS'
 
@@ -18,6 +19,7 @@ export const RolePermissions: Record<string, Permission[]> = {
     'REVIEW_REPORTS',
     'SUSPEND_USERS',
     'RESTORE_USERS',
+    'MANAGE_USERS',
     'MANAGE_SETTINGS',
     'SEND_COMMUNICATIONS',
   ],
@@ -25,6 +27,7 @@ export const RolePermissions: Record<string, Permission[]> = {
     'REVIEW_REPORTS',
     'SUSPEND_USERS',
     'RESTORE_USERS',
+    'MANAGE_USERS',
     'SEND_COMMUNICATIONS',
   ],
   // Default STUDENT has no admin permissions

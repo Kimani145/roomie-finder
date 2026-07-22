@@ -75,7 +75,7 @@ export class CommunicationService {
     return this.send({ to, subject: 'Reset your Roomie Finder password', html, text })
   }
 
-  private async sendAdminInvitation(to: string, systemRole: string, invitationUrl: string): Promise<boolean> {
+  public async sendAdminInvitation(to: string, systemRole: string, invitationUrl: string, correlationId?: string): Promise<boolean> {
     const html = await render(
       React.createElement(AdminInvitationEmail, {
         email: to, systemRole, invitationUrl,
@@ -83,7 +83,7 @@ export class CommunicationService {
         year: new Date().getFullYear(),
       })
     )
-    return this.send({ to, subject: 'Roomie Finder Administrator Invitation', html })
+    return this.send({ to, subject: 'Roomie Finder Administrator Invitation', html, correlationId })
   }
 }
 

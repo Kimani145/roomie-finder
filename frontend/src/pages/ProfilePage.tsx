@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/authStore';
 import { getUserProfile } from '@/firebase/profiles';
 import type { UserProfile } from '@/types';
-import { fetchWithAuth } from '@/utils/api';
+import { fetchWithAuth } from '@/services/apiClient';
 import { toast } from 'react-hot-toast';
 import {
   MapPin,

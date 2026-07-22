@@ -15,6 +15,13 @@ import {
 import { db } from '@/firebase/config'
 import type { LocalMessage, MessageStatus } from '@/types'
 
+export const getCanonicalChatId = (id: string): string => {
+  if (!id) return ''
+  if (id.startsWith('chat_')) return id
+  if (id.startsWith('match_')) return id.replace(/^match_/, 'chat_')
+  return `chat_${id}`
+}
+
 export const getChatParticipants = (chatId: string): string[] =>
   chatId.split('_').filter(Boolean)
 
@@ -139,9 +146,12 @@ export const retryFailedMessage = async (params: {
   })
 }
 
-export const markChatAsRead = async (chatId: string, currentUserUid: string) => {
-  await updateDoc(doc(db, 'chats', chatId), {
-    unreadBy: arrayRemove(currentUserUid),
+export const markChatAsRead = async (chatId: string) => {
+  await fetchWithAuth(`/api/v1/chats/${chatId}/read`, {
+    method: 'POST',
+    body: JSON.stringify({}),
+  }).catch(() => {
+    // Silently ignore errors here to avoid interrupting UI, backend handles it
   })
 }
 

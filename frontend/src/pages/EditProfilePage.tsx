@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/authStore'
-import { fetchWithAuth } from '@/utils/api'
+import { fetchWithAuth } from '@/services/apiClient'
 import { getUserProfile } from '@/firebase/profiles'
 // Removed db import
 import { TUK_ZONES, TukZone } from '@/constants/zones'

@@ -24,13 +24,25 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
 
 export async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const headers = new Headers(options.headers)
-  if (!headers.has('Content-Type')) {
+  const method = (options.method || 'GET').toUpperCase()
+
+  if (!headers.has('Content-Type') && method !== 'GET' && method !== 'HEAD') {
     headers.set('Content-Type', 'application/json')
+  }
+
+  let body = options.body
+  if (
+    headers.get('Content-Type')?.includes('application/json') &&
+    (method === 'POST' || method === 'PUT' || method === 'PATCH') &&
+    !body
+  ) {
+    body = JSON.stringify({})
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers,
+    body,
   })
 
   if (!response.ok) {

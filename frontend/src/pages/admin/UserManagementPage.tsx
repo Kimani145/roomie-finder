@@ -3,7 +3,7 @@ import { collection, query, limit, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/config'
 import { Ban, AlertCircle, RefreshCw } from 'lucide-react'
 import { toast } from 'react-hot-toast'
-import { fetchWithAuth } from '@/utils/api'
+import { fetchWithAuth } from '@/services/apiClient'
 import { formatDistanceToNow } from 'date-fns'
 import { logger } from '@/utils/logger'
 

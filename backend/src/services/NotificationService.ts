@@ -57,6 +57,25 @@ export class NotificationService {
       await notificationRepository.save(notif)
     })
   }
+
+  async create(params: {
+    recipientId: string
+    type: string
+    title: string
+    body: string
+    link?: string
+    senderId?: string
+  }) {
+    const notif = Notification.create(
+      params.recipientId,
+      params.type as any,
+      params.title,
+      params.body,
+      { link: params.link, senderId: params.senderId }
+    )
+    await notificationRepository.save(notif)
+    return notif
+  }
 }
 
 export const notificationService = new NotificationService()

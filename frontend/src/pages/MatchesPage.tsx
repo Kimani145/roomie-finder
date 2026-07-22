@@ -12,6 +12,7 @@ import {
   getMatchBadgeClasses,
 } from '@/utils/formatters'
 import { useNotificationStore } from '@/store/notificationStore'
+import { getCanonicalChatId } from '@/hooks/useChat'
 
 const MatchListItemSkeleton: React.FC = () => (
   <div className="card-surface card-surface-dingley mb-4 flex items-center justify-between overflow-hidden rounded-2xl p-4">
@@ -66,7 +67,7 @@ const MatchListItem: React.FC<{ match: HydratedMatch }> = ({ match }) => {
     .join(' • ')
 
   const handleMessageClick = () => {
-    navigate(`/messages/${match.matchId}`, {
+    navigate(`/messages/${getCanonicalChatId(match.matchId)}`, {
       state: { from: location.pathname },
     })
   }

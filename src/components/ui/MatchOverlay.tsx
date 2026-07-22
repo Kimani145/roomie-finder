@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useMatchStore } from '../../store/matchStore';
 import { X } from 'lucide-react';
 
+import { getCanonicalChatId } from '../../hooks/useChat';
+
 type MatchState = 'idle' | 'triggered' | 'animating' | 'resolved';
 
 export const MatchOverlay: React.FC = () => {
@@ -31,7 +33,7 @@ export const MatchOverlay: React.FC = () => {
 
   const handleChat = () => {
     closeMatch();
-    navigate(`/chat/${matchData.matchId}`);
+    navigate(`/messages/${getCanonicalChatId(matchData.matchId)}`);
   };
 
   return (

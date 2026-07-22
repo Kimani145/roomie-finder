@@ -18,6 +18,7 @@ import {
 import { formatTimeAgo, getMatchBadgeClasses } from '@/utils/formatters'
 import { categorizeMessageDate, formatMessageTime } from '@/utils/dateUtils'
 import { 
+  getCanonicalChatId,
   markChatAsRead, 
   sendChatMessageWithOptimism,
   retryFailedMessage,
@@ -63,7 +64,7 @@ const MessagesPage: React.FC = () => {
   
   useEffect(() => {
     if (matchId) {
-      setSelectedChatId(matchId)
+      setSelectedChatId(getCanonicalChatId(matchId))
     } else if (isDesktopLayout && inboxThreads.length > 0 && !selectedChatId) {
       navigate(`/messages/${inboxThreads[0].chatId}`, { replace: true })
     }
@@ -103,10 +104,11 @@ const MessagesPage: React.FC = () => {
     }
 
     let cancelled = false
+    const canonicalId = getCanonicalChatId(matchId)
 
     const initializeMatchIdChat = async () => {
       try {
-        const chatRef = doc(db, 'chats', matchId)
+        const chatRef = doc(db, 'chats', canonicalId)
         const chatSnap = await getDoc(chatRef)
         const chatData = chatSnap.data() as {
           participants?: string[]
@@ -163,7 +165,7 @@ const MessagesPage: React.FC = () => {
 
         if (!cancelled) {
           const matchIdThread: InboxThread = {
-            chatId: matchId,
+            chatId: canonicalId,
             otherUser,
             lastMessage: chatData.lastMessage ?? '',
             updatedAt,
@@ -174,16 +176,16 @@ const MessagesPage: React.FC = () => {
 
           // Add to threads if not already present
           setInboxThreads((prevThreads) => {
-            const exists = prevThreads.some((t) => t.chatId === matchId)
+            const exists = prevThreads.some((t) => t.chatId === canonicalId)
             if (exists) {
               return prevThreads.map((t) =>
-                t.chatId === matchId ? matchIdThread : t
+                t.chatId === canonicalId ? matchIdThread : t
               )
             }
             return [matchIdThread, ...prevThreads]
           })
 
-          setSelectedChatId(matchId)
+          setSelectedChatId(canonicalId)
         }
       } catch (error) {
         logger.error('Failed to initialize matchId chat:', error)
@@ -312,7 +314,8 @@ const MessagesPage: React.FC = () => {
             }
             if (
               selectedChatId &&
-              !threads.some((thread) => thread.chatId === selectedChatId)
+              !threads.some((thread) => thread.chatId === selectedChatId) &&
+              (!matchId || getCanonicalChatId(matchId) !== selectedChatId)
             ) {
               setSelectedChatId(threads[0]?.chatId ?? null)
             }
