@@ -2,7 +2,7 @@
 
 Student roommate matching for TUK students, built around compatibility scoring instead of pure listing search. The platform pairs students based on lifestyle overlap, mutual housing goals, and verified identity rather than raw listing search.
 
-The codebase is an **npm workspaces monorepo** with a clear trust boundary: the React client handles presentation and Firestore reads/writes governed by Security Rules, while the Fastify backend owns privileged operations (email, admin provisioning, audit logging).
+The codebase is an **npm workspaces monorepo** with a clear trust boundary: the React client handles presentation, while the Fastify backend serves as the gatekeeper for all core business logic (matches, chats, listings, profiles, favorites, presence) via a REST API. Firestore is optimized as the primary database and for real-time reads via the client SDK.
 
 ---
 
@@ -12,16 +12,18 @@ The codebase is an **npm workspaces monorepo** with a clear trust boundary: the 
 
 - **Role:** Presentation, routing, and user interaction.
 - **Stack:** React 18, Vite, TypeScript, Tailwind CSS, Zustand, React Router v6.
-- **Rules:** The frontend does not send email, issue admin tokens, or decide authorization. It authenticates via Firebase Auth and passes ID tokens to the backend for trusted operations.
+- **Rules:** The frontend delegates core business logic (writes) to the backend API, moving away from direct Firestore writes. It authenticates via Firebase Auth and passes ID tokens to the backend for validation, maintaining real-time read listeners via the Firestore SDK.
 
 ### Trusted backend (`backend/`)
 
 - **Role:** Orchestration, authorization, and secure communications.
 - **Stack:** Node.js 22, Fastify, TypeScript, Zod, Pino.
 - **Responsibilities:**
+  - Enforcing business logic and authorization via REST API endpoints and repository patterns
   - Password reset and email verification (Firebase Admin SDK)
   - SMTP-backed transactional email (Brevo / compatible providers)
-  - Administrator invitation lifecycle and RBAC
+  - Analytics, favorites, notifications, and presence systems
+  - Administrator invitation lifecycle, RBAC, and moderation tools
   - Immutable audit trails for privileged actions
 
 ### Shared infrastructure
@@ -35,12 +37,14 @@ The codebase is an **npm workspaces monorepo** with a clear trust boundary: the 
 ## Core features
 
 - Compatibility-driven discovery feed (rooms + roommates)
-- Mutual-like matching flow with real-time chat and unread tracking
-- Persistent notification history (Firestore-backed)
+- Mutual-like matching flow with real-time chat and unread tracking (standardized chat IDs)
+- Comprehensive favorites and presence systems
+- Persistent notification history (Firestore-backed with API integration)
 - Role-based profiles (`HOST`, `SEEKER`, `FLEX`)
 - Email-based two-step verification (SHA-256 OTPs, 5-minute expiry, rate-limited attempts, 60s resend cooldown)
 - Listing creation wizard with Cloudinary image uploads
-- Admin console with RBAC, moderation, and mandatory 2FA for admin accounts
+- Analytics tracking and admin management tools for moderation, appeals, and reports
+- Admin console with RBAC and mandatory 2FA for admin accounts
 - Responsive app shell with collapsible desktop sidebar and PWA metadata
 
 ---
@@ -207,7 +211,7 @@ curl https://<your-fly-app>.fly.dev/health
 
 ## Security and trust model
 
-- **Zero-trust client:** Frontend role claims are ignored; authorization is evaluated by the backend and Firestore Security Rules.
+- **Zero-trust client:** Core business rules and authorization are strictly evaluated by the Fastify backend API via robust middleware. Firestore Security Rules are optimized primarily for read access and denying unauthorized direct writes from the client.
 - **Permission-based RBAC:** Admin access uses granular permissions (e.g. `CREATE_ADMIN`, `SUSPEND_USERS`, `VIEW_AUDIT_LOGS`).
 - **Immutable auditing:** Privileged actions write correlation-tracked records to Firestore.
 - **Mandatory admin 2FA:** Administrative accounts require two-factor authentication.
@@ -258,6 +262,10 @@ curl https://<your-fly-app>.fly.dev/health
 | `GET` | `/version` | No | Build metadata |
 | `POST` | `/auth/password-reset` | No | Send password reset email |
 | `POST` | `/auth/email-verification` | No | Send verification email |
+| `ALL` | `/chats`, `/matches` | Yes | Chat operations, read status, match lifecycle |
+| `ALL` | `/listings`, `/favorites` | Yes | CRUD for listings and saving favorites |
+| `ALL` | `/presence`, `/notifications` | Yes | Online status tracking, alert management |
+| `ALL` | `/analytics`, `/reports`, `/appeals`| Yes + RBAC | Platform analytics, moderation reporting |
 | `POST` | `/admin/invitations` | Yes + `CREATE_ADMIN` | Invite administrator |
 | `POST` | `/admin/invitations/accept` | No | Accept invitation |
 | `POST` | `/communications/send` | Yes + permission | Dispatch email template |

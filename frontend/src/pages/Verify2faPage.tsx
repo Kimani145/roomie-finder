@@ -5,9 +5,9 @@ import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/authStore'
 import { generateAndSendOtp, verifyOtpCode } from '@/services/twoFactorService'
 import { toast } from 'react-hot-toast'
+import { logger } from '@/utils/logger'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/firebase/config'
-import { logger } from '@/utils/logger'
 
 export default function Verify2faPage() {
   const navigate = useNavigate()
@@ -43,7 +43,7 @@ export default function Verify2faPage() {
     return () => clearInterval(timer)
   }, [cooldown])
 
-  // Initialize: generate OTP if there is no active unexpired one in Firestore
+  // Initialize: generate OTP via backend endpoint (bypassing client Firestore rules)
   useEffect(() => {
     if (!user || !user.email) return
 
@@ -51,29 +51,23 @@ export default function Verify2faPage() {
 
     const checkAndInitOtp = async () => {
       try {
-        const otpRef = doc(db, 'otps', user.email!)
-        const snap = await getDoc(otpRef)
-        
-        let needsNew = true
-        if (snap.exists()) {
-          const existing = snap.data()
-          const expiresAt = existing.expiresAt?.toMillis() || 0
-          if (Date.now() < expiresAt) {
-            needsNew = false
-          }
-        }
-
-        if (needsNew && isMounted) {
+        if (isMounted) {
           setResending(true)
-          await generateAndSendOtp(user.uid, user.email!, true)
+          await generateAndSendOtp(user.uid, user.email!, false)
           toast.success('Verification code sent to your email.')
           setCooldown(60)
-        } else {
-          toast.success('A valid code is already in your inbox. Please enter it below.')
         }
       } catch (err: any) {
-        logger.error('2FA initialization failed.')
-        if (isMounted) setError(err.message || 'Failed to initialize verification code.')
+        const msg = err.message || ''
+        if (msg.includes('wait')) {
+          const match = msg.match(/wait (\d+)s/)
+          const seconds = match ? parseInt(match[1], 10) : 60
+          if (isMounted) setCooldown(seconds)
+          toast('A code was recently sent to your email. Please check your inbox.', { icon: '📧' })
+        } else {
+          logger.error('2FA initialization failed:', err)
+          if (isMounted) setError(err.message || 'Failed to initialize verification code.')
+        }
       } finally {
         if (isMounted) setResending(false)
       }
@@ -89,7 +83,7 @@ export default function Verify2faPage() {
     return () => {
       isMounted = false
     }
-  }, [user])
+  }, [user?.uid])
 
   // Handle individual box typing
   const handleChange = (element: HTMLInputElement, index: number) => {
@@ -159,11 +153,26 @@ export default function Verify2faPage() {
       if (res.success) {
         setSuccess(true)
         sessionStorage.setItem(`rf_2fa_verified_${user!.uid}`, 'true')
+        sessionStorage.setItem(`rf_admin_2fa_verified_${user!.uid}`, 'true')
         
         toast.success(res.message)
+        
+        // Check if admin user to redirect to admin dashboard
+        let isAdminUser = false
+        try {
+          const adminSnap = await getDoc(doc(db, 'admins', user!.uid))
+          isAdminUser = adminSnap.exists()
+        } catch {
+          isAdminUser = false
+        }
+
         setTimeout(() => {
           set2faPending(false)
-          navigate('/discover')
+          if (isAdminUser) {
+            navigate('/admin', { replace: true })
+          } else {
+            navigate('/discover', { replace: true })
+          }
         }, 1500)
       } else {
         setError(res.message)

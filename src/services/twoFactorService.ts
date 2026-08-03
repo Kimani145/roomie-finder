@@ -1,199 +1,87 @@
-import { db } from '@/firebase/config'
-import {
-  doc,
-  getDoc,
-  setDoc,
-  deleteDoc,
-  updateDoc,
-  addDoc,
-  collection,
-  Timestamp,
-} from 'firebase/firestore'
+// BACKEND AUTHORITY: Audit logs and OTP generation are handled exclusively by the backend.
+
 import { logger } from '@/utils/logger'
-import { fetchApi, fetchWithAuth } from './apiClient'
-const OTPS_COLLECTION = 'otps'
-const AUDIT_LOGS_COLLECTION = 'auditLogs'
+import { fetchWithAuth } from './apiClient'
+import toast from 'react-hot-toast'
 
-export interface OtpData {
-  email: string
-  hashedOtp: string
-  createdAt: Timestamp
-  expiresAt: Timestamp
-  attempts: number
-}
-
-/**
- * Cryptographically secure 6-digit numeric OTP generator.
- */
-export function generateOtpCode(): string {
-  const array = new Uint32Array(1)
-  window.crypto.getRandomValues(array)
-  const code = ((array[0] % 900000) + 100000).toString()
-  return code
-}
-
-/**
- * Cryptographically secure SHA-256 hashing of OTP string.
- */
-export async function hashOtp(otp: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(otp)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-}
-
-/**
- * Write a security audit event to Firestore.
- */
 export async function log2faAuditEvent(
-  userId: string,
+  _userId: string,
+  _email: string,
+  _action: string,
+  _metadata?: Record<string, any>
+): Promise<void> {
+  // Audit logging is handled server-side by backend endpoints
+}
+
+export async function generateAndSendOtp(
+  _userId: string,
   email: string,
-  action: '2fa_enabled' | '2fa_disabled' | '2fa_generated' | '2fa_success' | '2fa_failed_attempt' | '2fa_exceeded_attempts',
-  metadata?: Record<string, any>
+  _bypassCooldown = false
 ): Promise<void> {
   try {
-    await addDoc(collection(db, AUDIT_LOGS_COLLECTION), {
-      userId,
-      email,
-      action,
-      timestamp: Timestamp.now(),
-      userAgent: navigator.userAgent,
-      ...metadata,
+    await fetchWithAuth('/api/v1/auth/2fa/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
     })
-  } catch (error) {
-    logger.error('[twoFactorService] Audit logging failed.')
+  } catch (err: any) {
+    logger.error('Failed to request 2FA OTP:', err)
+    toast.error(err.message || 'Failed to send verification code.')
+    throw err
   }
 }
 
-/**
- * Generates and stores a new OTP for the user, checking for a 60-second resend cooldown first.
- */
-export async function generateAndSendOtp(
-  userId: string,
-  email: string,
-  bypassCooldown = false
-): Promise<void> {
-  const otpRef = doc(db, OTPS_COLLECTION, email)
-  const snap = await getDoc(otpRef)
-
-  if (snap.exists() && !bypassCooldown) {
-    const existing = snap.data() as OtpData
-    const elapsedSeconds = Math.floor(
-      (Timestamp.now().toMillis() - existing.createdAt.toMillis()) / 1000
-    )
-
-    if (elapsedSeconds < 60) {
-      throw new Error(`Please wait ${60 - elapsedSeconds}s before requesting a new code.`)
-    }
-  }
-
-  const plainOtp = generateOtpCode()
-  const hashedOtp = await hashOtp(plainOtp)
-
-  const createdAt = Timestamp.now()
-  const expiresAt = new Timestamp(createdAt.seconds + 5 * 60, createdAt.nanoseconds) // 5 minutes
-
-  const newOtpData: OtpData = {
-    email,
-    hashedOtp,
-    createdAt,
-    expiresAt,
-    attempts: 0,
-  }
-
-  // Save to Firestore (only one active OTP document per email, overwritten on resend)
-  await setDoc(otpRef, newOtpData)
-
-  // Log the event
-  await log2faAuditEvent(userId, email, '2fa_generated')
-
-  // Send the email (unified communication system)
-  await fetchApi('/communications/send', {
-    method: 'POST',
-    body: JSON.stringify({
-      type: '2FA_CODE',
-      payload: {
-        to: email,
-        code: plainOtp,
-        browser: navigator.userAgent,
-        device: navigator.platform || 'Web App'
-      }
-    })
-  }).catch((err) => {
-    logger.error('Failed to dispatch 2FA email communication:', err)
-  })
-}
-
-/**
- * Verifies the user-inputted OTP code against the stored hash in Firestore.
- */
 export async function verifyOtpCode(
-  userId: string,
+  _userId: string,
   email: string,
   userInputOtp: string
 ): Promise<{ success: boolean; message: string }> {
-  const otpRef = doc(db, OTPS_COLLECTION, email)
-  const snap = await getDoc(otpRef)
+  try {
+    const data = await fetchWithAuth('/api/v1/auth/2fa/verify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        code: userInputOtp,
+      }),
+    })
 
-  if (!snap.exists()) {
-    return { success: false, message: 'No active verification code found. Please request a new one.' }
-  }
+    return {
+      success: Boolean(data.success),
+      message:
+        data.message ??
+        (data.success
+          ? 'Identity verified successfully!'
+          : data.error ?? 'Verification failed.'),
+    }
+  } catch (err: any) {
+    logger.error('Error verifying OTP:', err)
 
-  const otpData = snap.data() as OtpData
-
-  // 1. Expiration check
-  if (Timestamp.now().toMillis() > otpData.expiresAt.toMillis()) {
-    await deleteDoc(otpRef)
-    return { success: false, message: 'Verification code has expired (5 minutes). Please request a new one.' }
-  }
-
-  // 2. Max attempts check
-  if (otpData.attempts >= 5) {
-    await deleteDoc(otpRef)
-    await log2faAuditEvent(userId, email, '2fa_exceeded_attempts')
-    return { success: false, message: 'Maximum attempts (5) exceeded. This code is now invalid. Please request a new one.' }
-  }
-
-  // Hash the user's input to compare
-  const hashedInput = await hashOtp(userInputOtp)
-
-  if (hashedInput === otpData.hashedOtp) {
-    // Correct code! Delete OTP immediately to prevent reuse
-    await deleteDoc(otpRef)
-    await log2faAuditEvent(userId, email, '2fa_success')
-    return { success: true, message: 'Identity verified successfully!' }
-  } else {
-    // Incorrect code. Increment attempts
-    const newAttempts = otpData.attempts + 1
-    if (newAttempts >= 5) {
-      await deleteDoc(otpRef)
-      await log2faAuditEvent(userId, email, '2fa_exceeded_attempts')
-      return {
-        success: false,
-        message: 'Incorrect code. Maximum verification attempts (5) exceeded. Please request a new code.',
-      }
-    } else {
-      await updateDoc(otpRef, { attempts: newAttempts })
-      await log2faAuditEvent(userId, email, '2fa_failed_attempt', { attemptNumber: newAttempts })
-      return {
-        success: false,
-        message: `Incorrect code. You have ${5 - newAttempts} attempts remaining.`,
-      }
+    return {
+      success: false,
+      message: err.message || 'Verification failed.',
     }
   }
 }
 
 export const twoFactorService = {
-  generateSecret: async (_uid: string): Promise<{ qrCodeUrl: string; secret: string; otpauthUrl?: string }> => {
+  generateSecret: async (
+    _uid: string
+  ): Promise<{
+    qrCodeUrl: string
+    secret: string
+    otpauthUrl?: string
+  }> => {
     try {
       const data = await fetchWithAuth('/api/v1/admin/2fa/setup', {
         method: 'POST',
         body: JSON.stringify({}),
       })
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to generate 2FA secret')
-      }
+
       return {
         qrCodeUrl: data.qrCodeUrl,
         secret: data.secret,
@@ -205,12 +93,20 @@ export const twoFactorService = {
     }
   },
 
-  verifyCode: async (_uid: string, code: string, secret: string): Promise<boolean> => {
+  verifyCode: async (
+    _uid: string,
+    code: string,
+    secret: string
+  ): Promise<boolean> => {
     try {
       const data = await fetchWithAuth('/api/v1/admin/2fa/verify', {
         method: 'POST',
-        body: JSON.stringify({ code, secret }),
+        body: JSON.stringify({
+          code,
+          secret,
+        }),
       })
+
       return Boolean(data.success)
     } catch (err: any) {
       logger.error('Failed to verify 2FA code via backend:', err)
@@ -218,12 +114,18 @@ export const twoFactorService = {
     }
   },
 
-  enable2FA: async (_uid: string, secret: string): Promise<boolean> => {
+  enable2FA: async (
+    _uid: string,
+    secret: string
+  ): Promise<boolean> => {
     try {
       const data = await fetchWithAuth('/api/v1/admin/2fa/enable', {
         method: 'POST',
-        body: JSON.stringify({ secret }),
+        body: JSON.stringify({
+          secret,
+        }),
       })
+
       return Boolean(data.success)
     } catch (err: any) {
       logger.error('Failed to enable 2FA via backend:', err)

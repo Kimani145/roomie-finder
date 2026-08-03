@@ -64,9 +64,22 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children, requireRole })
     return <Navigate to="/admin/access-denied" replace />
   }
 
-  // 4. Must complete 2FA unless currently on the 2FA setup route
+  // 4. Must complete 2FA setup if not enabled
   if (!adminDoc.twoFactorEnabled && location.pathname !== '/admin/setup-2fa') {
     return <Navigate to="/admin/setup-2fa" replace />
+  }
+
+  // 5. Mandatory session-based 2FA verification for EVERY admin login
+  const isSessionVerified =
+    sessionStorage.getItem(`rf_admin_2fa_verified_${user.uid}`) === 'true' ||
+    sessionStorage.getItem(`rf_2fa_verified_${user.uid}`) === 'true'
+
+  if (
+    !isSessionVerified &&
+    location.pathname !== '/admin/setup-2fa' &&
+    location.pathname !== '/verify-2fa'
+  ) {
+    return <Navigate to="/verify-2fa" replace />
   }
 
   return <>{children}</>

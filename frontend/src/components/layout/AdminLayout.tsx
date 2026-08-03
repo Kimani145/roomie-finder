@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
-import { LayoutDashboard, Users, ShieldAlert, Home, FileText, UserCheck, Moon, Sun, ChevronLeft } from 'lucide-react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { LayoutDashboard, Users, ShieldAlert, Home, FileText, UserCheck, Moon, Sun, ChevronLeft, LogOut } from 'lucide-react'
 import { useTheme } from '@/context/ThemeContext'
 import { useAuthStore } from '@/store/authStore'
+import { signOut } from 'firebase/auth'
+import { auth } from '@/firebase/config'
+import { logger } from '@/utils/logger'
 
 // ─── Route Configuration ──────────────────────────────────────────────────────
 const ADMIN_NAV = [
@@ -16,6 +19,20 @@ const ADMIN_NAV = [
 
 // ─── AdminSidebar ───────────────────────────────────────────────────────────
 const AdminSidebar: React.FC<{ isCollapsed: boolean; setIsCollapsed: (v: boolean) => void }> = ({ isCollapsed, setIsCollapsed }) => {
+  const navigate = useNavigate()
+  const clearAuthStore = useAuthStore((s) => s.clearAuth)
+
+  const handleAdminLogout = async () => {
+    try {
+      await signOut(auth)
+      sessionStorage.clear()
+      clearAuthStore()
+      navigate('/admin/login', { replace: true })
+    } catch (err) {
+      logger.error('Admin logout failed:', err)
+    }
+  }
+
   return (
     <aside
       className={`hidden md:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700/50 transition-all duration-300 ${
@@ -53,8 +70,17 @@ const AdminSidebar: React.FC<{ isCollapsed: boolean; setIsCollapsed: (v: boolean
         ))}
       </nav>
 
-      {/* Bottom Collapse Toggle */}
-      <div className="mt-auto p-4 border-t border-slate-200 dark:border-slate-700/50 shrink-0">
+      {/* Bottom Controls (Logout & Collapse Toggle) */}
+      <div className="mt-auto p-3 border-t border-slate-200 dark:border-slate-700/50 shrink-0 flex flex-col gap-2">
+        <button
+          onClick={handleAdminLogout}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 font-medium transition-colors w-full"
+          title={isCollapsed ? 'Logout' : undefined}
+        >
+          <LogOut className="h-5 w-5 shrink-0" />
+          {!isCollapsed && <span className="truncate">Sign Out</span>}
+        </button>
+
         <button
           className="flex items-center justify-center w-full p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-50 dark:bg-slate-800 border border-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl transition-colors"
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -69,7 +95,19 @@ const AdminSidebar: React.FC<{ isCollapsed: boolean; setIsCollapsed: (v: boolean
 // ─── AdminHeader ────────────────────────────────────────────────────────────
 const AdminHeader: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
   const { theme, setTheme } = useTheme()
-  const { currentUser } = useAuthStore()
+  const { currentUser, clearAuth: clearAuthStore } = useAuthStore()
+  const navigate = useNavigate()
+
+  const handleAdminLogout = async () => {
+    try {
+      await signOut(auth)
+      sessionStorage.clear()
+      clearAuthStore()
+      navigate('/admin/login', { replace: true })
+    } catch (err) {
+      logger.error('Admin logout failed:', err)
+    }
+  }
 
   const initials = currentUser?.displayName
     ? currentUser.displayName
@@ -101,7 +139,7 @@ const AdminHeader: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
         )}
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         <button
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-slate-600 dark:text-slate-300"
@@ -127,6 +165,16 @@ const AdminHeader: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
             </div>
           </>
         )}
+
+        <button
+          onClick={handleAdminLogout}
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors border border-red-200 dark:border-red-500/20"
+          title="Sign Out"
+          type="button"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="hidden sm:inline">Logout</span>
+        </button>
       </div>
     </header>
   )

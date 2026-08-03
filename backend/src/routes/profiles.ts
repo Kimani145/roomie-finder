@@ -8,7 +8,7 @@ import { Events } from '../events/EventCatalogue'
 import { adminAuth } from '../config/firebase'
 
 export const profileRoutes: FastifyPluginAsyncZod = async (app) => {
-  // Create Profile
+  // Create Profile / Onboarding
   app.post(
     '/',
     {
@@ -17,22 +17,26 @@ export const profileRoutes: FastifyPluginAsyncZod = async (app) => {
         body: z.object({
           displayName: z.string().min(1),
           role: z.enum(['HOST', 'SEEKER', 'FLEX']),
-          email: z.string().email(),
-          // include any other fields needed
         }).passthrough(),
       },
     },
     async (request, reply) => {
       const uid = request.user!.uid
-      
-      const existing = await profileRepository.getById(uid)
-      if (existing) {
-        return reply.status(409).send({ message: 'Profile already exists' })
-      }
+      const email = request.user!.email || ''
 
       const body = request.body as any
-      const profile = new Profile(uid, body.displayName, body.email, body.role, 'active', false, body)
-      
+      const existing = await profileRepository.getById(uid)
+
+      if (existing) {
+        if (body.displayName) existing.displayName = body.displayName
+        if (body.role) existing.role = body.role
+        existing.metadata = { ...existing.metadata, ...body }
+        await profileRepository.save(existing)
+        EventBus.publish(Events.PROFILE_UPDATED, { uid, changes: body })
+        return reply.status(200).send(existing.toJSON())
+      }
+
+      const profile = new Profile(uid, body.displayName, email, body.role, 'active', false, body)
       await profileRepository.save(profile)
       EventBus.publish(Events.PROFILE_CREATED, { uid })
       
@@ -51,22 +55,30 @@ export const profileRoutes: FastifyPluginAsyncZod = async (app) => {
     },
     async (request, reply) => {
       const uid = request.user!.uid
-      
-      const profile = await profileRepository.getById(uid)
+      const email = request.user!.email || ''
+      const updates = request.body as any
+
+      let profile = await profileRepository.getById(uid)
       if (!profile) {
-        return reply.status(404).send({ message: 'Profile not found' })
+        profile = new Profile(
+          uid,
+          updates.displayName || '',
+          email,
+          updates.role || 'SEEKER',
+          'active',
+          false,
+          updates
+        )
+      } else {
+        if (updates.displayName) profile.displayName = updates.displayName
+        if (updates.role) profile.role = updates.role
+        if (updates.twoFactorEnabled !== undefined) profile.twoFactorEnabled = updates.twoFactorEnabled
+        profile.metadata = { ...profile.metadata, ...updates }
       }
 
-      const updates = request.body as any
-      if (updates.displayName) profile.displayName = updates.displayName
-      if (updates.twoFactorEnabled !== undefined) profile.twoFactorEnabled = updates.twoFactorEnabled
-      
-      // Update metadata
-      profile.metadata = { ...profile.metadata, ...updates }
-      
       await profileRepository.save(profile)
       EventBus.publish(Events.PROFILE_UPDATED, { uid, changes: updates })
-      
+
       return reply.status(200).send(profile.toJSON())
     }
   )

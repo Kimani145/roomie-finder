@@ -120,8 +120,50 @@ export const authRoutes: FastifyPluginAsyncZod = async (app) => {
       const userId = request.user.uid
       const requestId = request.id
 
-      // Ensure the user is only requesting OTP for their own email
-      if (request.user.email !== email) {
+      // Ensure the user is only requesting OTP for their own email (case-insensitive)
+      if (!request.user.email || request.user.email.toLowerCase() !== email.toLowerCase()) {
+        return reply.status(403).send({ error: 'Forbidden: Can only request OTP for your own email' })
+      }
+
+      try {
+        await twoFactorService.generateAndSendOtp(userId, email, requestId)
+        return { success: true, message: 'Verification code sent' }
+      } catch (err: any) {
+        if (err.message.includes('wait')) {
+          return reply.status(429).send({ error: err.message })
+        }
+        throw err
+      }
+    }
+  )
+
+  /**
+   * POST /otp/request (alias for /auth/2fa/send)
+   */
+  app.post(
+    '/otp/request',
+    {
+      preHandler: [authenticate],
+      config: {
+        rateLimit: {
+          max: 5,
+          timeWindow: '1 hour',
+        },
+      },
+      schema: {
+        description: 'Generates and sends a 2FA OTP code to the user\'s email.',
+        tags: ['auth'],
+        body: z.object({
+          email: z.string().email(),
+        }),
+      },
+    },
+    async (request, reply) => {
+      const { email } = request.body
+      const userId = request.user.uid
+      const requestId = request.id
+
+      if (!request.user.email || request.user.email.toLowerCase() !== email.toLowerCase()) {
         return reply.status(403).send({ error: 'Forbidden: Can only request OTP for your own email' })
       }
 
@@ -169,7 +211,7 @@ export const authRoutes: FastifyPluginAsyncZod = async (app) => {
       const userId = request.user.uid
       const requestId = request.id
 
-      if (request.user.email !== email) {
+      if (!request.user.email || request.user.email.toLowerCase() !== email.toLowerCase()) {
         return reply.status(403).send({ error: 'Forbidden: Can only verify OTP for your own email' })
       }
 

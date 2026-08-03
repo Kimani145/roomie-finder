@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
 import type { FirebaseError } from 'firebase/app'
 import { useAuth } from '@/hooks/useAuth'
-import { saveUserProfile, getUserProfile } from '@/firebase/profiles'
+import { getUserProfile } from '@/firebase/profiles'
 import { useAuthStore } from '@/store/authStore'
-import { db } from '@/firebase/config'
+import { fetchWithAuth } from '@/services/apiClient'
 import { TUK_ZONES, TukZone } from '@/constants/zones'
 import type { Gender, HousingRole } from '@/types'
 import { inputCls as inputClassName } from '@/utils/formStyles'
@@ -63,6 +62,7 @@ export const OnboardingWizard: React.FC = () => {
   const [yearOfStudy, setYearOfStudy] = useState('')
   const [bioQuote, setBioQuote] = useState('')
 
+  const [residenceZone, setResidenceZone] = useState<TukZone | ''>('')
   const [zones, setZones] = useState<TukZone[]>([])
   const [minBudget, setMinBudget] = useState('')
   const [maxBudget, setMaxBudget] = useState('')
@@ -124,29 +124,40 @@ export const OnboardingWizard: React.FC = () => {
     [age, ageValue, course, firstName, gender, yearOfStudy, yearValue]
   )
 
-  const logisticsErrors = useMemo(
-    () => ({
-      zones:
-        zones.length < 1
-          ? 'Select at least one preferred zone.'
-          : zones.length > 3
-          ? 'You can select a maximum of 3 zones.'
-          : '',
-      budget:
-        !minBudget.trim()
-          ? 'Both minimum and maximum budget are required.'
-          : !maxBudget.trim()
-          ? 'Both minimum and maximum budget are required.'
-          : Number.isNaN(minBudgetValue) || Number.isNaN(maxBudgetValue)
-          ? 'Budget values must be valid numbers.'
-          : minBudgetValue < 3000
-          ? 'Minimum budget must be at least 3,000 KES'
-          : maxBudgetValue <= minBudgetValue
-          ? 'Maximum budget must be greater than minimum budget'
-          : '',
-    }),
-    [maxBudget, maxBudgetValue, minBudget, minBudgetValue, zones.length]
-  )
+  const logisticsErrors = useMemo(() => {
+    let residenceError = ''
+    if (role === 'HOST' || role === 'FLEX') {
+      if (!residenceZone) {
+        residenceError = 'Please select your current residence (listing location).'
+      }
+    }
+
+    let zonesError = ''
+    if (role === 'SEEKER' || role === 'FLEX') {
+      if (zones.length < 1) {
+        zonesError = 'Select at least one preferred zone.'
+      } else if (zones.length > 3) {
+        zonesError = 'You can select a maximum of 3 preferred zones.'
+      }
+    }
+
+    let budgetError = ''
+    if (!minBudget.trim() || !maxBudget.trim()) {
+      budgetError = 'Both minimum and maximum budget are required.'
+    } else if (Number.isNaN(minBudgetValue) || Number.isNaN(maxBudgetValue)) {
+      budgetError = 'Budget values must be valid numbers.'
+    } else if (minBudgetValue < 3000) {
+      budgetError = 'Minimum budget must be at least 3,000 KES'
+    } else if (maxBudgetValue <= minBudgetValue) {
+      budgetError = 'Maximum budget must be greater than minimum budget'
+    }
+
+    return {
+      residenceZone: residenceError,
+      zones: zonesError,
+      budget: budgetError,
+    }
+  }, [maxBudget, maxBudgetValue, minBudget, minBudgetValue, residenceZone, role, zones.length])
 
   const lifestyleErrors = useMemo(
     () => ({
@@ -200,6 +211,13 @@ export const OnboardingWizard: React.FC = () => {
     setSaveError(null)
 
     try {
+      const resolvedZones: TukZone[] =
+        role === 'HOST'
+          ? [residenceZone as TukZone]
+          : role === 'FLEX'
+          ? Array.from(new Set([residenceZone as TukZone, ...zones]))
+          : zones
+
       const profile = {
         displayName: firstName.trim(),
         photoURL: null,
@@ -211,7 +229,8 @@ export const OnboardingWizard: React.FC = () => {
         bioQuote: bioQuote.trim().slice(0, 100),
         minBudget: Number(minBudget),
         maxBudget: Number(maxBudget),
-        zones,
+        zones: resolvedZones,
+        residenceZone: residenceZone || null,
         preferredRoomType: 'Single Room' as const,
         lifestyle: {
           sleepTime: sleepSchedule as 'Early' | 'Late' | 'Flexible',
@@ -234,22 +253,15 @@ export const OnboardingWizard: React.FC = () => {
         bio: '',
       }
 
-      // Critical: Save profile to Firestore, then navigate
-      await saveUserProfile(user.uid, profile)
+      // Save profile to backend API (which updates profiles, profilePreviews, and users collections)
+      await fetchWithAuth('/api/v1/profiles', {
+        method: 'POST',
+        body: JSON.stringify(profile),
+      })
 
       await reloadUser('ONBOARDING_SUBMIT')
 
-      await setDoc(
-        doc(db, 'users', user.uid),
-        {
-          role: profile.role,
-          profileCompleted: true,
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true }
-      )
-
-      // Re-fetch if possible; fall back to local profile when read is denied by rules.
+      // Fetch created profile or set local store fallback
       const saved = await getUserProfile(user.uid)
       if (saved) {
         setCurrentUser(saved)
@@ -481,47 +493,85 @@ export const OnboardingWizard: React.FC = () => {
               Set your hard constraints so we match precisely.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col md:col-span-2">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                  Preferred Zones
-                </label>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-                  Select up to 3 preferred zones ({zones.length}/3)
-                </p>
-                {logisticsErrors.zones && (
-                  <p className={`${errorTextClassName} mb-3`}>{logisticsErrors.zones}</p>
-                )}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {TUK_ZONES.map((z) => {
-                    const selected = zones.includes(z)
-                    return (
-                      <button
-                        key={z}
-                        type="button"
-                        onClick={() => {
-                          if (selected) {
-                            setZones(zones.filter((s) => s !== z))
-                          } else if (zones.length < 3) {
-                            setZones([...zones, z])
-                          }
-                        }}
-                        className={[
-                          'rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors text-left',
-                          selected
-                            ? 'border-brand-600 bg-blue-50 dark:bg-blue-900/30 text-brand-600/90 dark:text-blue-200'
-                            : zones.length === 3
-                            ? 'border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-300 dark:text-slate-500 cursor-not-allowed'
-                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-brand-600/50',
-                        ].join(' ')}
-                        disabled={!selected && zones.length === 3}
-                      >
-                        {z}
-                      </button>
-                    )
-                  })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Current Residence / Listing Location for Host & Flex */}
+              {(role === 'HOST' || role === 'FLEX') && (
+                <div className="flex flex-col md:col-span-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5 block">
+                    Current Residence (Listing Location) <span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    Select the zone where your accommodation/house is located.
+                  </p>
+                  {logisticsErrors.residenceZone && (
+                    <p className={`${errorTextClassName} mb-3`}>{logisticsErrors.residenceZone}</p>
+                  )}
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {TUK_ZONES.map((z) => {
+                      const selected = residenceZone === z
+                      return (
+                        <button
+                          key={`residence-${z}`}
+                          type="button"
+                          onClick={() => setResidenceZone(z)}
+                          className={[
+                            'rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors text-left',
+                            selected
+                              ? 'border-brand-600 bg-blue-50 dark:bg-blue-900/30 text-brand-600/90 dark:text-blue-200'
+                              : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-brand-600/50',
+                          ].join(' ')}
+                        >
+                          {z}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Preferred Locations for Seeker & Flex (Excluded for Host) */}
+              {(role === 'SEEKER' || role === 'FLEX') && (
+                <div className="flex flex-col md:col-span-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5 block">
+                    Preferred Locations <span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    Select up to 3 preferred zones where you want to live ({zones.length}/3)
+                  </p>
+                  {logisticsErrors.zones && (
+                    <p className={`${errorTextClassName} mb-3`}>{logisticsErrors.zones}</p>
+                  )}
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {TUK_ZONES.map((z) => {
+                      const selected = zones.includes(z)
+                      return (
+                        <button
+                          key={`pref-${z}`}
+                          type="button"
+                          onClick={() => {
+                            if (selected) {
+                              setZones(zones.filter((s) => s !== z))
+                            } else if (zones.length < 3) {
+                              setZones([...zones, z])
+                            }
+                          }}
+                          className={[
+                            'rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors text-left',
+                            selected
+                              ? 'border-brand-600 bg-blue-50 dark:bg-blue-900/30 text-brand-600/90 dark:text-blue-200'
+                              : zones.length === 3
+                              ? 'border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-300 dark:text-slate-500 cursor-not-allowed'
+                              : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 hover:border-brand-600/50',
+                          ].join(' ')}
+                          disabled={!selected && zones.length === 3}
+                        >
+                          {z}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col md:col-span-2">
                 <label className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1.5">

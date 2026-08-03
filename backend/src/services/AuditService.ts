@@ -39,6 +39,8 @@ export type AuditAction =
   | 'report_status_archived'
   | 'moderation_ban_user'
   | 'moderation_pause_listing'
+  | 'user_banned'
+  | 'user_unbanned'
   | 'account_suspension'
   | 'account_reinstated'
   | 'appeal_submitted'

@@ -33,7 +33,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   is2faPage = false,
 }) => {
   const location = useLocation()
-  const { user, loading, emailVerified, hasProfile, reloadUser } = useAuth()
+  const { user, loading, emailVerified, hasProfile } = useAuth()
   const currentUser = useAuthStore(state => state.currentUser)
   const is2faPending = useAuthStore(state => state.is2faPending)
   const [checkingClaims, setCheckingClaims] = useState(false)
@@ -41,34 +41,42 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
 
   useEffect(() => {
+    let isMounted = true
+
     const forceCheck = async () => {
       const currentUser = user
 
       if (!currentUser) {
-        setTokenEmailVerified(null)
-        setIsAdmin(false)
+        if (isMounted) {
+          setTokenEmailVerified(null)
+          setIsAdmin(false)
+        }
         return
       }
 
-      setCheckingClaims(true)
+      if (isMounted) setCheckingClaims(true)
 
       try {
-        const verified = await reloadUser('ROUTE')
-        setTokenEmailVerified(verified)
-
+        setTokenEmailVerified(currentUser.emailVerified)
         const adminSnap = await getDoc(doc(db, 'admins', currentUser.uid))
-        setIsAdmin(adminSnap.exists())
+        if (isMounted) setIsAdmin(adminSnap.exists())
       } catch (error) {
         logger.error('ProtectedRoute token/admin refresh failed.')
-        setTokenEmailVerified(currentUser.emailVerified)
-        setIsAdmin(false)
+        if (isMounted) {
+          setTokenEmailVerified(currentUser.emailVerified)
+          setIsAdmin(false)
+        }
       } finally {
-        setCheckingClaims(false)
+        if (isMounted) setCheckingClaims(false)
       }
     }
 
     forceCheck()
-  }, [user, reloadUser])
+
+    return () => {
+      isMounted = false
+    }
+  }, [user?.uid])
 
   const resolvedEmailVerified = tokenEmailVerified ?? emailVerified
 
@@ -77,7 +85,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 rounded-full border-2 border-brand-600/25 border-t-accent-dark animate-spin" />
-          <span className="text-sm font-medium text-brand-600">Weaving your matches...</span>
+          <span className="text-sm font-medium text-brand-600">Loading your workspace...</span>
         </div>
       </div>
     )
@@ -91,14 +99,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Two-Factor Authentication Check
   if (user && !loading) {
-    if (is2faPending) {
-      if (!is2faPage) {
-        return <Navigate to="/verify-2fa" replace />
-      }
-    } else {
-      if (is2faPage) {
-        return <Navigate to="/discover" replace />
-      }
+    if (is2faPending && !is2faPage) {
+      return <Navigate to="/verify-2fa" replace />
     }
   }
 
@@ -107,8 +109,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/verify-email" replace />
   }
 
-  // Tier 2.5: Administrators are not allowed on student routes
-  if (isAdmin) {
+  // Tier 2.5: Administrators are not allowed on student routes (except 2FA verification page)
+  if (isAdmin && !is2faPage) {
     return <Navigate to="/admin" replace />
   }
 

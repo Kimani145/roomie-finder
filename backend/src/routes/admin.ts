@@ -111,6 +111,14 @@ export const adminRoutes: FastifyPluginAsyncZod = async (app) => {
       
       await profileRepository.save(profile)
       
+      await auditService.log({
+        actorUid: request.user.uid,
+        action: status === 'banned' ? 'user_banned' : 'user_unbanned',
+        resource: `profiles/${uid}`,
+        requestId: request.id,
+        metadata: { targetUid: uid, newStatus: status },
+      })
+
       EventBus.publish(Events.PROFILE_UPDATED, { uid, changes: { status } })
       
       return { success: true, message: `User status updated to ${status}` }

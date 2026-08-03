@@ -11,7 +11,36 @@ export class ProfileRepository {
   }
 
   async save(profile: Profile): Promise<void> {
-    await this.collection.doc(profile.uid).set(profile.toJSON(), { merge: true })
+    const batch = adminDb.batch()
+
+    const profileRef = this.collection.doc(profile.uid)
+    const previewRef = adminDb.collection('profilePreviews').doc(profile.uid)
+    const userRef = adminDb.collection('users').doc(profile.uid)
+
+    const profileData = profile.toJSON()
+
+    const previewPayload: Record<string, any> = {
+      uid: profile.uid,
+      displayName: profile.displayName || '',
+      photoURL: profileData.photoURL || '',
+      role: profile.role,
+      zones: profileData.zones || [],
+      ...(profileData.bioQuote ? { bioQuote: profileData.bioQuote } : {}),
+    }
+
+    batch.set(profileRef, profileData, { merge: true })
+    batch.set(previewRef, previewPayload, { merge: true })
+    batch.set(
+      userRef,
+      {
+        role: profile.role,
+        profileCompleted: true,
+        updatedAt: new Date(),
+      },
+      { merge: true }
+    )
+
+    await batch.commit()
   }
 
   async delete(uid: string): Promise<void> {
